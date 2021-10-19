@@ -4,6 +4,14 @@
 #include <vector>
 using namespace std;
 
+/* You have a sorted array of unique elements and an unknown size. You do
+ * not have an access to the array but you can use the ArrayReader interface
+ * to access it.
+ *
+ * You are also given an integer target. Return the index k of the hidden
+ * array where secret[k] == target or return -1 otherwise.
+ */
+
 class ArrayReader {
 public:
     ArrayReader(const vector<int>& nums) {

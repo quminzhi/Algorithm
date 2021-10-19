@@ -26,17 +26,17 @@ int searchHelper(vector<int>& nums, int left, int right, int target) {
         return -1;
     }
 
-    int mid = (right + left) / 2;
-    if (nums[mid] != target) {
-        if (nums[mid] > target) {
-            return searchHelper(nums, left, mid-1, target);
+    int pivot = (right + left) / 2;
+    if (nums[pivot] != target) {
+        if (nums[pivot] > target) {
+            return searchHelper(nums, left, pivot-1, target);
         }
         else {
-            return searchHelper(nums, mid+1, right, target);
+            return searchHelper(nums, pivot+1, right, target);
         }
     }
     else {
-        return mid;
+        return pivot;
     }
 }
 

@@ -37,16 +37,16 @@ int knownSearchHelper(const ArrayReader& reader, int left, int right, int target
         return -1;
     }
 
-    int mid = (left + right) / 2;
-    if (reader.get(mid) == target) {
-        return mid;
+    int pivot = (left + right) / 2;
+    if (reader.get(pivot) == target) {
+        return pivot;
     }
     else {
-        if (reader.get(mid) > target) {
-            return knownSearchHelper(reader, left, mid-1, target);
+        if (reader.get(pivot) > target) {
+            return knownSearchHelper(reader, left, pivot-1, target);
         }
         else {
-            return knownSearchHelper(reader, mid+1, right, target);
+            return knownSearchHelper(reader, pivot+1, right, target);
         }
     }
 }
@@ -67,9 +67,9 @@ int knownSearchHelper(const ArrayReader& reader, int left, int right, int target
  *      if left is not in the legal range of array, which means there is no number left in right half of array.
  *      then return -1.
  * Recursion:
- *      1. try to find a possible middle point of array.
- *      2. if target is equal to middle value, return the index of middle point.
- *         else > if target is smaller than middle value, search in left half with knownSearchHelper.
+ *      1. try to find a possible pivot point of array.
+ *      2. if target is equal to pivot value, return the index of pivot point.
+ *         else > if target is smaller than pivot value, search in left half with knownSearchHelper.
  *              > else search in right half with unknownSearchHelper.
  */
 int unknownSearchHelper(const ArrayReader& reader, int left, int target) {
@@ -77,19 +77,19 @@ int unknownSearchHelper(const ArrayReader& reader, int left, int target) {
         return -1;
     }
 
-    int index = rand() % 10000;
-    while (reader.get(index) == INT_MAX) {
-        index /= 2;
+    int pivot = rand() % 40000;
+    while (reader.get(pivot) == INT_MAX) {
+        pivot /= 2;
     }
-    if (reader.get(index) == target) {
-        return index;
+    if (reader.get(pivot) == target) {
+        return pivot;
     }
     else {
-        if (reader.get(index) > target) {
-            return knownSearchHelper(reader, 0, index-1, target);
+        if (reader.get(pivot) > target) {
+            return knownSearchHelper(reader, 0, pivot-1, target);
         }
         else {
-            return unknownSearchHelper(reader, index+1, target);
+            return unknownSearchHelper(reader, pivot+1, target);
         }
     }
 }
@@ -120,19 +120,19 @@ int search_sol2(const ArrayReader& reader, int target) {
     }
 
     // binary search
-    int num, mid;
+    int num, pivot;
     while (left < right) {
-        mid = left + (right - left) / 2;
-        num = reader.get(mid);
+        pivot = left + (right - left) / 2;
+        num = reader.get(pivot);
         if (num == target) {
-            return mid;
+            return pivot;
         }
         else {
             if (num > target) {
-                right = mid - 1;
+                right = pivot - 1;
             }
             else {
-                left = mid + 1;
+                left = pivot + 1;
             }
         }
     }
@@ -145,19 +145,19 @@ int search_sol3(const ArrayReader& reader, int target) {
     int left = 0;
     int right = 39999; // 10^4 - 1
 
-    int num, mid;
+    int num, pivot;
     while (left <= right) {
-        mid = left + (right - left) / 2;
-        num = reader.get(mid);
+        pivot = left + (right - left) / 2;
+        num = reader.get(pivot);
         if (num == target) {
-            return mid;
+            return pivot;
         }
         else {
             if (num > target) {
-                right = mid - 1;
+                right = pivot - 1;
             }
             else {
-                left = mid + 1;
+                left = pivot + 1;
             }
         }
     }
