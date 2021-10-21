@@ -1,3 +1,12 @@
+# Table of Contents
+- [Binary Search and Array](#binarysearchandarray)
+    - [Binary Search without Known Size](#binarysearchwithoutknownsize)
+    - [Array and Pointers](#arrayandpointers)
+        - [Square Array](#squarearray)
+        - [Rotate Array](#rotatearray)
+        - [Move Zeroes](#movezeroes)
+        - [Two Sum Ordered](#twosumordered)
+        - [Reverse Words](#reversewords)
 # Binary Search and Array
 
 ## Binary Search without Known Size
@@ -90,7 +99,7 @@ Tricks:
 > Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
 > Constrains: 1 <= nums.length <= 10^4, -10^4 <= nums[i] <= 10^4, nums is sorted in non-decreasing order.
 
-What we can learn from the problem is that how to carefully design your pointers. Wether scanning from ends and go inward or from center and go outward.
+What we can learn from the problem is that how to carefully design your pointers. Either scanning from ends and go inward or from center and go outward.
 
 ```c++
 vector<int> sortedSquares_sol2(vector<int>& nums) {
@@ -179,7 +188,7 @@ Tricks:
 - lambda expression: `[capture clause](param list){ lambda body }`.
 - use STL function: `swap(a, b)` if needed.
 
-### Two Sum (Ordered)
+### Two Sum Ordered
 
 > Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number. Let these two numbers be numbers[index1] and numbers[index2] where 1 <= first < second <= numbers.length.
 > Return the indices of the two numbers, index1 and index2, as an integer array [index1, index2] of length 2.
@@ -208,7 +217,7 @@ Then there are three cases:
 - `a[left] + a[right] < target`: then we know that the left number added the maximum number is still less than target, thereby there is no matching number in the array for `a[left]`. Therefore, `left++`.
 - `a[left] + a[right] > target`: with the same logic, right number is out. Consequently, `right--`.
 
-Following are the code for the problem:
+Following is the code for the problem:
 
 ```c++
 vector<int> twoSum_sol2(vector<int>& numbers, int target) {
@@ -235,6 +244,37 @@ vector<int> twoSum_sol2(vector<int>& numbers, int target) {
 }
 ```
 
-BTW: the first method (by looking for dictionary) is a more generic model for those problems. Even if it is inorder, it also works.
+BTW: the first method (by looking for dictionary) is a more generic model for those problems. Even if it is disordered, it also works.
+
+### Reverse Words
+
+> Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+> 1 <= s.length <= 5 * 104. s contains printable ASCII characters. s does not contain any leading or trailing spaces. There is at least one word in s. All the words in s are separated by a single space.
+
+There are two things to do in the problem:
+
+1. split words from the string.
+2. reverse each word found.
+
+```c++
+string reverseWords_sol2(string s) {
+    int begin = 0;
+    for (int end = 0; end < s.size(); end++) {
+        if (s[end] == ' ') {    // one word found
+            reverse(s.begin() + begin, s.begin() + end);
+            // words are separated by a single blank space.
+            begin = end + 1;
+        }
+    }
+
+    reverse(s.begin() + begin, s.end());
+
+    return s;
+}
+```
+
+Tricks:
+
+- `reverse(iter.begin(), iter.end())`: `iter.end()` is excluded.
 
 
