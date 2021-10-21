@@ -13,9 +13,13 @@ using namespace std;
  *
  * The tests are generated such that there is exactly one solution. You may not use the same
  * element twice.
+ *
+ * Input: numbers = [2,3,4], target = 6
+ * Output: [1,3]
  */
 
-vector<int> twoSum(vector<int>& numbers, int target);
+vector<int> twoSum_sol1(vector<int>& numbers, int target);
+vector<int> twoSum_sol2(vector<int>& numbers, int target);
 
 
 #endif // TWOSUM_H

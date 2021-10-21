@@ -33,3 +33,5 @@
 
 # QT Configuration
 *.pro
+.DS_Store
+.gitignore

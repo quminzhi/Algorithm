@@ -3,9 +3,7 @@
 ## Binary Search without Known Size
 
 > Problem: You have a sorted array of unique elements and an unknown size. You do not have an access to the array but you can use the ArrayReader interface to access it.
-
 > You are also given an integer target. Return the index k of the hidden array where secret[k] == target or return -1 otherwise.
-
 > Constrains: 1 <= secret.length <= 10^4, -10^4 <= secret[i], target <= 10^4, secret is sorted in a strictly increasing order.
 
 *Keyword: unique, sorted, constrains*
@@ -180,5 +178,63 @@ Tricks:
 - `std::stable_partition` will make partition according to the lambda expression you pass.
 - lambda expression: `[capture clause](param list){ lambda body }`.
 - use STL function: `swap(a, b)` if needed.
+
+### Two Sum (Ordered)
+
+> Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number. Let these two numbers be numbers[index1] and numbers[index2] where 1 <= first < second <= numbers.length.
+> Return the indices of the two numbers, index1 and index2, as an integer array [index1, index2] of length 2.
+> The tests are generated such that there is exactly one solution. You may not use the same element twice.
+
+```bash
+Input: [-100, -10, 0, 0, 6, 18, 22, 22]  Target: 6
+Output: [3, 5]
+```
+
+There are two common methods: 1. looking for dictionary 2. two pointers (ordered)
+
+Both of methods above are O(N), but the latter does not need extra space.
+
+Since the input is in non-descending order, we assgined two pointers to the maximum and minimum number of array, leftmost and rightmost respectively.
+
+```bash
+Input: [-100, -10, 0, 0, 6, 18, 22, 22]  Target: 6
+         ^                          ^
+        left                       right
+```
+
+Then there are three cases:
+
+- `a[left] + a[right] == target`: there you go!
+- `a[left] + a[right] < target`: then we know that the left number added the maximum number is still less than target, thereby there is no matching number in the array for `a[left]`. Therefore, `left++`.
+- `a[left] + a[right] > target`: with the same logic, right number is out. Consequently, `right--`.
+
+Following are the code for the problem:
+
+```c++
+vector<int> twoSum_sol2(vector<int>& numbers, int target) {
+    int left = 0;
+    int right = numbers.size() - 1;
+
+    int sum = 0;
+    while (left < right) {
+        sum = numbers[left] + numbers[right];
+        if (sum == target) {
+            return {left+1, right+1};
+        }
+        else {
+            if (sum < target) {
+                left++;
+            }
+            else {
+                right--;
+            }
+        }
+    }
+
+    return {-1, -1};
+}
+```
+
+BTW: the first method (by looking for dictionary) is a more generic model for those problems. Even if it is inorder, it also works.
 
 
