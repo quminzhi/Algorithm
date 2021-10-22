@@ -1,3 +1,4 @@
+<!-- 
 # Table of Contents
 - [Binary Search and Array](#binarysearchandarray)
     - [Binary Search without Known Size](#binarysearchwithoutknownsize)
@@ -7,6 +8,8 @@
         - [Move Zeroes](#movezeroes)
         - [Two Sum Ordered](#twosumordered)
         - [Reverse Words](#reversewords)
+        - [Link List](#linklist)
+-->
 # Binary Search and Array
 
 ## Binary Search without Known Size
@@ -249,7 +252,7 @@ BTW: the first method (by looking for dictionary) is a more generic model for th
 ### Reverse Words
 
 > Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
-> 1 <= s.length <= 5 * 104. s contains printable ASCII characters. s does not contain any leading or trailing spaces. There is at least one word in s. All the words in s are separated by a single space.
+> Constrains: 1 <= s.length <= 5 * 104. s contains printable ASCII characters. s does not contain any leading or trailing spaces. There is at least one word in s. All the words in s are separated by a single space.
 
 There are two things to do in the problem:
 
@@ -277,4 +280,65 @@ Tricks:
 
 - `reverse(iter.begin(), iter.end())`: `iter.end()` is excluded.
 
+### Link List
+
+There are two problems here, but they have similar idea.
+
+The first is find the middle node of a node list.
+
+> Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.
+> Constrains: The number of nodes in the list is in the range [1, 100]. 1 <= Node.val <= 100.
+
+The second is remove Nth node counting from the end.
+
+> Given the head of a linked list, remove the nth node from the end of the list and return its head.
+> Constrains: The number of nodes in the list is sz. 1 <= sz <= 30. 0 <= Node.val <= 100. 1 <= n <= sz.
+
+Our method is to track key node with pointers.
+
+For instance in the second problem, we use 'end' and 'del' to track the end of node list and node to delete.
+
+```c++
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode* del = nullptr;
+    ListNode* end = head;
+    ListNode* pre = nullptr;
+
+    // TODO: find the first possible node to delete
+    int cnt = 0;
+    while (end != nullptr) {
+        cnt++;
+        end = end->next;
+        if (cnt == n) {
+            del = head;
+            break;
+        }
+    }
+
+    // TODO: probe to the rest of nodes
+    while (end != nullptr) {
+        end = end->next;
+        pre = del;
+        del = del->next;
+    }
+
+    // TODO: delete target node
+    if (del != nullptr) {
+        if (pre == nullptr) {  // delete the first node
+            head = head->next;
+            delete del;
+        }
+        else {
+            pre->next = del->next;
+            delete del;
+        }
+    }
+
+    return head;
+}
+```
+
+Tricks:
+
+- WHENEVER accessing to memory where a pointer points, CHECK if the pointer is `nullptr`.
 
