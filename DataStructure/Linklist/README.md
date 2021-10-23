@@ -227,14 +227,14 @@ There are also two ways to solve the problem which corresponding to the solution
 
 The solution with hashmap is pretty straightforward. But is there any possible to solve the problem based on the second solution?
 
-```
-#           |<--- L1 --->|<--- L2 --->|
-# List:     1     2     (3)     4     5     6
-#                        ^       Loop       |
-#                        |__________________|
-#
-# Faster player: hare advances 2 steps each time
-# Slower player: tortoise advances 1 steps each time
+```bash
+          |<--- L1 --->|<--- L2 --->|
+List:     1     2     (3)     4     5     6
+                       ^       Loop       |
+                       |__________________|
+
+Faster player: hare advances 2 steps each time
+Slower player: tortoise advances 1 steps each time
 ```
 
 Assumed: node 3 is the entrance of the loop. faster hare and slower tortoise meet at node 5. hare advance 2 steps every time, and tortoise 1 step. The loop has length of C, and the hare has run around for N times starting from intersection node (5).
@@ -281,5 +281,6 @@ int detectCycle_sol2(Node* head) {
 ```
 
 Tricks:
+
 - The power of math. OrZ
 
