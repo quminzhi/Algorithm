@@ -163,7 +163,7 @@ Link list is the first data structure where we have to dynamically manage our li
 
 ## Related Problems
 
-### Cycle Detection
+### Cycle Detection I
 
 > Given head, the head of a linked list, determine if the linked list has a cycle in it.
 > There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to. Note that pos is not passed as a parameter.
@@ -216,4 +216,70 @@ bool hasCycle_sol2(Node* head) {
 Tricks:
 
 - Sol2: faster move forward by 2 steps, so we have to check two possible nodes to see if either of them is the end node.
+
+### Cycle Detection II
+
+> Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return null.
+> There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to (0-indexed). It is -1 if there is no cycle. Note that pos is not passed as a parameter.
+> Constrains: The number of the nodes in the list is in the range [0, 10^4]. 10^5 <= Node.val <= 10^5. pos is -1 or a valid index in the linked-list.
+
+There are also two ways to solve the problem which corresponding to the solution above. Notice that half of the problem has been solved by the solution to last problem, the other half is how to locate entrance node.
+
+The solution with hashmap is pretty straightforward. But is there any possible to solve the problem based on the second solution?
+
+```
+#           |<--- L1 --->|<--- L2 --->|
+# List:     1     2     (3)     4     5     6
+#                        ^       Loop       |
+#                        |__________________|
+#
+# Faster player: hare advances 2 steps each time
+# Slower player: tortoise advances 1 steps each time
+```
+
+Assumed: node 3 is the entrance of the loop. faster hare and slower tortoise meet at node 5. hare advance 2 steps every time, and tortoise 1 step. The loop has length of C, and the hare has run around for N times starting from intersection node (5).
+
+What can we get from them:
+
+- total distance of the tortoise: L1 + L2
+- total distance of the hare: L1 + L2 + C * N
+- the total distance of hare is twice as that of tortoise: 2 * (L1 + L2) = L1 + L2 + C * N  =>  L1 = C * (N - 1) + C - L2
+    - when N = 0, L1 = -L2 (impossible)
+    - N = 1, L1 = C - L2  => L1 means: head to entrance, C - L2 means: intersection node to entrance. Great!
+    - N = 2, L1 = 2 * C - L2 == C - L2 (since its a loop!), got same conclusion.
+
+So we could use two pointers, one start from head, one from intersection node. According to the conclusion above, they will eventually meet at entrance node.
+
+```c++
+int detectCycle_sol2(Node* head) {
+    if (head == nullptr) return -1;    // no node
+
+    Node* hare = head->next;
+    if (hare == nullptr) return -1;  // one node without circle
+
+    Node* tortoise = head;
+    while (tortoise != hare) {
+        // jump two steps, so we have to check two possible nodes
+        if ((hare == nullptr) || (hare->next == nullptr)) {
+            return -1;
+        }
+        hare = hare->next->next;
+        tortoise = tortoise->next;
+    }
+
+    int steps = 0;
+    Node* p1 = head;
+    Node* p2 = hare;
+    while (p1 != p2) {
+        steps++;
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+
+    return steps;
+}
+```
+
+Tricks:
+- The power of math. OrZ
 
