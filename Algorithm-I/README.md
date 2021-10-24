@@ -9,6 +9,8 @@
         - [Two Sum Ordered](#twosumordered)
         - [Reverse Words](#reversewords)
         - [Link List](#linklist)
+    - [Slide Window](#slidewindow)
+    - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
 -->
 # Binary Search and Array
 
@@ -140,13 +142,15 @@ When comes to rotation or circulation, we have to take into consideration effect
 
 So we can enumerate all possible answers with an array which is the double of original array.
 
-```bash
-ex: original: [1, 2, 3, 5, 7]
-    enumeration: [1, 2, 3, 5, 7, 1, 2, 3, 5, 7]
-    when step=1:    [^           ^]
-         step=2:       [^           ^]
-         step=3:          [^           ^]
-         ... 
+```c++
+/**
+  * ex: original: [1, 2, 3, 5, 7]
+  *     enumeration: [1, 2, 3, 5, 7, 1, 2, 3, 5, 7]
+  * when step=1:    [^           ^]
+  *      step=2:       [^           ^]
+  *      step=3:          [^           ^]
+  * ...
+  */ 
 ```
 
 The time complexity is O(N), and space complexity is O(2N)
@@ -341,4 +345,130 @@ ListNode* removeNthFromEnd(ListNode* head, int n) {
 Tricks:
 
 - WHENEVER accessing to memory where a pointer points, CHECK if the pointer is `nullptr`.
+
+## Slide Window
+
+### Longest Substring Without Repeating Characters
+
+> Given a string s, find the length of the longest substring without repeating characters.
+> Constrains: 0 <= s.length <= 5 * 104. s consists of English letters, digits, symbols and spaces.
+
+At first glance, we have to "brute force" all possible substrings and check from longer string to short if there is repeating characters. The time complexity is O(N^3) if so.
+
+In fact, we don't have to check every substring, there are a lot of silly operations. Take 'aaaaa' as example, if I know substring 'aa' has repeating characters, then any substring that includes 'aa' as substring must have repeating characters, at least one.
+
+So there is a pretty smart way to solve the problem called slide window.
+
+```c++
+/**
+  * string: a   b   c   b   a   b   c   b   b  
+  *         ^   ^                              ^
+  *       begin end                           END
+  */
+```
+
+we define a window `[begin, end)` to detect the longest substring without repeating characters. Obviously, the length of window is `end - begin`. The philosophy here is to keep all the characters in the window unique.
+
+The algorithm for the problem is:
+
+- resolve corner cases, null string and string with single character.
+- initialize window.
+- move end until it is out of the range of the string
+    - if s[end] has the same character in window, then find it, and move begin to the next element of repeating character in the window.
+    - update max length at each iteration.
+
+```c++
+int lengthOfLongestString_sol1(const string s) {
+    if ((s.size() == 0) || (s.size() == 1)) return s.size();
+
+    int maxLength = 0;
+    int begin = 0;
+    int end = 1;
+    while (end < s.size()) {
+        // TODO: find repeating index
+        int repeatingIndex = -1;
+        for (int i = begin; i < end; i++) {
+            if (s[i] == s[end]) repeatingIndex = i;
+        }
+
+        if (repeatingIndex != -1) {
+            begin = repeatingIndex + 1;
+        }
+
+        end++;
+        // TODO: update max length
+        if ((end - begin) > maxLength) {
+            maxLength = end - begin;
+        }
+    }
+}
+```
+
+Solution 1 uses for loop to search repeating character, thereby the time complexity is O(N^2). To improve that, we are able to use `vector` or `hashmap` to buffer characters within the window.
+
+- vector buffer
+
+```c++
+int lengthOfLongestString_sol2(const string s) {
+    if ((s.size() == 0) || (s.size() == 1)) return s.size();
+
+    vector<int> notes(128, 0);
+
+    int maxLength = 0;
+    int begin = 0;
+    notes[s[begin]]++;  // !!!
+    int end = 1;
+    while (end < s.size()) {
+        // TODO: find repeating index
+        while (notes[s[end]] > 0) {
+            notes[s[begin]]--;
+            begin++;
+        }
+
+        notes[s[end]]++;
+        end++;
+
+        // TODO: update max length
+        maxLength = max(maxLength, end - begin);
+    }
+
+    return maxLength;
+}
+```
+
+- hashmap buffer
+
+```c++
+int lengthOfLongestString_sol3(const string s) {
+    if ((s.size() == 0) || (s.size() == 1)) return s.size();
+
+    unordered_map<char, int> index;
+
+    int maxLength = 0;
+    int begin = 0;
+    index[s[begin]] = 0; // !!!
+    int end = 1;
+    while (end < s.size()) {
+        // TODO: find repeating index
+        if (index.find(s[end]) != index.end()) {
+            begin = index[s[end]] + 1;
+        }
+
+        index[s[end]] = end;
+        end++;
+
+        // TODO: update max length
+        maxLength = max(maxLength, end - begin);
+    }
+
+    return maxLength;
+}
+```
+
+In general, hash map is better since we have to cover all possible characters in vector method, whereas we only cache occurred characters.
+
+Tricks:
+
+- buffer method: trade off between time and space.
+
 
