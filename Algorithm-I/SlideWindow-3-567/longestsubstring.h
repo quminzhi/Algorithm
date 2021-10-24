@@ -1,6 +1,9 @@
 #ifndef LONGESTSUBSTRING_H
 #define LONGESTSUBSTRING_H
 
+#include <string>
+using namespace std;
+
 /**
  * Given a string s, find the length of the longest substring without repeating
  * characters.
@@ -12,9 +15,6 @@
  * 0 <= s.length <= 5 * 10^4
  * s consists of English letters, digits, symbols and spaces.
  */
-
-#include <string>
-using namespace std;
 
 int lengthOfLongestString_sol1(const string s); // for loop
 int lengthOfLongestString_sol2(const string s); // vector

@@ -10,7 +10,8 @@
         - [Reverse Words](#reversewords)
         - [Link List](#linklist)
     - [Slide Window](#slidewindow)
-    - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
+        - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
+        - [Permutation in String](#permutationinstring)
 -->
 # Binary Search and Array
 
@@ -18,6 +19,7 @@
 
 > Problem: You have a sorted array of unique elements and an unknown size. You do not have an access to the array but you can use the ArrayReader interface to access it.
 > You are also given an integer target. Return the index k of the hidden array where secret[k] == target or return -1 otherwise.
+>
 > Constrains: 1 <= secret.length <= 10^4, -10^4 <= secret[i], target <= 10^4, secret is sorted in a strictly increasing order.
 
 *Keyword: unique, sorted, constrains*
@@ -102,6 +104,7 @@ Tricks:
 ### Square Array
 
 > Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
+>
 > Constrains: 1 <= nums.length <= 10^4, -10^4 <= nums[i] <= 10^4, nums is sorted in non-decreasing order.
 
 What we can learn from the problem is that how to carefully design your pointers. Either scanning from ends and go inward or from center and go outward.
@@ -134,6 +137,7 @@ Tricks:
 ### Rotate Array
 
 > Given an integer array nums sorted in non-decreasing order, return an array of the squares of each number sorted in non-decreasing order.
+>
 > Constrains: 1 <= nums.length <= 10^4, -10^4 <= nums[i] <= 10^4, nums is sorted in non-decreasing order.
 
 When comes to rotation or circulation, we have to take into consideration effective steps.
@@ -144,13 +148,13 @@ So we can enumerate all possible answers with an array which is the double of or
 
 ```c++
 /**
-  * ex: original: [1, 2, 3, 5, 7]
-  *     enumeration: [1, 2, 3, 5, 7, 1, 2, 3, 5, 7]
-  * when step=1:    [^           ^]
-  *      step=2:       [^           ^]
-  *      step=3:          [^           ^]
-  * ...
-  */ 
+ * ex: original: [1, 2, 3, 5, 7]
+ *     enumeration: [1, 2, 3, 5, 7, 1, 2, 3, 5, 7]
+ * when step=1:    [^           ^]
+ *      step=2:       [^           ^]
+ *      step=3:          [^           ^]
+ * ...
+ */ 
 ```
 
 The time complexity is O(N), and space complexity is O(2N)
@@ -158,6 +162,7 @@ The time complexity is O(N), and space complexity is O(2N)
 ### Move Zeroes
 
 > Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements. Note that you must do this in-place without making a copy of the array.
+>
 > Constrains: 1 <= nums.length <= 10^4, -2^31 <= nums[i] <= 2^31 - 1
 
 The problem teaches us how to make use of spaces we have without soliciting unnecessary memory spaces.
@@ -256,6 +261,7 @@ BTW: the first method (by looking for dictionary) is a more generic model for th
 ### Reverse Words
 
 > Given a string s, reverse the order of characters in each word within a sentence while still preserving whitespace and initial word order.
+>
 > Constrains: 1 <= s.length <= 5 * 104. s contains printable ASCII characters. s does not contain any leading or trailing spaces. There is at least one word in s. All the words in s are separated by a single space.
 
 There are two things to do in the problem:
@@ -291,11 +297,13 @@ There are two problems here, but they have similar idea.
 The first is find the middle node of a node list.
 
 > Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.
+>
 > Constrains: The number of nodes in the list is in the range [1, 100]. 1 <= Node.val <= 100.
 
 The second is remove Nth node counting from the end.
 
 > Given the head of a linked list, remove the nth node from the end of the list and return its head.
+>
 > Constrains: The number of nodes in the list is sz. 1 <= sz <= 30. 0 <= Node.val <= 100. 1 <= n <= sz.
 
 Our method is to track key node with pointers.
@@ -351,6 +359,7 @@ Tricks:
 ### Longest Substring Without Repeating Characters
 
 > Given a string s, find the length of the longest substring without repeating characters.
+>
 > Constrains: 0 <= s.length <= 5 * 104. s consists of English letters, digits, symbols and spaces.
 
 At first glance, we have to "brute force" all possible substrings and check from longer string to short if there is repeating characters. The time complexity is O(N^3) if so.
@@ -361,10 +370,10 @@ So there is a pretty smart way to solve the problem called slide window.
 
 ```c++
 /**
-  * string: a   b   c   b   a   b   c   b   b  
-  *         ^   ^                              ^
-  *       begin end                           END
-  */
+ * string: a   b   c   b   a   b   c   b   b  
+ *         ^   ^                              ^
+ *       begin end                           END
+ */
 ```
 
 we define a window `[begin, end)` to detect the longest substring without repeating characters. Obviously, the length of window is `end - begin`. The philosophy here is to keep all the characters in the window unique.
@@ -471,4 +480,284 @@ Tricks:
 
 - buffer method: trade off between time and space.
 
+### Permutation In String
+
+> Given two strings s1 and s2, return true if s2 contains a permutation of s1, or false otherwise. In other words, return true if one of s1's permutations is the substring of s2.
+>
+> 1 <= s1.length, s2.length <= 10^4. s1 and s2 consist of lowercase English letters.
+
+Our preliminary method is decomposing the problem into two subproblems:
+
+- enumerate all permutation of `s1`. (how to deal with repetition) => set
+- check if `s2` contains the given string. (how to do it efficiently, notice that the permutation of a string has equal length)
+
+For the second subproblem, we are able to use a slide window with fixed length to check if `s2` contains the given string.
+
+```c++
+bool checkInclusion_sol1(string s1, string s2) {
+    if (s2.size() < s1.size()) return false;
+
+    // TODO: get permutation strings
+    unordered_set<string> records;
+    string result;
+    permutation(s1, result, records);
+
+    // TODO: check if match
+    int begin = 0;
+    int end = s1.length();
+    bool flag = true;
+    int index = 0;
+    for (string s : records) {
+        while (end < s2.length()) {
+            for (int i = begin; i < end; i++) {
+                if (s[index] != s2[i]) {
+                    flag = false;
+                    break;
+                }
+                index++;
+            }
+            if (flag) {
+                return true;
+            }
+
+            // TODO: move forward
+            begin++;
+            end++;
+            flag = true;
+            index = 0;
+        }
+
+        // TODO: reset begin and end
+        begin = 0;
+        end = s1.length();
+    }
+
+    return false;
+}
+```
+
+Is there anything can be optimized? How about constructing two sets? One for all permutations of `s1`, and the other for all window substrings of `s2`. And we will check if intersection of set1 and set2 is `null`. 
+
+```c++
+bool checkInclusion_sol2(string s1, string s2) {
+    if (s2.size() < s1.size()) return false;
+
+    // TODO: get permutation strings
+    unordered_set<string> records_s1;
+    string result;
+    permutation(s1, result, records_s1);
+
+    // TODO: construct set2
+    unordered_set<string> records_s2;
+    int begin = 0;
+    int size = s1.size();
+    while (begin <= (s2.size() - size)) {
+        records_s2.insert(s2.substr(begin, size));
+        begin++;
+    }
+
+    // TODO: check if there is intersection
+    for (auto&& str : records_s1) {
+        if (records_s2.find(str) != records_s2.end()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+```
+
+Great! Now we are able to do some optimization for recursion. We are able to simulate recursion with queue for 'BFS' recursion, and stack for 'DFS' recursion.
+
+```c++
+bool checkInclusion_sol3(string s1, string s2) {
+    if (s2.size() < s1.size()) return false;
+
+    // TODO: construct set2
+    unordered_set<string> records_s2;
+    int begin = 0;
+    int size = s1.size();
+    while (begin <= (s2.size() - size)) {
+        records_s2.insert(s2.substr(begin, size));
+        begin++;
+    }
+
+    // TODO: search permutations and find if s2 contains it
+    class PermutationState {
+    public:
+        string left;
+        string result;
+        PermutationState(string left, string result)
+            : left(left), result(result) {}
+    };
+
+    queue<PermutationState*> buffer;
+    buffer.push(new PermutationState(s1, ""));
+    while (!buffer.empty()) {
+        PermutationState* cur = buffer.front();
+        if (cur->left.size() == 0) {
+            // Base case: find one
+            if (records_s2.find(cur->result) != records_s2.end()) {
+                return true;
+            }
+        }
+        else {
+            for (int i = 0; i < cur->left.size(); i++) {
+                // choose left[i]
+                cur->result += cur->left[i];
+                cur->left = cur->left.substr(0, i) + cur->left.substr(i+1);
+                // recursion
+                buffer.push(new PermutationState(cur->left, cur->result));
+                // unchoose left[i]
+                cur->left = cur->left.substr(0, i) + *cur->result.rbegin() + cur->left.substr(i);
+                cur->result.pop_back();
+            }
+        }
+        buffer.pop();
+        delete cur;
+    }
+
+    return false;
+}
+```
+
+But, there is a problem here that enumerating all permutation is a time-consuming task! If the length of `s1` is 10, then the number of permutations of `s1` is `10!`, which is gigantic.
+
+Obviously, brute force will result in TLE (Time Limit Error). Think of something else.
+
+How will you check whether one string is a permutation of another string? One way is to sort the string and then compare. But, Is there a better way? If one string is a permutation of another string then they must one common metric. What is that? Both strings must have same *character frequencies*, if one is permutation of another. Which data structure should be used to store frequencies?
+
+There are two ways to check if two strings have the same character frequency.
+
+- hashcode
+
+We will hit it in a method sort of like encryptic algorithm. We will predefined a private key, and calculate each substring. If any substring has the same encrypted code, then they have the same characters without taking order into consideration.
+
+```c++
+/**
+ * ex> private key:  a: 2,  b: 77, c: 193, o: 1001
+ *     s1: ab  =>  1 * 2 + 1 * b = 79
+ *     s2: aabacooc:  aa(4), ab(79), ba(79), ac(195), co(1194), oo(2002), oc(1194)
+ */
+```
+
+By comparing encrypted code, we are able to check if two strings have the same character frequency.
+
+```c++
+/**
+ *     How to calcualte encrypted code of substrings efficiently?
+ *     s2: a  a  b  a  c  o  o  c
+ *         ^     ^
+ *        begin end (code = 4)
+ *
+ */
+```
+
+As window slides from left to right, we only need subtract the value of the frist character and add the value of the last character. In such way we are able to avoid repeating calculations.
+
+```c++
+bool checkInclusion_sol4(string s1, string s2) {
+    if (s2.size() < s1.size()) return false;
+
+    unordered_map<char, int> privateKey = {
+        {'a', 2}, {'b', 77}, {'c', 56}, {'d', 101}, {'e', 89}, {'f', 54},
+        {'g', 171}, {'h', 133}, {'i', 179}, {'j', 203}, {'k', 301}, {'l', 111},
+        {'m', 511}, {'n', 607}, {'o', 1021}, {'p', 1891}, {'q', 1099}, {'r', 1999},
+        {'s', 2117}, {'t', 2738}, {'u', 2919}, {'v', 3113}, {'w', 3573}, {'x', 4011},
+        {'y', 4193}, {'z', 5111}
+    };
+
+    int code_s1 = 0;
+    for (char ch : s1) {
+        code_s1 += privateKey[ch];
+    }
+
+    int begin = 0;
+    int end = s1.size();
+    int code_s2 = 0;
+    for (int i = begin; i < end; i++) {
+        code_s2 += privateKey[s2[i]];
+    }
+    while (end <= s2.size()) {
+        if (code_s2 == code_s1) {
+            return true;
+        }
+
+        code_s2 -= privateKey[s2[begin]];
+        begin++;
+        code_s2 += privateKey[s2[end]];
+        end++;
+    }
+
+    return false;
+}
+```
+
+- map (vector to simulate)
+
+Solution 5 will use hashmap (or vector) to record the frequency of characters in the window. The idea is similar to that above. Also, we will use `numOfMatch` to count the number of characters whose frequency matches in both strings.
+
+```c++
+bool checkInclusion_sol5(string s1, string s2) {
+    if (s2.size() < s1.size()) return false;
+
+    const int SIZE_OF_CHARACTERS = 26;
+    vector<int> s1map(SIZE_OF_CHARACTERS);
+    vector<int> s2map(SIZE_OF_CHARACTERS);
+    for (int i = 0; i < s1.size(); i++) {
+        s1map[s1[i] - 'a']++;
+        s2map[s2[i] - 'a']++;
+    }
+
+    int numOfMatch = 0;
+    for (int i = 0; i < SIZE_OF_CHARACTERS; i++) {
+        if (s1map[i] == s2map[i]) {
+            numOfMatch++;
+        }
+    }
+
+    // TODO: slide window and update numOfMatch
+    int begin = 0;
+    int end = s1.size();
+    while (end <= s2.size()) {
+        if (numOfMatch == SIZE_OF_CHARACTERS) {
+            return true;
+        }
+        // TODO: dequeue (en-window)
+        if (s1map[s2[begin] - 'a'] == s2map[s2[begin] - 'a']) {
+            // if character is match before
+            numOfMatch--;
+        }
+        else {
+            if (s1map[s2[begin] - 'a'] == s2map[s2[begin] - 'a'] - 1) {
+                // whether match if begin character subtract 1, that's what will happen.
+                numOfMatch++;
+            }
+        }
+        s2map[s2[begin] - 'a']--;
+        begin++;
+        // TODO: enqueue (de-window)
+        if (s1map[s2[end] - 'a'] == s2map[s2[end] - 'a']) {
+            // if character is match before
+            numOfMatch--;
+        }
+        else {
+            if (s1map[s2[end] - 'a'] == s2map[s2[end] - 'a'] + 1) {
+                // whether match if end character add 1.
+                numOfMatch++;
+            }
+        }
+        s2map[s2[end] - 'a']++;
+        end++;
+    }
+
+    return false;
+}
+```
+
+Tricks:
+
+- map: when key is able to be mapped as consecutive integer, we are able to use vector to simulate a map.
+- recursion: queue can be used to simulate 'BFS' recursion, and stack used to simulate 'DFS'.
+- Standard Template Library (STL): learn to how to utilize some useful function in STL, such as `sort(it_begin, it_end)`.
 
