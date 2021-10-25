@@ -263,7 +263,7 @@ bool checkInclusion_sol4(string s1, string s2) {
  * idea is similar to that above.
  *
  * Also, we will use 'numOfMatch' to count the number of characters whose frequency matches in both
- * strings. 'targetNum' indicates how many characters should match.
+ * strings.
  *
  * Some details:
  * 1. when both substrings will match? if (numOfMatch == SIZE_OF_CHARACTERS), there you go.

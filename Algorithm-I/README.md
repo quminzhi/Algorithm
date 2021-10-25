@@ -12,6 +12,8 @@
     - [Slide Window](#slidewindow)
         - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
         - [Permutation in String](#permutationinstring)
+- [BFS and DFS](bfsanddfs)
+    - [Flood Fill]
 -->
 # Binary Search and Array
 
@@ -760,4 +762,95 @@ Tricks:
 - map: when key is able to be mapped as consecutive integer, we are able to use vector to simulate a map.
 - recursion: queue can be used to simulate 'BFS' recursion, and stack used to simulate 'DFS'.
 - Standard Template Library (STL): learn to how to utilize some useful function in STL, such as `sort(it_begin, it_end)`.
+
+## BFS and DFS
+
+### Flood Fill
+
+> An image is represented by an `m x n` integer grid image where `image[i][j]` represents the pixel value of the image.
+> You are also given three integers `sr`, `sc`, and `newColor`. You should perform a flood fill on the image starting from the pixel `image[sr][sc]`.
+> To perform a flood fill, consider the starting pixel, plus any pixels connected 4-directionally to the starting pixel of the same color as the starting pixel, plus any pixels connected 4-directionally to those pixels (also with the same color), and so on. Replace the color of all of the aforementioned pixels with `newColor`.
+> Return the modified image after performing the flood fill.
+>
+> Constrains: m == image.length. n == image[i].length. 1 <= m, n <= 50. 0 <= image[i][j], newColor < 216. 0 <= sr < m. 0 <= sc < n.
+
+The aim to put the answer for this problem here is to show how to use `queue` to simulate BFS.
+
+- Recursion
+
+```c++
+void floodFillHelper1(vector< vector<int> >& image, vector< vector<int> >& visited,
+                      int sr, int sc, int& sourceVal, int& newColor) {
+    if ((sr >= 0) && (sr < image.size()) &&
+        (sc >= 0) && (sc < image[0].size()) &&
+        (image[sr][sc] == sourceVal) &&
+        (visited[sr][sc] == 0)) {
+        image[sr][sc] = newColor;
+        visited[sr][sc] = 1;
+
+        floodFillHelper1(image, visited, sr - 1, sc, sourceVal, newColor); // up
+        floodFillHelper1(image, visited, sr + 1, sc, sourceVal, newColor); // down
+        floodFillHelper1(image, visited, sr, sc - 1, sourceVal, newColor); // left
+        floodFillHelper1(image, visited, sr, sc + 1, sourceVal, newColor); // right
+    }
+}
+
+vector< vector<int> > floodFill_sol1(vector< vector<int> >& image, int sr, int sc, int newColor) {
+    int sourceVal = image[sr][sc];
+    int newVal = newColor;
+    if (sourceVal == newVal) return image;
+    vector< vector<int> > visited(image.size(), vector<int>(image[0].size(), 0));
+
+    floodFillHelper1(image, visited, sr, sc, sourceVal, newVal);
+
+    return image;
+}
+```
+
+- Queue Simulation
+
+```c++
+vector<vector<int>> floodFill_sol2(vector<vector<int>>& image,
+                                   int sr, int sc, int newColor) {
+    class QueueState {
+    public:
+        int sr; int sc;
+        QueueState(int sr, int sc) {
+            this->sr = sr;
+            this->sc = sc;
+        }
+    };
+
+    int sourceVal = image[sr][sc];
+    if (sourceVal == newColor) return image;
+    vector< vector<int> > visited(image.size(), vector<int>(image[0].size(), 0));
+
+    queue<QueueState> buffer;
+    buffer.push(QueueState(sr, sc));
+    while (!buffer.empty()) {
+        QueueState cur = buffer.front();
+        buffer.pop();
+        if ((cur.sr >= 0) && (cur.sr < image.size()) &&
+            (cur.sc >= 0) && (cur.sc < image[0].size()) &&
+            (image[cur.sr][cur.sc] == sourceVal) &&
+            (visited[cur.sr][cur.sc] == 0)) {
+                image[cur.sr][cur.sc] = newColor;
+                visited[cur.sr][cur.sc] = 1;
+
+                buffer.push(QueueState(cur.sr + 1, cur.sc));
+                buffer.push(QueueState(cur.sr - 1, cur.sc));
+                buffer.push(QueueState(cur.sr, cur.sc - 1));
+                buffer.push(QueueState(cur.sr, cur.sc + 1));
+            }
+    }
+    return image;
+}
+```
+
+Using `queue` instead of recursion brings many benefits, among which the most obvious one is we do not need to pass 'global' variables, improving resulting performance.
+
+Tricks:
+
+- How to initialize vector of vector: `vector< vector<int> > visited(image.size(), vector<int>(image[0].size(), 0))`
+- Treat two dimensional vector as a vector of vector: row number = `image.size()`, col number = `image[0].size()`.
 
