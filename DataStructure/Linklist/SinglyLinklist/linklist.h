@@ -1,10 +1,13 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 
-typedef struct Node {
+class Node {
+public:
     int val = 0;
-    struct Node* next = nullptr;
-} Node;
+    Node* next = nullptr;
+};
+
+bool operator==(Node nodeA, Node nodeB);
 
 class LinkList
 {

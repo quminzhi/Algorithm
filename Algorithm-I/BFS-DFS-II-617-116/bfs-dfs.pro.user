@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 5.0.0, 2021-10-05T06:59:39. -->
+<!-- Written by QtCreator 5.0.0, 2021-10-25T18:38:49. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -235,15 +235,14 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">RenameMe2</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/minzhiqu/Desktop/Study/MIT/CS106/Exercise/sample-project-106b/RenameMe.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/Users/minzhiqu/Desktop/Study/MIT/CS106/Exercise/sample-project-106b/RenameMe.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/Users/minzhiqu/Desktop/Study/Leetcode/Algorithm-I/BFS-DFS-II-617-116/bfs-dfs.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/Users/minzhiqu/Desktop/Study/Leetcode/Algorithm-I/BFS-DFS-II-617-116/bfs-dfs.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/minzhiqu/Desktop/Study/MIT/CS106/Exercise/sample-project-106b/RenameMe.app/Contents/MacOS</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/minzhiqu/Desktop/Study/Leetcode/Algorithm-I/BFS-DFS-II-617-116/bfs-dfs.app/Contents/MacOS</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

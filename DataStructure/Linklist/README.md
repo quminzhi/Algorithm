@@ -284,3 +284,37 @@ Tricks:
 
 - The power of math. OrZ
 
+### Intersection of Two LinkLists
+
+> Given the heads of two singly linked-lists headA and headB, return the node at which the two lists intersect. If the two linked lists have no intersection at all, return null.
+
+This problem has a very intriguing solution.
+
+```c++
+/**
+ *            a
+ * listA: ---------|
+ *                 |--------------
+ * listB:     -----|      c
+ *              b
+ * Say a is the length of part exclusive for listA, b is the length of part exclusive for
+ * listB, and c the length of common part.
+ */
+```
+
+`pA` will start from the beginning of a -> c -> b (come to the begin of c), `pB` will start from the beginning of b -> c -> a (come to the begin of c). And finally they will meet at the beginning of c. Great!
+
+```c++
+Node* getIntersectionNode_sol4(Node* headA, Node* headB) {
+    Node* pA = headA;
+    Node* pB = headB;
+    while (pA != pB) {
+        pA = (pA == nullptr) ? headB : pA->next;
+        pB = (pB == nullptr) ? headA : pB->next;
+    }
+
+    return pA;
+}
+```
+Notice: if listA and listB have no common node, pA will go a and b, and pB will go b and a. Particularly, at the same time when they finish the first iteration they will both become nullptr, which will end while loop.
+

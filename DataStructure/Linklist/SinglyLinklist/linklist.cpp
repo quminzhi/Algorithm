@@ -2,6 +2,10 @@
 #include <assert.h>
 #include "testing/SimpleTest.h"
 
+bool operator==(Node nodeA, Node nodeB) {
+    return ((&nodeA == &nodeB) || ((nodeA.val == nodeB.val) && (nodeA.next) == (nodeB.next)));
+}
+
 LinkList::LinkList() : head(nullptr) {}
 
 bool LinkList::isEmpty() const {
