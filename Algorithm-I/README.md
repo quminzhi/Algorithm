@@ -15,6 +15,7 @@
 - [BFS and DFS](bfsanddfs)
     - [Flood Fill](floodfill)
     - [Max Area of Island](maxareaofisland)
+    - [Merge Trees](mergetrees)
 -->
 # Binary Search and Array
 
@@ -908,4 +909,54 @@ int maxAreaOfIsland_sol1(vector< vector<int> >& grid) {
 Tricks:
 
 - `visited[]` in case of deadlock.
+
+### Merge Trees
+
+> You are given two binary trees root1 and root2.
+> 
+> Imagine that when you put one of them to cover the other, some nodes of the two trees are overlapped while the others are not. You need to merge the two trees into a new binary tree. The merge rule is that if two nodes overlap, then sum node values up as the new value of the merged node. Otherwise, the NOT null node will be used as the node of the new tree.
+>
+> Return the merged tree.
+>
+> Constrains: The number of nodes in both trees is in the range [0, 2000]. -10^4 <= Node.val <= 10^4.
+
+The key to solve problem is how to traverse two trees in parallel.
+
+- if root1 is nullptr, then then combined subtree will be replaced by root2, and vice versa.
+- if root1 and root2 both are non-nullptr, then add values up and traverse concurrently left and right subtrees.
+
+```c++
+TreeNode* mergeTrees_sol2(TreeNode* root1, TreeNode* root2) {
+    if (root1 == nullptr) {
+        return root2;
+    }
+    if (root2 == nullptr) {
+        return root1;
+    }
+
+    root1->val += root2->val;
+    root1->left = mergeTrees_sol2(root1->left, root2->left);
+    root1->right = mergeTrees_sol2(root1->right, root2->right);
+
+    return root1;
+}
+```
+
+Tricks:
+
+- The following algorithm for constructing tree from the result of traverse in level order only WORKS for COMPLETE binary tree.
+
+```c++
+TreeNode* constructTreeInLevelOrder(TreeNode* root, const vector<int>& res, int i) {
+    static int NULL_VAL = 10001;
+    // TODO: if there is possible node, then update node.
+    if ((i < res.size()) && (res[i] != NULL_VAL)) {
+        root = new TreeNode(res[i]);
+        root->left = constructTreeInLevelOrder(root->left, res, 2 * i + 1);
+        root->right = constructTreeInLevelOrder(root->right, res, 2 * i + 2);
+    }
+
+    return root;
+}
+```
 
