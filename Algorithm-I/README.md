@@ -16,6 +16,7 @@
     - [Flood Fill](floodfill)
     - [Max Area of Island](maxareaofisland)
     - [Merge Trees](mergetrees)
+    - [Connect Tree](connecttree)
 -->
 # Binary Search and Array
 
@@ -959,4 +960,87 @@ TreeNode* constructTreeInLevelOrder(TreeNode* root, const vector<int>& res, int 
     return root;
 }
 ```
+
+### Connect Tree
+
+> You are given a perfect binary tree where all leaves are on the same level, and every parent has two children. The binary tree has the following definition.
+> Populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+> Initially, all next pointers are set to NULL.
+
+```c++
+struct Node {
+  int val;
+  Node *left;
+  Node *right;
+  Node *next;
+}
+```
+
+> Constrains: The number of nodes in the tree is in the range [0, 212 - 1]. -1000 <= Node.val <= 1000.
+
+There are two ways to solve the problem.
+
+- BFS
+
+```
+Node* connect_sol2(Node* root) {
+    class QueueNode {
+    public:
+        int level;
+        Node* node;
+
+        QueueNode(int level, Node* node) : level(level), node(node) {}
+    };
+
+    queue<QueueNode> que;
+    if (root == nullptr) return root;
+    que.push(QueueNode(0, root));
+    while (!que.empty()) {
+        QueueNode cur = que.front();
+        que.pop();
+        QueueNode next = que.front();
+        if (cur.level == next.level) {
+            cur.node->next = next.node;
+        }
+        if (cur.node->left != nullptr) {
+            que.push(QueueNode(cur.level + 1, cur.node->left));
+        }
+        if (cur.node->right != nullptr) {
+            que.push(QueueNode(cur.level + 1, cur.node->right));
+        }
+    }
+
+    return root;
+}
+```
+
+- Recursion: connect subtrees
+
+The key here is that we need to connect the right edge of left subtree to the left edge of right subtree.
+
+```c++
+Node* connect_sol1(Node* root) {
+    if ((root != nullptr) && (root->left != nullptr)) {
+        // TODO: connect my left subtree's right edge to my right subtree's left edge
+        Node* leftSubTree = root->left;
+        Node* rightSubTree = root->right;
+        while ((leftSubTree != nullptr) &&
+               (rightSubTree != nullptr)) {
+            leftSubTree->next = rightSubTree;
+            leftSubTree = leftSubTree->right;
+            rightSubTree = rightSubTree->left;
+        }
+
+        root->left = connect_sol1(root->left);
+        root->right = connect_sol1(root->right);
+    }
+
+    return root;
+}
+```
+
+Tricks:
+
+- Think of tree problems from different perspectives, both node and subtree. From node, we consider the connection between levels. We take into consideration recursion from subtree perspective.
+
 
