@@ -17,6 +17,7 @@
     - [Max Area of Island](maxareaofisland)
     - [Merge Trees](mergetrees)
     - [Connect Tree](connecttree)
+    - [Update Matrix](updatematrix)
 -->
 # Binary Search and Array
 
@@ -1043,4 +1044,118 @@ Tricks:
 
 - Think of tree problems from different perspectives, both node and subtree. From node, we consider the connection between levels. We take into consideration recursion from subtree perspective.
 
+### Update Matrix
+
+> Given an m x n binary matrix mat, return the distance of the nearest 0 for each cell.
+> 
+> The distance between two adjacent cells is 1.
+> 
+> Constrains: m == mat.length. n == mat[i].length. 1 <= m, n <= 10^4. 1 <= m * n <= 10^4. mat[i][j] is either 0 or 1. There is at least one 0 in mat.
+
+There are two ways to solve the problem:
+
+- BFS and Greedy Algorithm
+
+Use a queue to store cells that can be used to update their neighbors, sort of like Dijkstra Algorithm.
+```c++
+vector< vector<int> > updateMatrix_sol2(vector< vector<int> >& mat) {
+    class QueueState {
+    public:
+        int i;
+        int j;
+        QueueState(int row, int col) : i(row), j(col) {};
+    };
+    queue<QueueState> que;
+    for (int i = 0; i < mat.size(); i++) {
+        for (int j = 0; j < mat[0].size(); j++) {
+            if (mat[i][j] == 0) {
+                que.push(QueueState(i, j));
+            }
+            else {
+                mat[i][j] = INT_MAX;
+            }
+        }
+    }
+
+    int shorter = 0;
+    while (!que.empty()) {
+        QueueState cur = que.front();
+        que.pop();
+        // TODO: try to update my neighbors
+        shorter = mat[cur.i][cur.j] + 1;
+        if ((cur.i + 1 < mat.size()) && (shorter < mat[cur.i+1][cur.j])) {
+            mat[cur.i+1][cur.j] = shorter;
+            que.push(QueueState(cur.i+1, cur.j));
+        }
+        if ((cur.i - 1 >= 0) && (shorter < mat[cur.i-1][cur.j])) {
+            mat[cur.i-1][cur.j] = shorter;
+            que.push(QueueState(cur.i-1, cur.j));
+        }
+        if ((cur.j + 1 < mat[0].size()) && (shorter < mat[cur.i][cur.j+1])) {
+            mat[cur.i][cur.j+1] = shorter;
+            que.push(QueueState(cur.i, cur.j+1));
+        }
+        if ((cur.j - 1 >= 0) && (shorter < mat[cur.i][cur.j-1])) {
+            mat[cur.i][cur.j-1] = shorter;
+            que.push(QueueState(cur.i, cur.j-1));
+        }
+    }
+
+    return mat;
+}
+```
+
+- Dynamic Programming
+
+One important fact: the shortest path to 0 will hit two possibles
+
+- `mat[i][j]` is 0 itself.
+- `mat[i][j]` has a shortest path passing one of its 4-dimentional neighbors. Thereby, `dist[i][j] = min(d[i][j], d[i-1][j] + 1, d[i][j-1] + 1, d[i+1][j] + 1, d[i-1][j] +1)`.
+
+And one property: left-top dependency and right-bottom dependency.
+
+```c++
+vector< vector<int> > updateMatrix_sol3(vector< vector<int> >& mat) {
+    int rows = mat.size();
+    int cols = mat[0].size();
+    if (rows == 0) return mat;
+    int MAX_VAL = 10001;
+    vector< vector<int> > dist(rows, vector<int>(cols, MAX_VAL));
+
+    // TODO: check for left and top
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (mat[i][j] == 0) {
+                dist[i][j] = 0;
+            }
+            else {
+                if (i > 0) {
+                    dist[i][j] = min(dist[i][j], dist[i-1][j] + 1);
+                }
+                if (j > 0) {
+                    dist[i][j] = min(dist[i][j], dist[i][j-1] + 1);
+                }
+            }
+        }
+    }
+
+    // TODO: check for right and bottom
+    for (int i = rows - 1; i >= 0; i--) {
+        for (int j = cols - 1; j >= 0; j--) {
+            if (i + 1 < rows) {
+                dist[i][j] = min(dist[i][j], dist[i+1][j] + 1);
+            }
+            if (j + 1 < cols) {
+                dist[i][j] = min(dist[i][j], dist[i][j+1] + 1);
+            }
+        }
+    }
+
+    return dist;
+}
+```
+
+Tricks:
+
+- Making use of surrounding information.
 
