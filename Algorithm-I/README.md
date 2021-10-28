@@ -13,13 +13,16 @@
         - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
         - [Permutation in String](#permutationinstring)
 - [BFS and DFS](bfsanddfs)
-    - [Flood Fill](floodfill)
-    - [Max Area of Island](maxareaofisland)
-    - [Merge Trees](mergetrees)
-    - [Connect Tree](connecttree)
-    - [Update Matrix](updatematrix)
+    - [Flood Fill](#floodfill)
+    - [Max Area of Island](#maxareaofisland)
+    - [Merge Trees](#mergetrees)
+    - [Connect Tree](#connecttree)
+    - [Update Matrix](#updatematrix)
 - [Recursion and Backtracking]
-    - [Reverse LinkList](reverselinklist)
+    - [Reverse LinkList](#reverselinklist)
+    - [Combination](#combination)
+    - [Permutation](#permutation)
+    - [Letter Case Permutation](#lettercasepermutation)
 -->
 # Binary Search and Array
 
@@ -1213,4 +1216,100 @@ ListNode* mergeTwoLists_sol2(ListNode* l1, ListNode* l2) {
 }
 ```
 
+### Combination
+
+> Given two integers n and k, return all possible combinations of k numbers out of the range [1, n].
+>
+> Constrains: 1 <= n <= 20. 1 <= k <= n.
+
+```c++
+void combineHelper(int n, int k, vector<int>& selected, vector< vector<int> >& result) {
+    if (n < k) return;
+    if (k == 0) {
+        result.push_back(selected);
+        return;
+    }
+
+    // TODO: choose and unchoose
+    // not choose
+    combineHelper(n - 1, k, selected, result);
+    // choose
+    selected.push_back(n);
+    combineHelper(n - 1, k - 1, selected, result);
+    selected.pop_back();
+}
+```
+
+### Permutation
+
+> Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.
+>
+> 1 <= nums.length <= 6. -10 <= nums[i] <= 10. All the integers of nums are unique.
+
+```c++
+void permuteHelper(vector<int>& choices, vector<int>& selected,
+                   vector< vector<int> >& result) {
+    if (choices.empty()) {
+        result.push_back(selected);
+        return;
+    }
+
+    int selectedNum = 0;
+    for (int i = 0; i < choices.size(); i++) {
+        // choose
+        selectedNum = choices[i];
+        choices.erase(choices.begin() + i);
+        selected.push_back(selectedNum);
+        permuteHelper(choices, selected, result);
+        // unchoose
+        choices.insert(choices.begin() + i, selectedNum);
+        selected.pop_back();
+    }
+}
+```
+
+### Letter Case Permutation
+
+> Given a string s, we can transform every letter individually to be lowercase or uppercase to create another string.
+>
+> Return a list of all possible strings we could create.
+>
+> s will be a string with length between 1 and 12. s will consist only of letters or digits.
+
+Combinations, permutations and its variant like this problem are paradigm for this kind of problem. Notice that we have to keep some environment variable unchanged in same level of recursion, meaning `choose` and restore environment by `unchoose`.
+
+```c++
+void letterCasePermutationHelper(string& s, string& soFar, vector<string>& result) {
+    if (s.length() == 0) {
+        result.push_back(soFar);
+        return;
+    }
+
+    char cur = s[0];
+    s = s.substr(1);
+    if (isdigit(cur)) {
+        soFar.push_back(cur);
+        letterCasePermutationHelper(s, soFar, result);
+        soFar.pop_back();
+    }
+    else {
+        // current character is not digit, two choises: toupper or tolower
+        // choose to upper
+        soFar.push_back(toupper(cur));
+        letterCasePermutationHelper(s, soFar, result);
+        soFar.pop_back();
+        // choose to lower
+        soFar.push_back(tolower(cur));
+        letterCasePermutationHelper(s, soFar, result);
+        soFar.pop_back();
+    }
+    s.insert(s.begin(), cur);
+    return;
+}
+```
+
+Tricks:
+
+- `vector.erase(iter)`: delete v[1] is same as `v.erase(iter + 1)`.
+- `string.substr(start, number)`: s.str(1) means get rid of the first character from the string.
 
