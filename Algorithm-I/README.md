@@ -18,6 +18,8 @@
     - [Merge Trees](mergetrees)
     - [Connect Tree](connecttree)
     - [Update Matrix](updatematrix)
+- [Recursion and Backtracking]
+    - [Reverse LinkList](reverselinklist)
 -->
 # Binary Search and Array
 
@@ -1158,4 +1160,57 @@ vector< vector<int> > updateMatrix_sol3(vector< vector<int> >& mat) {
 Tricks:
 
 - Making use of surrounding information.
+
+## Recursion and Backtracking
+
+### Reverse LinkList
+
+> Given the head of a singly linked list, reverse the list, and return the reversed list.
+> 
+> Constrains: The number of nodes in the list is the range [0, 5000]. -5000 <= Node.val <= 5000.
+
+The purpose of this problem is to give us an intuition on how recursion is used to solve problem. Keep in mind that it includes two stages, go down deeply and back up.
+
+Recursion has a function sort of like "Hey, let me take a break, and do things after me first.". Figure out what the return value means in the recursion process.
+
+```c++
+ListNode* reverseList_sol3(ListNode* head) {
+    if ((head == nullptr) || (head->next == nullptr)) {
+        return head;
+    }
+
+    // TODO: reverse the rest
+    ListNode* newHead = reverseList_sol3(head->next);
+
+    // TODO: reverse myself
+    ListNode* nextNode = head->next;
+    nextNode->next = head;
+    head->next = nullptr;
+
+    return newHead;
+}
+```
+
+### Merge Two Sorted LinkList
+
+> Merge two sorted linked lists and return it as a sorted list. The list should be made by splicing together the nodes of the first two lists.
+>
+> Constrains: The number of nodes in both lists is in the range [0, 50]. -100 <= Node.val <= 100. Both l1 and l2 are sorted in non-decreasing order.
+
+The aim of the problem is to show how clean the recursion algorithm is and how to use it to solve problem recursively that has similar structure.
+
+```c++
+ListNode* mergeTwoLists_sol2(ListNode* l1, ListNode* l2) {
+    if (l1 == nullptr) return l2;
+    if (l2 == nullptr) return l1;
+
+    if (l1->val <= l2->val) {
+        return new ListNode(l1->val, mergeTwoLists_sol2(l1->next, l2));
+    }
+    else {
+        return new ListNode(l2->val, mergeTwoLists_sol2(l1, l2->next));
+    }
+}
+```
+
 
