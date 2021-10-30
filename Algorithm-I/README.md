@@ -12,7 +12,7 @@
     - [Slide Window](#slidewindow)
         - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
         - [Permutation in String](#permutationinstring)
-- [BFS and DFS](bfsanddfs)
+- [BFS and DFS](#bfsanddfs)
     - [Flood Fill](#floodfill)
     - [Max Area of Island](#maxareaofisland)
     - [Merge Trees](#mergetrees)
@@ -27,6 +27,9 @@
     - [Climbing Stairs](#climbingstairs)
     - [House Robber](#houserobber)
     - [Triangle](#triangle)
+- [Bitwise Manipulation](#bitwisemanipulation)
+    - [Power of Two](#poweroftwo)
+    - [Hamming Weight](#hammingweight)
 -->
 # Binary Search and Array
 
@@ -1502,4 +1505,89 @@ int minimumTotal(vector< vector<int> >& triangle) {
 }
 ```
 
+## Bitwise Manipulation
 
+### Power of Two
+
+> Given an integer n, return true if it is a power of two. Otherwise, return false.
+>
+> An integer n is a power of two, if there exists an integer x such that n == 2^x.
+>
+> Constrains: -2^31 <= n <= 2^31 - 1.
+
+The problem can be solved recursively, but today we will solve by bitwise manipulation.
+
+Notice that `x = n & (-n)`, then `x` and `n` has only one one-bit in common.
+
+```bash
+ex>  13:   01101
+    -13: & 10011
+    ------------
+      x:   00001
+```
+
+For power of 2 number `n = n & (-n)`.
+
+```bash
+ex>  8:   01000
+    -8: & 11000
+    -----------
+     x:   01000 == n
+```
+
+So we get an important property of power of 2 number, `n = n & (-n)`.
+
+```c++
+bool isPowerOfTwo_sol3(int n) {
+    if (n == 0) return false;
+    long x = n;
+    return (x & -x) == x;
+}
+```
+
+Tricks:
+
+- `n == n & (-n)` for power of two numbers.
+
+### Hamming Weight
+
+> Write a function that takes an unsigned integer and returns the number of '1' bits it has (also known as the Hamming weight).
+>
+> Constrains: The input must be a binary string of length 32.
+
+There are two ways to do that.
+
+- Mask: initialize mask to be `1(0000000001)`, and check one by one bit.
+
+```c++
+int hammingWeight_sol1(uint32_t n) {
+    uint32_t mask = 1;
+    int count = 0;
+    for (int i = 0; i < 32; i++) {
+        if ((n & mask) != 0) {
+            count++;
+        }
+        mask <<= 1;
+    }
+
+    return count;
+}
+```
+
+- Use `n & (n - 1)`: will flip the least significant 1-bit to be 0. Flip n until `n == 0`.
+
+```c++
+int hammingWeight_sol3(u_int32_t n) {
+    int count = 0;
+    while (n != 0) {
+        count++;
+        n = (n & (n-1));
+    }
+
+    return count;
+}
+```
+
+Tricks:
+
+- `n & (n - 1)` can be used to flip the least significant 1-bit.
