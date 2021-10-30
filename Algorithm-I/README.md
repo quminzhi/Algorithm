@@ -26,6 +26,7 @@
 - [Dynamic Programming](#dynamicprogramming)
     - [Climbing Stairs](#climbingstairs)
     - [House Robber](#houserobber)
+    - [Triangle](#triangle)
 -->
 # Binary Search and Array
 
@@ -1458,5 +1459,47 @@ int rob_sol3(vector<int>& nums) {
 Trick:
 
 - Good abstraction is VERY important.
+
+### Triangle
+
+> Given a triangle array, return the minimum path sum from top to bottom.
+>
+> For each step, you may move to an adjacent number of the row below. More formally, if you are on index i on the current row, you may move to either index i or index i + 1 on the next row.
+>
+> 1 <= triangle.length <= 200. triangle[0].length == 1. triangle[i].length == triangle[i - 1].length + 1. -104 <= `triangle[i][j]` <= 104.
+
+Again, the best way to solve decision problem, if possible, is dynamic programming.
+
+```c++
+minPath(cur) = min {
+    minPath(cur->left) + pathFrom(cur->left),
+    minPath(cur->right) + pathFrom(cur->right)
+}
+```
+
+```c++
+int minimumTotal(vector< vector<int> >& triangle) {
+    if (triangle.size() == 0) return 0;
+
+    vector< vector<int> > val = triangle;
+
+    // TODO: initialize base case
+    int bottom = triangle.size() - 1;
+    for (int i = 0; i < triangle[bottom].size(); i++) {
+        triangle[bottom][i] = 0;
+    }
+
+    // TODO: rendering from bottom to top
+    for (int row = triangle.size() - 2; row >= 0; row--) {
+        for (int col = 0; col < triangle[row].size(); col++) {
+            int leftPath = triangle[row+1][col] + val[row+1][col];
+            int rightPath = triangle[row+1][col+1] + val[row+1][col+1];
+            triangle[row][col] = min(leftPath, rightPath);
+        }
+    }
+
+    return triangle[0][0] + val[0][0];
+}
+```
 
 
