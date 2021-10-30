@@ -23,6 +23,9 @@
     - [Combination](#combination)
     - [Permutation](#permutation)
     - [Letter Case Permutation](#lettercasepermutation)
+- [Dynamic Programming](#dynamicprogramming)
+    - [Climbing Stairs](#climbingstairs)
+    - [House Robber](#houserobber)
 -->
 # Binary Search and Array
 
@@ -1312,4 +1315,148 @@ Tricks:
 
 - `vector.erase(iter)`: delete v[1] is same as `v.erase(iter + 1)`.
 - `string.substr(start, number)`: s.str(1) means get rid of the first character from the string.
+
+## Dynamic Programming
+
+### Climbing Stairs
+
+> You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+>
+> Constrains: 1 <= n <= 45
+
+At first glance, it is a decision problem, which can be solved recursively. f(n) = f(n-1) + f(n-2), where f is defined as the number of distinct ways that I can climb to the top.
+
+Base case:
+
+- if n equals 1, then there is 1 way (f(2) = f(1) + f(0)). (definition)
+- if n equals 1, then there is 1 way to do that.
+
+Recursion:
+
+- the number of ways to the top of n stairs is equal to that of n-1 stairs with 1 step forward plus that of n-2 stairs with 2 step forward.
+
+```c++
+int climbStairsHelper(int n, unordered_map<int, int>& buffer) {
+    if ((n == 0) || (n == 1)) return 1;
+
+    if (buffer.find(n) != buffer.end()) {
+        return buffer[n];
+    }
+    else {
+        int fn = climbStairsHelper(n - 1, buffer) + climbStairsHelper(n - 2, buffer);
+        buffer[n] = fn;
+        return fn;
+    }
+}
+```
+
+From the perspective from bottom to top, we are able to solve problem in a different way, which is known as dynamic programming.
+
+```bash
+ f(0) = 1;
+ f(1) = 1;
+ f(2) = f(1) + f(0);
+ f(3) = f(2) + f(1);
+        ^      ^   KNOWN
+ ...
+ f(n) = f(n-1) + f(n-2)
+```
+
+Alas, that's Fibonacci sequence!
+
+```c++
+int climbStairs_sol2(int n) {
+    const int MAX_SIZE = 50;
+    vector<int> f(MAX_SIZE, 0);
+    f[0] = f[1] = 1;
+    for (int i = 2; i < MAX_SIZE; i++) {
+        f[i] = f[i-1] + f[i-2];
+    }
+
+    return f[n];
+}
+```
+
+### House Robber
+
+> You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+>
+> Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.
+>
+> Constrains: 1 <= nums.length <= 100. 0 <= nums[i] <= 400.
+
+As always, decision problem in general can be solved by recursion. But the time complexity of recursion is O(N!), which is undesirable.
+
+But if we use a buffer to cache intermediate calculation, the complexity will be O(N).
+
+```c++
+int robHelper(vector<int>& money, vector<int>& houses, unordered_map<string, int> buffer) {
+    if (houses.size() == 0) return 0;
+    if (houses.size() == 1) return money[houses[0]];
+
+    string bufferKey = vec2string(houses);
+    if (buffer.find(bufferKey) != buffer.end()) {
+        return buffer[bufferKey];
+    }
+    else {
+        // TODO: backup for restore after backtracking
+        int moneyFromHouse = money[0];
+        int houseID = houses[0];
+        int moneyOfNeighbor = money[1];
+        int houseIDofNeighbor = houses[1];
+        // TODO: choose
+        // do not rob
+        money.erase(money.begin()); // get rid of the first house
+        houses.erase(houses.begin());
+        int notRob = robHelper(money, houses, buffer);
+        money.erase(money.begin()); // get rid of the neighbor of the first house
+        // rob
+        houses.erase(houses.begin());
+        int justRob = robHelper(money, houses, buffer) + moneyFromHouse;
+        // unchoose
+        money.insert(money.begin(), moneyOfNeighbor);
+        money.insert(money.begin(), moneyFromHouse);
+        houses.insert(houses.begin(), houseIDofNeighbor);
+        houses.insert(houses.begin(), houseID);
+
+        // TODO: cache result
+        string bufferKey = vec2string(houses);
+        buffer[bufferKey] = max(notRob, justRob);
+        return buffer[bufferKey];
+    }
+}
+```
+
+Yet how to abstract the problem is very important. Can we make it easier? Do we have to record all solutions to every cases as last algorithm does? Of course NOT.
+
+We are able to define function robFrom(i) as the maximum profit when robbing from i-th house to the end.
+
+Then we get `robFrom(i)= max(robFrom(i+1), robFrom(i+2) + nums(i))`.
+
+Then what's the base case according to our definition? We have to find 2 since `i+2` in the formula above.
+
+- start from the last house, which mean there is only one house. `robFrom(n-1) = nums[n-1]`
+- start from the end of street, that is no house. `robFrom(n) = 0`
+
+Now it's the power of dynamic programming.
+
+```c++
+int rob_sol3(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    int n = nums.size();
+    vector<int> startFrom(n + 1, 0);
+    startFrom[n] = 0;
+    startFrom[n-1] = nums[n-1];
+    for (int i = n-2; i >= 0; i--){
+        startFrom[i] = max(startFrom[i+1], startFrom[i+2] + nums[i]);
+    }
+
+    return startFrom[0];
+ }
+```
+
+Trick:
+
+- Good abstraction is VERY important.
+
 

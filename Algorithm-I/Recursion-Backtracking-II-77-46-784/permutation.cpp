@@ -1,7 +1,6 @@
 #include "permutation.h"
 #include "testing/SimpleTest.h"
 
-
 void permuteHelper(vector<int>& choices, vector<int>& selected,
                    vector< vector<int> >& result) {
     if (choices.empty()) {
