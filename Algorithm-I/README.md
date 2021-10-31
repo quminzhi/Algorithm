@@ -1662,3 +1662,60 @@ uint32_t reverseBits_sol2(uint32_t n) {
 }
 ```
 
+### Single Number
+
+> Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.
+>
+> You must implement a solution with a linear runtime complexity and use only constant extra space.
+>
+> Constrains: 1 <= nums.length <= 3 * 104. -3 * 104 <= nums[i] <= 3 * 104. Each element in the array appears twice except for one element which appears only once.
+
+Notice that `N xor N == 0` and `N xor 0 = N`. With the help of that, we are able to detect numbers occurring for even number of times.
+
+```c++
+int singleNumber_sol2(vector<int>& nums) {
+    int ret = 0;
+    for (int& num : nums) {
+        ret = ret ^ num;
+    }
+
+    return ret;
+}
+```
+
+How about if all numbers appear for odd numbers except one number?
+
+`seen_once` and `seen_twice` in fact can be seen as two maps, which will save numbers in its binary format. Let's say we have nums: a, a, b, a
+
+- (a): first time to see a, so we squash 'a' into `seen_once` map by `seen_once XOR a`
+- (a): secend time to see a, we will remove 'a' from `seen_once` and save it in `seen_twice`.
+- (b): first time to see b, so we squash 'b' into `seen_once` map by `seen_once XOR b`
+- (a): third time to see a, we will remove it from `seen_once` and `seen_twice`.
+
+```bash
+  seen_once = ~seen_twice & (seen_once ^ x);
+              |---------| if it is seen in seen_twice, then reset me.
+                          otherwise, keep my result.
+
+  seen_twice = ~seen_once & (seen_twice ^ x);
+               |--------| if it is seen in seen_once, then reset me.
+                          otherwise, keep my result.
+```
+
+The algorithm can solve problems such as every number occurs `3 * n` times except one number.
+
+```c++
+    int seen_once = 0;
+    int seen_twice = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        seen_once = (~seen_twice) & (seen_once ^ nums[i]);
+        seen_twice = (~seen_once) & (seen_twice ^ nums[i]);
+    }
+
+    return seen_once;
+```
+
+Tricks:
+
+- `~a & a == 0` and `~0 & a == a`
+- `a xor a == 0` and `0 xor a == a`
