@@ -30,6 +30,8 @@
 - [Bitwise Manipulation](#bitwisemanipulation)
     - [Power of Two](#poweroftwo)
     - [Hamming Weight](#hammingweight)
+    - [Reverse Bits](#reversebits)
+    - [Single Number](#singlenumber)
 -->
 # Binary Search and Array
 
@@ -1591,3 +1593,72 @@ int hammingWeight_sol3(u_int32_t n) {
 Tricks:
 
 - `n & (n - 1)` can be used to flip the least significant 1-bit.
+
+### Reverse Bits
+
+> Reverse bits of a given 32 bits unsigned integer.
+>
+> Constrains: The input must be a binary string of length 32.
+
+There are two interesting ways among many solutions for the problem.
+
+- Mask: shift one bit a time
+
+```bash
+# keep mask unchanged, move input
+  ex>  input: 00000010100101000001111010011100
+                                             ^
+        mask: 00000000000000000000000000000001
+         ret: 00000000000000000000000000000000
+              *
+  round 1: move the least significant bit to the leftmost  << 31
+  round 2:
+       input: 00000001010010100000111101001110(0)
+                                             ^
+        mask: 00000000000000000000000000000001
+         ret: 00000000000000000000000000000000
+              **
+```
+
+```c++
+uint32_t reverseBits_sol1(uint32_t n) {
+    uint32_t mask = 1; // ....0001
+    int shift = 31;
+    uint32_t ret = 0;
+    // TODO: keep mask unchange, and move n
+    while (n != 0) {
+        ret += (n & mask) << shift;
+        n >>= 1;
+        shift--;
+    }
+
+    return ret;
+}
+```
+
+- Divide and Conquer MANUALLY
+
+```bash
+  ex> input: 0000001010010100 0001111010011100
+             **************** ^^^^^^^^^^^^^^^^
+                  B0 <-----------> B1
+
+             0001111010011100 0000001010010100
+             ********^^^^^^^^ ********^^^^^^^^
+               B0       B1       B0      B1
+
+             ......
+```
+
+```c++
+uint32_t reverseBits_sol2(uint32_t n) {
+    n = (n >> 16 | n << 16);
+    n = (((n & 0xff00ff00) >> 8) | ((n & 0x00ff00ff) << 8));
+    n = (((n & 0xf0f0f0f0) >> 4) | ((n & 0x0f0f0f0f) << 4));
+    n = (((n & 0xcccccccc) >> 2) | ((n & 0x33333333) << 2));
+    n = (((n & 0xaaaaaaaa) >> 1) | ((n & 0x55555555) << 1));
+
+    return n;
+}
+```
+
