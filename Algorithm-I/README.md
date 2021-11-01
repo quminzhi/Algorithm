@@ -1683,7 +1683,13 @@ int singleNumber_sol2(vector<int>& nums) {
 }
 ```
 
-How about if all numbers appear for odd numbers except one number?
+> Given an integer array nums where every element appears three times except for one, which appears exactly once. Find the single element and return it.
+>
+> You must implement a solution with a linear runtime complexity and use only constant extra space.
+>
+> 1 <= nums.length <= 3 * 104. -231 <= nums[i] <= 231 - 1. Each element in nums appears exactly three times except for one element which appears once.
+
+How about if all numbers appear for three times except one number?
 
 `seen_once` and `seen_twice` in fact can be seen as two maps, which will save numbers in its binary format. Let's say we have nums: a, a, b, a
 
@@ -1715,7 +1721,62 @@ The algorithm can solve problems such as every number occurs `3 * n` times excep
     return seen_once;
 ```
 
+> Given an integer array nums, in which exactly two elements appear only once and all the other elements appear exactly twice. Find the two elements that appear only once. You can return the answer in any order. 
+> 
+> You must write an algorithm that runs in linear runtime complexity and uses only constant extra space.
+>
+> Constrains: 2 <= nums.length <= 3 * 104. -231 <= nums[i] <= 231 - 1. Each integer in nums will appear twice, only two integers will appear once.
+
+How about there are two numbsers occuring once and other numbers for even numbers?
+
+To solve the problem in a constant space is a bit tricky but could be done with the help of two bitmasks. 
+
+XOR: 'x XOR y' indiciates the difference between x and y. 
+
+Can we use the same method in singleNumberi? Could we extract x and y directly from this bitmask? No. Though we could use this bitmask as a marker to separate x and y.
+
+```bash
+ ex> nums = { x, y, a, a }
+                   x = 0001
+                   y = 0010
+                   a = ????
+                   a = ????
+             bitmask = 0011 (x XOR y)
+  bitmask & -bitmask = 0001 (rightmost 1-bit)
+```
+
+Let's do bitmask & (-bitmask) to isolate the rightmost 1-bit, which is different between x and y. There are two cases:
+
+- 1-bit for x, and 0-bit for y.
+- 1-bit for y, and 0-bit for x.
+
+Let's say it's the first case. There is a very important fact: when just looking this bit of a numbers in 'nums', only x and other numbers except y will map to this bit as 1. So we are able to distinguish y from other numbers that map to rightmost bit as 1.
+
+```c++
+vector<int> singleNumberiii_sol2(vector<int>& nums) {
+    int bitmask = 0;
+    for (auto&& num : nums) {
+        bitmask ^= num; // the difference of x and y
+    }
+
+    int rightmostBit = bitmask & -bitmask;
+    // TODO: find rightmost bit sequence
+    int xBitmast = 0;
+    for (auto&& num : nums) {
+        // assuming: 1-bit for x, and 0-bit for y.
+        if ((num & rightmostBit) == rightmostBit) {
+            xBitmast ^= num;
+        }
+    }
+    int x = xBitmast;
+    int y = x ^ bitmask;
+
+    return {x, y};
+}
+```
+
 Tricks:
 
-- `~a & a == 0` and `~0 & a == a`
-- `a xor a == 0` and `0 xor a == a`
+- `~a & a == 0` and `~0 & a == a`.
+- `a xor a == 0` and `0 xor a == a`.
+- `a & -a` get the rightmost 1-bit.
