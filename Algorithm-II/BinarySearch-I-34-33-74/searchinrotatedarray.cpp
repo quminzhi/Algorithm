@@ -14,7 +14,7 @@
  * The first solution is to scan the smallest element in the array for it should be
  * the index of 0 of ideal array. Then apply binary search to it.
  *
- * T: O(NlogN)
+ * T: O(N + logN)
  */
 int search_sol1(vector<int>& nums, int target) {
     if (nums.size() == 0) return -1;

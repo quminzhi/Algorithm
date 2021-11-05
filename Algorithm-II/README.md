@@ -208,3 +208,63 @@ Tricks:
 - `std::min_element(v.begin(), v.end())`: return iter for minimum element.
 - `vector.insert(vector.end(), other.begin(), other.end())`: insert other to the end of `vector`.
 
+### Search Matrix
+
+> Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+>
+> - Integers in each row are sorted from left to right.
+> - The first integer of each row is greater than the last integer of the previous row.
+
+This ia a variant of binary search. We are solve the problem by two cooperative binary search.
+
+```c++
+/**
+ * ex> {1, 3, 5, 7},     <--- top
+ *     {10, 11, 16, 20},
+ *     {23, 30, 34, 60}  <--- bottom
+ *      ^           ^
+ *     left        right
+ */
+```
+
+Search row first and then search column.
+
+```c++
+bool searchMatrix_sol2(vector< vector<int> >& matrix, int target) {
+    int top = 0;
+    int bottom = matrix.size() - 1;
+    int left = 0;
+    int last = matrix[0].size() - 1;
+    int right = last;
+    int midRow = 0;
+    int midCol = 0;
+    while (top <= bottom) {
+        midRow = top + ((bottom - top) >> 1);
+        if (matrix[midRow][0] > target) {
+            bottom = midRow - 1;
+        }
+        else if (matrix[midRow][last] < target) {
+            top = midRow + 1;
+        }
+        else {
+            // TODO: binary search in midRow
+            while (left <= right) {
+                midCol = left + ((right - left) >> 1);
+                if (matrix[midRow][midCol] == target) {
+                    return true;
+                }
+                else if (matrix[midRow][midCol] < target) {
+                    left = midCol + 1;
+                }
+                else {
+                    right = midCol - 1;
+                }
+            }
+            return false;
+        }
+    }
+    return false;
+}
+```
+
+

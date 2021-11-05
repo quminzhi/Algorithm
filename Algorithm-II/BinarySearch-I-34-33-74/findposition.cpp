@@ -16,7 +16,7 @@
  *                      ^     ^  ^
  *                    first  mid end
  * One way to solve that is search along two sides of target index. (Bidireactional scan)
- * Then T: O(NlogN)
+ * Then T: O(N + logN)
  */
 vector<int> searchRange_sol1(vector<int>& nums, int target) {
     if (nums.size() == 0) return {-1, -1};
