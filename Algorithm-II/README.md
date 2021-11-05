@@ -267,4 +267,120 @@ bool searchMatrix_sol2(vector< vector<int> >& matrix, int target) {
 }
 ```
 
+### Find Min in Rotated Array
 
+> Suppose an array of length n sorted in ascending order is rotated between 1 and n times. For example, the array nums = [0,1,2,4,5,6,7] might become:
+> 
+> - [4,5,6,7,0,1,2] if it was rotated 4 times.
+> - [0,1,2,4,5,6,7] if it was rotated 7 times.
+>
+> Notice that rotating an array `[a[0], a[1], a[2], ..., a[n-1]]` 1 time results in the array `[a[n-1], a[0], a[1], a[2], ..., a[n-2]]`.
+>
+> Given the sorted rotated array nums of unique elements, return the minimum element of this array.
+>
+> You must write an algorithm that runs in O(log n) time.
+
+Agian O(log n) implies our old friend binary search. There are two scenarioes:
+
+- Array is rotated by 0 step.
+- Array is rotated by n steps, where n > 0.
+
+```c++
+/**
+ * I. Sorted array is rotated by 0 steps
+ * ex> nums = {1, 2, 3, 4, 5}  when nums[left] < nums[right], just return nums[left]
+ *             ^           ^
+ *            left        right
+ *
+ * II. Sorted array is rotated by n steps
+ * ex> nums = {4, 5, 6, 7, 8, 1, 2, 3}  when nums[left] > nums[right]
+ *             ^                    ^
+ *            left                right
+ *
+ * Case 1: if nums[mid] > nums[left], the minimum must lie in unsorted half
+ *     nums = {4, 5, 6, 7, 8, 1, 2, 3}
+ *             ^        ^           ^
+ *            left     mid         right
+ *            |--sorted-|--unsorted--|
+ *                       exclude mid
+ *
+ * Case 2: if nums[mid] < nums[left], the minimum must lie in unsorted half
+ *     nums = {4, 5, 6, 7, 8, 1, 2, 3}
+ *             ^                 ^  ^
+ *            left              mid right
+ *            |-----unsorted-----|---|
+ *              include mid      sorted
+ *
+ * Case 3: if nums[mid] == nums[left], the minimum number is mid + 1
+ *     nums = {4, 1, 2, 3}
+ *             ^        ^
+ *            left      right
+ *            mid
+ */
+```
+
+So let's re-design our binary search.
+
+```c++
+int findMin_sol1(vector<int>& nums) {
+    if (nums.size() == 0) return INT_MAX;
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left <= right) {
+        // TODO: array without rotated
+        if (nums[left] <= nums[right]) return nums[left];
+        // TODO: array is rotated
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] == nums[left]) {
+            return nums[mid + 1];
+        }
+        else if (nums[mid] > nums[left]) {
+            left = mid + 1; // exclude middle
+        }
+        else {
+            right = mid; // include middle
+        }
+    }
+
+    return INT_MAX;
+}
+```
+
+Similarly, we are able to find maximum number with binary search. The logic can be summarized as follows.
+
+- Not rotated: if nums[left] < nums[right] return nums[right]
+- Rotated:
+    - nums[mid] > nums[left], then search in right part, nums[mid] included.
+    - nums[mid] < nums[left], then search in left part, nums[mid] excluded.
+    - nums[mid] == nums[left], return nums[mid]
+
+```c++
+int findMax_sol1(vector<int>& nums) {
+    if (nums.size() == 0) return INT_MIN;
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left <= right) {
+        // TODO: array without rotated
+        if (nums[left] <= nums[right]) return nums[right];
+        // TODO: array is rotated
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] == nums[left]) {
+            return nums[mid];
+        }
+        else if (nums[mid] > nums[left]) {
+            left = mid; // include middle
+        }
+        else {
+            right = mid - 1; // exclude middle
+        }
+    }
+
+    return INT_MIN;
+}
+```
+
+Tricks:
+
+- Divide and conquer plus binary search.
