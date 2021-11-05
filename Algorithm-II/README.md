@@ -90,4 +90,121 @@ Tricks:
 
 - Change the behavior of binary search.
 
+### Search in Rotated Array
+
+> There is an integer array nums sorted in ascending order (with distinct values).
+>
+> Prior to being passed to your function, nums is possibly rotated at an unknown pivot index k (1 <= k < nums.length) such that the resulting array is `[nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]` (0-indexed). For example, [0,1,2,4,5,6,7] might be rotated at pivot index 3 and become [4,5,6,7,0,1,2].
+>
+> Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.
+>
+> You must write an algorithm with O(log n) runtime complexity.
+
+This problem gives us a deep understanding of binary search, also called one half known binary search. If the range of one half can be determined, then we can apply binary search to that problem.
+
+```c++
+/**
+ * The key point is determine range!
+ *
+ * ex>  4,  5,  6,  7,  0,  1,  2
+ *      ^           ^   ^       ^
+ *      |--sorted---|   |sorted-|
+ *    begin                    end
+ *
+ * Case 1: if nums[mid] >= nums[begin] which is 4, then
+ *      4,  5,  6,  7,  0,  1,  2
+ *          ^
+ *         mid
+ *      |---|-------------------|
+ *      sorted     unsorted
+ * if (nums[mid] > target > nums[begin]), then we will search in sorted half,
+ * great! do as normal. otherwise, we will search in unsorted half, move begin
+ * to mid + 1
+ *
+ * Case 2: if nums[mid] < nums[begin], then (notice mid == begin cann't be
+ * categorized in this case)
+ *      4,  5,  6,  7,  0,  1,  2
+ *                          ^
+ *                         mid
+ *      |-----unsorted------|---|
+ *                          sorted
+ * if (nums[mid] < target < nums[end]), search sorted part, otherwise, search
+ * unsorted part.
+ */
+```
+
+```c++
+int search_sol2(vector<int>& nums, int target) {
+    if (nums.size() == 0) return -1;
+    int begin = 0;
+    int end = nums.size() - 1;
+    int mid = 0;
+    while (begin <= end) {
+        mid = begin + ((end - begin) >> 1);
+        if (nums[mid] == target) {
+            return mid;
+        }
+        else {
+            if (nums[mid] >= nums[begin]) {
+                if ((nums[mid] > target) && (target >= nums[begin])) {
+                    end = mid - 1;
+                }
+                else {
+                    begin = mid + 1;
+                }
+            }
+            else {
+                if ((nums[mid] < target) && (target <= nums[end])) {
+                    begin = mid + 1;
+                }
+                else {
+                    end = mid - 1;
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+```
+
+BTW, another way to solve the problem is transfer rotated array back to a completely sorted array, and apply binary search to it.
+
+```c++
+int search_sol1(vector<int>& nums, int target) {
+    if (nums.size() == 0) return -1;
+    vector<int> vec;
+    // TODO: find sorted array
+    vec.insert(vec.end(), nums.begin(), nums.end());
+    vec.insert(vec.end(), nums.begin(), nums.end());
+    // return the index of min value
+    int begin = min_element(nums.begin(), nums.end()) - nums.begin();
+    int end = begin + nums.size() - 1;
+
+    // TODO: binary search on vec[begin, end];
+    int left = begin;
+    int right = end;
+    int mid = 0;
+    while (left <= right) {
+        mid = left + ((right - left) >> 1);
+        if (vec[mid] == target) {
+            // find index in rotated array
+            return mid % nums.size();
+        }
+        else if (vec[mid] < target) {
+            left = mid + 1;
+        }
+        else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+```
+
+Tricks:
+
+- The condition of using binary search: range of one half is known.
+- `std::min_element(v.begin(), v.end())`: return iter for minimum element.
+- `vector.insert(vector.end(), other.begin(), other.end())`: insert other to the end of `vector`.
 
