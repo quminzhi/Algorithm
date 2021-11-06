@@ -384,3 +384,60 @@ int findMax_sol1(vector<int>& nums) {
 Tricks:
 
 - Divide and conquer plus binary search.
+
+### Find Peak
+
+> A peak element is an element that is strictly greater than its neighbors.
+>
+> Given an integer array nums, find a peak element, and return its index. If the array contains multiple peaks, return the index to any of the peaks.
+>
+> You may imagine that nums[-1] = nums[n] = -∞.
+>
+> You must write an algorithm that runs in O(log n) time.
+
+What's the feature of peak point? its neighboring number must be smaller than it. How to find peak with binary search? There are two cases:
+
+```c++
+/**
+ * Case 1: nums = {1, 2, 3, 4, 5}
+ *                        ^     ^
+ *                       mid   peak
+ *  If mid is facing uphill (nums[mid] <= nums[mid+1]), then peak must be in the
+ *  right side (excluded).
+ * Case 2: nums = {5, 4, 3, 2, 1}
+ *                  ^     ^
+ *                 peak  mid
+ *  On the contrary, if mid is facing downhill nums[mid] > nums[mid+1], the peak
+ *  must be in the left side (included).
+```
+
+So we are able to design our binary search. `left` and `right` will converge at peak.
+
+```c++
+int findPeakElement_sol1(vector<int>& nums) {
+    // TODO: fill boundaries
+    nums.insert(nums.begin(), INT_MIN);
+    nums.insert(nums.end(), INT_MIN);
+    int left = 1;
+    int right = nums.size() - 2;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        // TODO: where am i
+        if (nums[mid] > nums[mid+1]) {
+            right = mid;
+        }
+        else {
+            left = mid + 1;
+        }
+    }
+
+    return left - 1; // shift boundary
+}
+```
+
+Tricks:
+
+- Determine searching range.
+
+
