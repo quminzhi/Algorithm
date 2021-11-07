@@ -482,4 +482,118 @@ ListNode* deleteDuplicates_sol1(ListNode* head) {
 }
 ```
 
+### Three Sum
 
+> Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.
+>
+> Notice that the solution set must not contain duplicate triplets.
+
+Two Sum and Three Sum share a similarity that the sum of elements must match the target exactly. A difference is that, instead of exactly one answer, we need to find all unique triplets that sum to zero. Before jumping in, let's check the existing solutions and determine the best conceivable runtime (BCR) for 3Sum:
+
+- unordered two sum: it can be solved with a hash map with time complexity of O(N) and space complexity of O(N).
+- ordered two sum: we are able to deal with it for O(N) by using two pointers. If original array is unordered, we need O(logN) extra time, thereby the total time complexity is O(N + logN).
+
+Considering that there is one more dimension in 3Sum, it sounds reasonable to shoot for O(N^2).
+
+Based on ordered two sum, we can solve three sum conveniently. But we have to take into consideration how to get rid of duplicates.
+
+Now let's discuss how to make sure duplicates will not occur:
+
+- hashset: if the same number is processed before, then skip it.
+- order: process from left to right, for example, if `nums[i]` is processed, then we will find solution from `i+1` to `end` for numbers within `[0, i-1]` may be in the solution before, and `-nums[i]` is our target. See example below.
+- optimize: `if (nums[i] > 0)`, then there is no need to proceed as all numbers after nums[i] are positive, and their combination can NOT be zero.
+
+```c++
+/**
+ *  nums = {-1, 0, 1, 2, 3}
+ *                 ^
+ *                 i
+ *  if we find solution in [begin, i) and (i, end], then we will find one solution (-1, 0, 1),
+ *  which happens to be one solution when we process nums[0] (-1).
+ */
+```
+
+From another aspect, for an solution `(-1, 0, 1)`, it can be produced when we process -1, 0, 1 respectively. Therefore, we keep find solution in `[i+1, end]`
+
+```c++
+vector< vector<int> > twoSum_pointers(vector<int>& nums, int targetIndex) {
+    vector< vector<int> > result;
+    int left = targetIndex + 1;
+    int right = nums.size() - 1;
+    int target = -nums[targetIndex];
+    while (left < right) {
+        if (nums[left] + nums[right] > target) {
+            right--;
+        }
+        else if (nums[left] + nums[right] < target) {
+            left++;
+        }
+        else {
+            // TODO: find one solution
+            result.push_back({-target, nums[left], nums[right]});
+            right--;
+            // avoid duplicate: move left to next different val
+            int next = left + 1;
+            while ((next < right) && (nums[next] == nums[left])) {
+                next++;
+            }
+            left = next;
+        }
+    }
+
+    return result;
+}
+
+vector< vector<int> > threeSum_sol2(vector<int>& nums) {
+    unordered_set<int> seen;
+    vector< vector<int> > result;
+    vector< vector<int> > subResult;
+    sort(nums.begin(), nums.end());
+
+    for (int i = 0; i < nums.size(); i++) {
+        if (nums[i] > 0) break;
+        if (seen.find(nums[i]) != seen.end()) continue;
+        seen.insert(nums[i]);
+        subResult = twoSum_pointers(nums, i);
+        result.insert(result.end(), subResult.begin(), subResult.end());
+    }
+
+    return result;
+}
+```
+
+Similarly, for unsorted nums, we can solve it by hashtable. But question here is how to git rid of duplicates of triplets. One solution is by hashset.
+
+- If one solution is found, then put all combination of the solution into hashset.
+- Before we insert one solution into `result`, check if it is in the hashset.
+
+Tricks:
+
+- STL funtions: c `qsort` and c++ `sort` in `<stdlib.h>`
+
+```c++
+#include <stdlib.h>
+
+// C style
+int myCompare_C(const void* lhs, const void* rhs) {
+    return (*(int*)lhs - *(int*)rhs);
+    /**
+     * // Descending order: same to following if clauses
+     * if (*(int*)lhs > *(int*)rhs) return 1;
+     * if (*(int*)lhs == *(int*)rhs) return 0;
+     * if (*(int*)lhs < *(int*)lhs) return -1;
+     */
+}
+
+// C++ style
+bool myCompare(int lhs, int rhs) {
+    return (lhs > rhs);
+}
+
+// Calling:
+
+sort(nums.begin(), nums.end()); // non-descending order
+sort(nums.begin(), nums.end(), myCompare); // non-ascending order
+
+qsort(arr, size, sizeof(type), compareFunc);
+```
