@@ -262,8 +262,6 @@ Data Size | Bubble | Insertion | Selection | Merging | QSort
 256000 | NaN | 116104 | 102837| 873 | 902 
 512000 | NaN | NaN | NaN | 1021 | 986 
 
-![rand_data_01_size_vs_cpu](./csort_diagram/csort_diagram.001.jpeg)
-
 - `rand_data_02`
 
 Data Size | Bubble | Insertion | Selection | Merging | QSort |
@@ -274,8 +272,6 @@ Data Size | Bubble | Insertion | Selection | Merging | QSort |
 64000 | 72187 | 12119 | 11132 | 671 | 672 
 256000 | NaN | 107215 | 115201 | 899 | 1028 
 512000 | NaN | NaN | NaN | 1073 | 1417 
-
-![rand_data_02_size_vs_cpu](./csort_diagram/csort_diagram.002.jpeg)
 
 - `real_data_01`
 
@@ -288,8 +284,6 @@ Data Size | Bubble | Insertion | Selection | Merging | QSort
  4000 | 2871 | 1793 | 2038 | 376 | 352 
  8000 | 4281 | 3621 | 3219 | 504 | 497 
 
-![real_data_01_size_vs_cpu](./csort_diagram/csort_diagram.003.jpeg)
-
 - `real_data_02`
 
  Data Size | Bubble | Insertion | Selection | Merging | QSort 
@@ -300,18 +294,6 @@ Data Size | Bubble | Insertion | Selection | Merging | QSort
  2000 | 384 | 291 | 284 | 319 | 361 
  4000 | 3721 | 2034 | 1978 | 356 | 384 
  8000 | 5313 | 3439 | 3122 | 487 | 528 
-
-![real_data_02_size_vs_cpu](./csort_diagram/csort_diagram.004.jpeg)
-
-#### Memory Usage
-
-![rand_data_01_size_vs_mem](./csort_diagram/csort_diagram.005.jpeg)
-
-![rand_data_02_size_vs_mem](./csort_diagram/csort_diagram.006.jpeg)
-
-![real_data_01_size_vs_mem](./csort_diagram/csort_diagram.007.jpeg)
-
-![real_data_02_size_mem](./csort_diagram/csort_diagram.008.jpeg)
 
 ### Conclusion
 
