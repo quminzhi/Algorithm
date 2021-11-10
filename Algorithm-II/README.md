@@ -711,5 +711,130 @@ bool backspaceCompare_sol1(string s, string t) {
 Tricks:
 
 - ALWAYS checking the end of iterator if `++` or `--`.
+- Distinguish `rbegin()` and `rend()` from `cbegin()` and `cend()`, where `c` means const.
 
+### Interval List Intersections
+
+> You are given two lists of closed intervals, firstList and secondList, where `firstList[i] = [starti, endi]` and `secondList[j] = [startj, endj]`. Each list of intervals is pairwise disjoint and in sorted order.
+>
+> Return the intersection of these two interval lists.
+>
+> A closed interval `[a, b] (with a <= b)` denotes the set of real numbers x with `a <= x <= b`.
+>
+> The intersection of two closed intervals is a set of real numbers that are either empty or represented as a closed interval. For example, the intersection of [1, 3] and [2, 4] is [2, 3].
+
+The idea of solution 1 is pretty straightforward, which is to simulate intersections with an array. Project A and B to array, and the elements with value 2 consist of intersection list.
+
+If `intersection[i]` is greater than 0, then interval [i, i+1) is painted. 
+
+But the limitation of this method is that it can only find the interval except intersection points. To fix that, we use a hashmap to find intersection points.
+
+```c++
+vector< vector<int> > intervalIntersection_sol1(vector< vector<int> >& firstList, vector< vector<int> >& secondList) {
+    int max_size = 1002;
+    unordered_map<int, int> points;
+    vector<int> intersection(max_size);
+    vector< vector<int> > result;
+    for (int i = 0; i < firstList.size(); i++) {
+        if (points.find(firstList[i][0]) == points.end()) {
+            points[firstList[i][0]] = 1;
+        }
+        else {
+            points[firstList[i][0]]++;
+        }
+        if (points.find(firstList[i][1]) == points.end()) {
+            points[firstList[i][1]] = 1;
+        }
+        else {
+            points[firstList[i][1]]++;
+        }
+        for (int j = firstList[i][0]; j < firstList[i][1]; j++) {
+            intersection[j]++;
+        }
+    }
+    for (int i = 0; i < secondList.size(); i++) {
+        if (points.find(secondList[i][0]) == points.end()) {
+            points[secondList[i][0]] = 1;
+        }
+        else {
+            points[secondList[i][0]]++;
+        }
+        if (points.find(secondList[i][1]) == points.end()) {
+            points[secondList[i][1]] = 1;
+        }
+        else {
+            points[secondList[i][1]]++;
+        }
+        for (int j = secondList[i][0]; j < secondList[i][1]; j++) {
+            intersection[j]++;
+        }
+    }
+
+    // TODO: push overlap points into result
+    for (auto pair : points) {
+        if (pair.second >= 2) {
+            result.push_back({pair.first, pair.first});
+        }
+    }
+
+    // TODO: construct output with two pointers, interval [l, r)
+    int l = 0;
+    int r = 0;
+    int length = max(firstList[firstList.size()-1][1], secondList[secondList.size()-1][1]);
+    while (l <= length) {
+        // TODO: move l to the next 2
+        while ((intersection[l] != 2) && (l < length)) {
+            l++;
+        }
+        r = l;
+        // TODO: r explore the end of consecutive 2
+        while ((intersection[r] == 2) && (r < length)) {
+            r++;
+        }
+        if (l < length) {
+            result.push_back({l, r});
+        }
+        else {
+            break;
+        }
+        l = r;
+    }
+
+    return result;
+}
+```
+
+The second solution is based on two observations below. Define: interval [a, b], b as endpoint of an interval.
+
+```c++
+/**
+ * ex>    list A:  -----    ---------  --------      --------
+ *        list B: ---      ----- --------- ---- ---  ----
+ *                  ^
+ *  intersection:  -- ,which is {max(A[0][0], B[0][0]), min(A[0][1], B[0][1])}
+ *                  ^
+ */
+```
+
+- the interval with smallest endpoint will intersect with only one interval in the other list.
+- the interval with smallest endpoint will share the same endpoint with intersection interval.
+
+```c++
+vector< vector<int> > intervalIntersection_sol2(vector< vector<int> >& firstList, vector< vector<int> >& secondList) {
+    vector< vector<int> > result;
+    int pa = 0;
+    int pb = 0;
+    while ((pa < firstList.size()) && (pb < secondList.size())) {
+        // TODO: find interval with smallest endpoint
+        int l = max(firstList[pa][0], secondList[pb][0]);
+        int r = min(firstList[pa][1], secondList[pb][1]);
+        if (l <= r) {
+            result.push_back({l, r});
+        }
+        (firstList[pa][1] < secondList[pb][1]) ? pa++ : pb++;
+    }
+
+    return result;
+}
+```
 
