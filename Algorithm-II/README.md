@@ -597,3 +597,119 @@ sort(nums.begin(), nums.end(), myCompare); // non-ascending order
 
 qsort(arr, size, sizeof(type), compareFunc);
 ```
+
+### Backspace String Compare
+
+> Given two strings s and t, return true if they are equal when both are typed into empty text editors. '#' means a backspace character.
+>
+> Note that after backspacing an empty text, the text will continue empty.
+
+The basic idea is to simulate backspace operation on original string, and then check two strings.
+
+```c++
+bool backspaceCompare_sol2(string s, string t) {
+    stack<char> ss;
+    stack<char> tt;
+    for (int i = 0; i < s.size(); i++) {
+        if ((s[i] == '#') && (!ss.empty())) {
+            ss.pop();
+        }
+        if (s[i] != '#') {
+            ss.push(s[i]);
+        }
+    }
+    for (int i = 0; i < t.size(); i++) {
+        if ((t[i] == '#') && (!tt.empty())) {
+            tt.pop();
+        }
+        if (t[i] != '#') {
+            tt.push(t[i]);
+        }
+    }
+
+    while ((!ss.empty()) && (!tt.empty())) {
+        if (ss.top() != tt.top()) {
+            return false;
+        }
+        ss.pop();
+        tt.pop();
+    }
+
+    if ((!ss.empty()) || (!tt.empty())) {
+        return false;
+    }
+
+    return true;
+}
+```
+
+Another way is also pretty straightforward but slightly complicated.
+
+The algorithm is to scan string from the end to begin with two pointers to two strings perspectively.
+
+- find the first non-'#' character.
+- then there are three cases:
+    - both pointers are not reaching the end. (depending on)
+    - one of them reaches the end. (false)
+    - both of them reaches the end. (true) 
+
+```c++
+bool backspaceCompare_sol1(string s, string t) {
+    string::reverse_iterator it_s = s.rbegin();
+    string::reverse_iterator it_t = t.rbegin();
+    stack<char> ss;
+    stack<char> st;
+    while ((it_s != s.rend()) || (it_t != t.rend())) {
+        // TODO: find the first character remain in s from the end
+        while ((it_s != s.rend()) && (*it_s == '#')) {
+            while ((*it_s == '#') && (it_s != s.rend()))  {
+                ss.push(*it_s);
+                it_s++;
+            }
+            while ((!ss.empty()) && (*it_s != '#') && (it_s != s.rend())) {
+                ss.pop();
+                it_s++;
+            }
+        }
+
+        // TODO: find the first character remain in s from the end
+        while ((it_t != t.rend()) && (*it_t == '#')) {
+            while ((*it_t == '#') && (it_t != t.rend())) {
+                st.push(*it_t);
+                it_t++;
+            }
+            while ((!st.empty()) && (*it_t != '#') && (it_t != t.rend())) {
+                st.pop();
+                it_t++;
+            }
+        }
+
+        // TODO: case 1
+        if ((it_s != s.rend()) && (it_t != t.rend())) {
+            if (*it_s != *it_t) {
+                return false;
+            }
+            else {
+                it_s++;
+                it_t++;
+                continue;
+            }
+        }
+        // TODO: case 2 & 3
+        if ((it_s == s.rend()) && (it_t == t.rend())) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    return true; // both s and t are blank strings
+}
+```
+
+Tricks:
+
+- ALWAYS checking the end of iterator if `++` or `--`.
+
+
