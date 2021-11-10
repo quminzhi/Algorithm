@@ -214,7 +214,7 @@ int RandomInteger(int low, int high) {
 void dataGenerator(const string filename, int size) {
     ofstream outfile(filename.c_str()); // create and write
     for (int i = 0; i < size; i++) {
-        outfile << RandomInteger(100, 1000) << " ";
+        outfile << RandomInteger(100, 1000) << endl;
     }
     outfile.close();
 }

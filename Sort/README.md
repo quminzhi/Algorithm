@@ -33,17 +33,19 @@ Clearly, time complexity for bubble sort is O(N^2).
 
 The idea of selection sort is to repeatedly swap smallest unplaced value to front.
 
-```bash
-ex>   8  2  5  7  1  4  10
-      |----unordered-----|
-
-1st:  1  2  5  7  8  4  10
-      ^  |---unordered---|
-
-      ...
-
-3rd:  1  2  4  7  8  5  10
-      ^  ^  ^  |---------| 
+```c++
+/**
+ * ex>   8  2  5  7  1  4  10
+ *       |----unordered-----|
+ *
+ * 1st:  1  2  5  7  8  4  10
+ *       ^  |---unordered---|
+ *
+ *       ...
+ *
+ * 3rd:  1  2  4  7  8  5  10
+ *       ^  ^  ^  |---------|
+ */ 
 ```
 
 The implementation in C is as follow.
@@ -75,17 +77,19 @@ Time complexity is O(N^2) and space complexity is O(1) for exchange.
 
 The basic idea of insertion sort is to insert number from unsorted list into sorted list.
 
-```bash
-ex>   8  2  5  7  1  4  10
-      |----unordered-----|
-
-1st:  8  2  5  7  1  4  10  # insert 8
-      ^  |---unordered---|
-
-      ...
-
-3rd:  2  5  8  7  1  4  10  # insert 5 between 2 and 8 
-      ^  ^  ^  |---------| 
+```c++
+/**
+ * ex>   8  2  5  7  1  4  10
+ *       |----unordered-----|
+ *
+ * 1st:  8  2  5  7  1  4  10  # insert 8
+ *       ^  |---unordered---|
+ *
+ *       ...
+ *
+ * 3rd:  2  5  8  7  1  4  10  # insert 5 between 2 and 8 
+ *       ^  ^  ^  |---------| 
+ */
 ```
 
 The major overhead here is insert operation which requires to move elements in sorted list.
