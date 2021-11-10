@@ -253,53 +253,53 @@ Unit: million seconds(ms)
 
 - `rand_data_01`
 
-| Data Size | Bubble | Insertion | Selection | Merging | QSort |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1000 | 257 | 240 | 251 | 241 | 221 |
-| 4000 | 297 | 235 | 276 | 245 | 262 |
-| 16000 | 4739 | 1821 | 1729 | 472 | 389 |
-| 64000 | 75912 | 14523 | 12780 | 601 | 562 |
-| 256000 | NaN | 116104 | 102837| 873 | 902 |
-| 512000 | NaN | NaN | NaN | 1021 | 986 |
+Data Size | Bubble | Insertion | Selection | Merging | QSort 
+---|---|---|---|---|---|---
+1000 | 257 | 240 | 251 | 241 | 221 
+4000 | 297 | 235 | 276 | 245 | 262 
+16000 | 4739 | 1821 | 1729 | 472 | 389 
+64000 | 75912 | 14523 | 12780 | 601 | 562 
+256000 | NaN | 116104 | 102837| 873 | 902 
+512000 | NaN | NaN | NaN | 1021 | 986 
 
 ![rand_data_01_size_vs_cpu](./csort_diagram/csort_diagram.001.jpeg)
 
 - `rand_data_02`
 
-| Data Size | Bubble | Insertion | Selection | Merging | QSort |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1000 | 241 | 224 | 257 | 240 | 221 |
-| 4000 | 258 | 231 | 281 | 237 | 262 |
-| 16000 | 3781 | 2071 | 1919 | 422 | 403 |
-| 64000 | 72187 | 12119 | 11132 | 671 | 672 |
-| 256000 | NaN | 107215 | 115201 | 899 | 1028 |
-| 512000 | NaN | NaN | NaN | 1073 | 1417 |
+Data Size | Bubble | Insertion | Selection | Merging | QSort |
+---|---|---|---|---|---|---
+1000 | 241 | 224 | 257 | 240 | 221
+4000 | 258 | 231 | 281 | 237 | 262
+16000 | 3781 | 2071 | 1919 | 422 | 403 
+64000 | 72187 | 12119 | 11132 | 671 | 672 
+256000 | NaN | 107215 | 115201 | 899 | 1028 
+512000 | NaN | NaN | NaN | 1073 | 1417 
 
 ![rand_data_02_size_vs_cpu](./csort_diagram/csort_diagram.002.jpeg)
 
 - `real_data_01`
 
-| Data Size | Bubble | Insertion | Selection | Merging | QSort |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 200 | 103 | 121 | 117 | 143 | 102 |
-| 400 | 187 | 138 | 155 | 168 | 94 |
-| 1000 | 216 | 221 | 197 | 216 | 232 |
-| 2000 | 253 | 272 | 284 | 311 | 371 |
-| 4000 | 2871 | 1793 | 2038 | 376 | 352 |
-| 8000 | 4281 | 3621 | 3219 | 504 | 497 |
+Data Size | Bubble | Insertion | Selection | Merging | QSort
+---|---|---|---|---|---|---
+ 200 | 103 | 121 | 117 | 143 | 102 
+ 400 | 187 | 138 | 155 | 168 | 94 
+ 1000 | 216 | 221 | 197 | 216 | 232 
+ 2000 | 253 | 272 | 284 | 311 | 371 
+ 4000 | 2871 | 1793 | 2038 | 376 | 352 
+ 8000 | 4281 | 3621 | 3219 | 504 | 497 
 
 ![real_data_01_size_vs_cpu](./csort_diagram/csort_diagram.003.jpeg)
 
 - `real_data_02`
 
-| Data Size | Bubble | Insertion | Selection | Merging | QSort |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 200 | 114 | 122 | 109 | 123 | 97 |
-| 400 | 162 | 131 | 125 | 118 | 112 |
-| 1000 | 291 | 301 | 197 | 215 | 249 |
-| 2000 | 384 | 291 | 284 | 319 | 361 |
-| 4000 | 3721 | 2034 | 1978 | 356 | 384 |
-| 8000 | 5313 | 3439 | 3122 | 487 | 528 |
+ Data Size | Bubble | Insertion | Selection | Merging | QSort 
+---|---|---|---|---|---|---
+ 200 | 114 | 122 | 109 | 123 | 97 
+ 400 | 162 | 131 | 125 | 118 | 112 
+ 1000 | 291 | 301 | 197 | 215 | 249 
+ 2000 | 384 | 291 | 284 | 319 | 361 
+ 4000 | 3721 | 2034 | 1978 | 356 | 384 
+ 8000 | 5313 | 3439 | 3122 | 487 | 528 
 
 ![real_data_02_size_vs_cpu](./csort_diagram/csort_diagram.004.jpeg)
 
@@ -317,13 +317,13 @@ Unit: million seconds(ms)
 
 From the results above, we concludes that:
 
-| Algorithm | Average Case | Worst Case | Advantage | Disadvantage |
-| :---: | :---: | :---: | :---: | :---: |
-| Bubble | O(N^2) | O(N^2) | straightforward, simple, and stable | slow and inefficient on large data |
-| Selection | O(N^2) | O(N^2) | better than bubble, stable | quite slow for large data |
-| Insertion | O(N^2) | O(N^2) | efficient for small lists and low disordered data | sort big array slowly |
-| Merging | O(NlogN) | O(NlogN) | great for large list and stable | extra memory |
-| QSort | O(NlogN) | O(N^2) | great for large list and quite stable | bad for low disordered data |
+ Algorithm | Average Case | Worst Case | Advantage | Disadvantage 
+ --- | --- | --- | --- | ---
+Bubble | O(N^2) | O(N^2) | straightforward, simple, and stable | slow and inefficient on large data 
+ Selection | O(N^2) | O(N^2) | better than bubble, stable | quite slow for large data 
+ Insertion | O(N^2) | O(N^2) | efficient for small lists and low disordered data | sort big array slowly 
+ Merging | O(NlogN) | O(NlogN) | great for large list and stable | extra memory 
+ QSort | O(NlogN) | O(N^2) | great for large list and quite stable | bad for low disordered data 
 
 
 
