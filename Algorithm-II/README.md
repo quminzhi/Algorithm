@@ -838,3 +838,73 @@ vector< vector<int> > intervalIntersection_sol2(vector< vector<int> >& firstList
 }
 ```
 
+### Container with Most Water
+
+> Given n non-negative integers `a1, a2, ..., an`, where each represents a point at coordinate `(i, ai)`. n vertical lines are drawn such that the two endpoints of the line i is at `(i, ai)` and `(i, 0)`. Find two lines, which, together with the x-axis forms a container, such that the container contains the most water.
+>
+> Notice that you may not slant the container.
+
+The equaltion for water area is `area = min(height[l], height[r]) * (r - l)`. Our goal is maximum two operands on the two sides of `*` sign.
+
+We will use greedy algorithm to solve it.
+
+1. Set two pointers to at the leftmost and rightmost index of pillars where we maximize '(r - l)'.
+2. Move r to left and l to right respectively.
+    - if height[r-1] < height[r], then jump it, since the second operand get smaller but the first remain same at best.
+    - same operation to `l` as it moves to right.
+
+Unfortunately, the time complexity for the algorithm above is O(N^2). Our improvement is based on other fact: If left do not change and only move right pillar when the height of right pillar is higher than left one, the water area will get smaller.
+
+```c++
+/**
+ * ex>  1  2  3  5  3  2  1
+ *      ^                 ^
+ *     left         <-- right
+ *
+ * When right go from 1 to 5, (r - l) get smaller, and min(height[l], height[r])
+ * do NOT change!
+ */
+```
+
+Summary:
+
+- maximize min(height[l], height[r]): move smaller one such that it can be greater.
+- maximize (r - l): starting from leftmost and rightmost.
+
+```c++
+int maxArea_sol1(vector<int>& height) {
+    if (height.size() < 2) return 0;
+    int l = 0;
+    int r = height.size() - 1;
+    int maxArea = min(height[l], height[r]) * (r - l);
+    int area = 0;
+    while (l < r) {
+        if (height[l] <= height[r]) {
+            // TODO: move to next greater one
+            int leftHeight = height[l];
+            while ((l < r) && (leftHeight >= height[l])) {
+                l++;
+            }
+        }
+        else {
+            int rightHeight = height[r];
+            while ((l < r) && (height[r] <= rightHeight)) {
+                r--;
+            }
+        }
+        // TODO: update maxArea
+        if (l < r) {
+            area = min(height[l], height[r]) * (r - l);
+            maxArea = area > maxArea ? area : maxArea;
+        }
+    }
+
+    return maxArea;
+}
+```
+
+Tricks:
+
+- Observation and find patterns.
+
+
