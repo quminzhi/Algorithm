@@ -907,4 +907,63 @@ Tricks:
 
 - Observation and find patterns.
 
+## Slide Window
 
+### Find All Anagrams
+
+> Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
+>
+> An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+
+Solution 1 uses the method called move and query. We will build a set to store the permutation of string p, and make a window slide from left to right. At each step query if substring within window is in set. If so, got it!
+
+But the time complexity of enumerating all permutations is O(N!)
+
+The key here is frequency. So solution 2 will design two vecotrs to record frequency of s and p.
+
+```c++
+/**
+ * ex>  cbaebabacd     p = abc
+ *   fp = '1110000...000'
+ *         ^^^
+ *         abcdefg...xyz
+ *   fs = '1110000...000'
+ *         ^^^
+ *         abcdefg...xyz
+ * window 'cbaebabacd'
+ *         ^ ^
+ */
+```
+
+```c++
+vector<int> findAnagrams_sol2(string s, string p) {
+    if (p.length() > s.length()) return {};
+    vector<int> result;
+    vector<int> ss(26, 0);
+    vector<int> sp(26, 0);
+    for (int i = 0; i < p.length(); i++) {
+        sp[p[i] - 'a']++;
+        ss[s[i] - 'a']++;
+    }
+
+    int begin = 0;
+    int end = begin + p.length();
+    while (end <= s.length()) {
+        if (sp == ss) {
+            result.push_back(begin);
+        }
+        ss[s[begin] - 'a']--;
+        if (end < s.length()) {
+            ss[s[end] - 'a']++;
+        }
+        begin++;
+        end++;
+    }
+
+    return result;
+}
+```
+
+Tricks:
+
+- vector comparison: `sp == ss`.
