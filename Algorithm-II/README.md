@@ -967,3 +967,139 @@ vector<int> findAnagrams_sol2(string s, string p) {
 Tricks:
 
 - vector comparison: `sp == ss`.
+
+## BFS and DFS
+
+### Number of Islands
+
+> Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.
+>
+> An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+This is a variant problem for Maximum Area of Islands. The solution is similar by BFS.
+
+```c++
+/**
+ * @brief tagIsland
+ * @param grid: the map
+ * @param isTagged: record if point is tagged
+ * @param i: row index of starting point
+ * @param j: column index of starting point
+ * tag all points within an island with BFS.
+ */
+void tagIsland(vector< vector<char> >& grid,
+               vector< vector<bool> >& isTagged, int i, int j) {
+    isTagged[i][j] = true;
+    if ((i + 1 < isTagged.size()) && (grid[i+1][j] == '1') && (!isTagged[i+1][j]))
+        tagIsland(grid, isTagged, i+1, j);
+    if ((i - 1 >= 0) && (grid[i-1][j] == '1') && (!isTagged[i-1][j]))
+        tagIsland(grid, isTagged, i-1, j);
+    if ((j + 1 < isTagged[0].size()) && (grid[i][j+1] == '1') && (!isTagged[i][j+1]))
+        tagIsland(grid, isTagged, i, j+1);
+    if ((j - 1 >= 0) && (grid[i][j-1] == '1') && (!isTagged[i][j-1]))
+        tagIsland(grid, isTagged, i, j-1);
+
+    return;
+}
+
+/**
+ * @brief numIslands
+ * @param grid
+ * @return the number of islands
+ * Starting from (0, 0), find each island and tag it.
+ *
+ * T: O(N * M), S: O(N * M)
+ */
+int numIslands_sol1(vector< vector<char> >& grid) {
+    vector< vector<bool> > isTagged(
+                grid.size(),
+                vector<bool>(grid[0].size(), false));
+    int numOfIslands = 0;
+
+    // TODO: traverse grid
+    for (int i = 0; i < grid.size(); i++) {
+        for (int j = 0; j < grid[0].size(); j++) {
+            if ((grid[i][j] == '1') && (!isTagged[i][j])) {
+                numOfIslands++;
+                // TODO: tag points within the island
+                tagIsland(grid, isTagged, i, j);
+            }
+        }
+    }
+
+    return numOfIslands;
+}
+```
+
+### Number of Provinces
+
+> There are n cities. Some of them are connected, while some are not. If city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c.
+>
+> A province is a group of directly or indirectly connected cities and no other cities outside of the group.
+>
+> You are given an n x n matrix isConnected where `isConnected[i][j] = 1` if the ith city and the jth city are directly connected, and `isConnected[i][j] = 0` otherwise.
+>
+> Return the total number of provinces.
+
+Basic idea: traverse all cities. 
+
+- if the city is tagged with a province, then skip.
+- else find all cities which belongs to the same province as current city.
+
+```c++
+/**
+ * @brief tagCity
+ * @param isConnected: connection map
+ * @param isTagged: if current city is tagged
+ * @param i: ith city
+ */
+void tagCity(vector< vector<int> >& isConnected, vector<bool>& isTagged, int i) {
+    queue<int> q;
+    q.push(i);
+    while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+        isTagged[cur] = true;
+        for (int i = 0; i < isConnected.size(); i++) {
+            if ((i != cur) && (!isTagged[i]) && (isConnected[cur][i] == 1)) {
+                q.push(i);
+            }
+        }
+    }
+}
+
+/**
+ * @brief findCircleNum_sol1
+ * @param isConnected: a connection map where isConnected[i][j] = 1 if the ith city
+ * and the jth city are directly connected, and isConnected[i][j] = 0 otherwise.
+ * @return the number of provinces
+ *
+ * Input: [ [1,1,0],
+ *          [1,1,0],
+ *          [0,0,1] ]
+ *
+ * Basic idea: traverse all cities.
+ *  if the city is tagged with a province, then skip.
+ *  else find all cities which belongs to the same province as current city.
+ *
+ * How to find directly or indirectly connected cities? isConnected map!
+ *
+ * T: O(N), S: O(N)
+ */
+int findCircleNum_sol1(vector< vector<int> >& isConnected) {
+    vector<bool> isTagged(isConnected.size(), false);
+    int numOfProvinces = 0;
+
+    // TODO: traverse all cities
+    for (int i = 0; i < isConnected.size(); i++) {
+        if (!isTagged[i]) {
+            numOfProvinces++;
+            tagCity(isConnected, isTagged, i);
+        }
+    }
+
+    return numOfProvinces;
+}
+```
+
+
