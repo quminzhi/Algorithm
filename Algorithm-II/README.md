@@ -1102,4 +1102,94 @@ int findCircleNum_sol1(vector< vector<int> >& isConnected) {
 }
 ```
 
+### Subtree of Another Tree
+
+> Given the roots of two binary trees root and subRoot, return true if there is a subtree of root with the same structure and node values of subRoot and false otherwise.
+>
+> A subtree of a binary tree tree is a tree that consists of a node in tree and all of this node's descendants. The tree tree could also be considered as a subtree of itself.
+
+How to check if two trees are same? Recursion!
+
+```c++
+bool isEqual(TreeNode* lhs, TreeNode* rhs) {
+    if ((lhs == nullptr) && (rhs == nullptr)) {
+        return true;
+    }
+    // either of them is nullptr then return false
+    if ((lhs == nullptr) || (rhs == nullptr)) return false;
+
+    if (lhs->val != rhs->val) return false;
+    return (isEqual(lhs->left, rhs->left) && isEqual(lhs->right, rhs->right));
+}
+
+/**
+ * @brief isSubtree
+ * @param root: the root of original tree
+ * @param subRoot: sample subtree
+ * @return true if root tree includes subRoot tree
+ */
+bool isSubtree(TreeNode* root, TreeNode* subRoot) {
+    if (subRoot == nullptr) return true;
+    if (root == nullptr) return false;
+
+    if (isEqual(root, subRoot)) return true;
+
+    return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
+}
+```
+
+### Populating Pointers
+
+> Given a binary tree, populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be set to NULL.
+>
+> Initially, all next pointers are set to NULL.
+
+Notice that different from the similar question in Algorithm I, this is NOT a complete tree. But we are able to solve it with level-order search as well.
+
+```c++
+/**
+ * @brief connect
+ * @param root: the root of tree
+ * @return a tree has been connected
+ * Add new property 'level' to each node. Traverse node in level order and connect
+ * them.
+ */
+Node* connect(Node* root) {
+    class QueueNode {
+    public:
+        QueueNode(int _level, Node* _node)
+            : node(_node), level(_level) {}
+
+        Node* node;
+        int level;
+    };
+
+    if (root == nullptr) return root;
+    QueueNode first(0, root);
+    queue<QueueNode> que;
+    que.push(first);
+    while (!que.empty()) {
+        QueueNode cur = que.front();
+        que.pop();
+        if (!que.empty()) {
+            QueueNode next = que.front();
+            if (cur.level == next.level) {
+                cur.node->next = next.node;
+            }
+        }
+        if (cur.node->left != nullptr) {
+            que.push(QueueNode(cur.level+1, cur.node->left));
+        }
+        if (cur.node->right != nullptr) {
+            que.push(QueueNode(cur.level+1, cur.node->right));
+        }
+    }
+
+    return root;
+}
+```
+
+Tricks:
+
+- track level of each node.
 
