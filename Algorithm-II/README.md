@@ -1355,4 +1355,92 @@ Tricks:
 
 - Find characteristics of result cells.
 
+### All Paths from Source to Target
+
+> Given a directed acyclic graph (DAG) of n nodes labeled from 0 to n - 1, find all possible paths from node 0 to node n - 1 and return them in any order.
+>
+> The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node i (i.e., there is a directed edge from node i to node `graph[i][j]`).
+
+Basically there are two ways: BFS or DFS with path tracking.
+
+- BFS solution:
+
+```c++
+/**
+ * @brief allPathsSourceTarget_sol1
+ * @param graph
+ * @return all paths
+ * Basically, BFS or DFS with tracking path.
+ */
+vector< vector<int> > allPathsSourceTarget_sol1(vector< vector<int> >& graph) {
+    vector< vector<int> > result;
+    if (graph.size() == 0) return result;
+
+    class QueueNode {
+    public:
+        int node;
+        vector<int> path;
+        QueueNode(int _node, vector<int> _path)
+            : node(_node), path(_path) {}
+    };
+
+    int target = graph.size() - 1;
+    queue<QueueNode> que;
+    que.push(QueueNode(0, {0}));
+    while (!que.empty()) {
+        QueueNode cur = que.front();
+        que.pop();
+        if (cur.node == target) {
+            result.push_back(cur.path);
+        }
+        for (int neighbor = 0; neighbor < graph[cur.node].size(); neighbor++) {
+            // choose
+            cur.path.push_back(graph[cur.node][neighbor]);
+            que.push(QueueNode(graph[cur.node][neighbor], cur.path));
+            // unchoose
+            cur.path.pop_back();
+        }
+    }
+
+    return result;
+}
+```
+
+- DFS solution:
+
+```c++
+void searchHelper(vector< vector<int> >& graph,
+                  vector< vector<int> >& result,
+                  int node,
+                  vector<int>& path,
+                  int target) {
+    if (node == target) {
+        result.push_back(path);
+    }
+
+    for (int i = 0; i < graph[node].size(); i++) {
+        // choose
+        path.push_back(graph[node][i]);
+        searchHelper(graph, result, graph[node][i], path, target);
+        // unchoose
+        path.pop_back();
+    }
+}
+
+/**
+ * @brief allPathsSourceTarget_sol2
+ * @param graph
+ * @return
+ * Solution2 will employ deep first search.
+ */
+vector<vector <int> > allPathsSourceTarget_sol2(vector< vector<int> >& graph) {
+    vector< vector<int> > result;
+    if (graph.size() == 0) return result;
+    vector<int> path = {0};
+
+    searchHelper(graph, result, 0, path, graph.size()-1);
+
+    return result;
+}
+```
 

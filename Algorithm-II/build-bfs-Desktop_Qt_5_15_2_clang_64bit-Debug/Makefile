@@ -52,14 +52,16 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp \
+SOURCES       = ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.cpp \
+		../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp \
 		../BFS-DFS-III-1091-130-797/surroundedregions.cpp \
 		../BFS-DFS-III-1091-130-797/main.cpp \
 		../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.cpp \
 		../BFS-DFS-III-1091-130-797/testing/TestDriver.cpp \
 		../BFS-DFS-III-1091-130-797/testing/TestingGUI.cpp \
 		../BFS-DFS-III-1091-130-797/testing/TextUtils.cpp 
-OBJECTS       = shortestpathinbinarymatrix.o \
+OBJECTS       = allpathsfromsourcetotarget.o \
+		shortestpathinbinarymatrix.o \
 		surroundedregions.o \
 		main.o \
 		MemoryDiagnostics.o \
@@ -244,12 +246,14 @@ DIST          = ../../../../Qt/5.15.2/clang_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.15.2/clang_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.15.2/clang_64/mkspecs/features/lex.prf \
 		../../../../Qt/5.15.2/clang_64/mkspecs/features/silent.prf \
-		../BFS-DFS-III-1091-130-797/bfs.pro ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.h \
+		../BFS-DFS-III-1091-130-797/bfs.pro ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.h \
+		../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.h \
 		../BFS-DFS-III-1091-130-797/surroundedregions.h \
 		../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.h \
 		../BFS-DFS-III-1091-130-797/testing/SimpleTest.h \
 		../BFS-DFS-III-1091-130-797/testing/TestDriver.h \
-		../BFS-DFS-III-1091-130-797/testing/TextUtils.h ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp \
+		../BFS-DFS-III-1091-130-797/testing/TextUtils.h ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.cpp \
+		../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp \
 		../BFS-DFS-III-1091-130-797/surroundedregions.cpp \
 		../BFS-DFS-III-1091-130-797/main.cpp \
 		../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.cpp \
@@ -677,8 +681,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents ../../../../Qt/5.15.2/clang_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.h ../BFS-DFS-III-1091-130-797/surroundedregions.h ../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.h ../BFS-DFS-III-1091-130-797/testing/SimpleTest.h ../BFS-DFS-III-1091-130-797/testing/TestDriver.h ../BFS-DFS-III-1091-130-797/testing/TextUtils.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp ../BFS-DFS-III-1091-130-797/surroundedregions.cpp ../BFS-DFS-III-1091-130-797/main.cpp ../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.cpp ../BFS-DFS-III-1091-130-797/testing/TestDriver.cpp ../BFS-DFS-III-1091-130-797/testing/TestingGUI.cpp ../BFS-DFS-III-1091-130-797/testing/TextUtils.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.h ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.h ../BFS-DFS-III-1091-130-797/surroundedregions.h ../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.h ../BFS-DFS-III-1091-130-797/testing/SimpleTest.h ../BFS-DFS-III-1091-130-797/testing/TestDriver.h ../BFS-DFS-III-1091-130-797/testing/TextUtils.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.cpp ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp ../BFS-DFS-III-1091-130-797/surroundedregions.cpp ../BFS-DFS-III-1091-130-797/main.cpp ../BFS-DFS-III-1091-130-797/testing/MemoryDiagnostics.cpp ../BFS-DFS-III-1091-130-797/testing/TestDriver.cpp ../BFS-DFS-III-1091-130-797/testing/TestingGUI.cpp ../BFS-DFS-III-1091-130-797/testing/TextUtils.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -736,6 +740,9 @@ compiler_lex_clean:
 compiler_clean: compiler_moc_predefs_clean 
 
 ####### Compile
+
+allpathsfromsourcetotarget.o: ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.cpp ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o allpathsfromsourcetotarget.o ../BFS-DFS-III-1091-130-797/allpathsfromsourcetotarget.cpp
 
 shortestpathinbinarymatrix.o: ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.cpp ../BFS-DFS-III-1091-130-797/shortestpathinbinarymatrix.h \
 		../BFS-DFS-III-1091-130-797/testing/SimpleTest.h \

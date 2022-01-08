@@ -115,7 +115,7 @@ void traverseHelper(vector< vector<char> >& board,
 void solve_sol2(vector< vector<char> >& board) {
     if (board.size() == 0) return;
     vector< vector<bool> > visited(board.size(),
-                                   vector<bool>(board[0].size(), false))
+                                   vector<bool>(board[0].size(), false));
 
     // keep track all cells on islands connected with borders.
     vector<Point> buff;
