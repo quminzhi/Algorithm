@@ -1444,3 +1444,55 @@ vector<vector <int> > allPathsSourceTarget_sol2(vector< vector<int> >& graph) {
 }
 ```
 
+## Recursion and Backtracking
+
+### Subsets
+
+> Given an integer array nums of unique elements, return all possible subsets (the power set).
+>
+> The solution set must not contain duplicate subsets. Return the solution in any order.
+
+```c++
+void subsetsHelper(vector<int>& left, vector<int>& sofar,
+                   vector< vector<int> >& result) {
+    if (left.size() == 0) {
+        result.push_back(sofar);
+        return;
+    }
+
+    int cur = left.back();
+    left.pop_back();
+    // not choose the last number
+    subsetsHelper(left, sofar, result);
+    // choose the last number
+    sofar.push_back(cur); // reuse sofar
+    subsetsHelper(left, sofar, result);
+    // restore environment
+    sofar.pop_back();
+    left.push_back(cur);
+}
+
+/**
+ * @brief subsets
+ * @param nums
+ * @return all subsets of given nums
+ * Choose and not choose.
+ */
+vector< vector<int> > subsets(vector<int>& nums) {
+    vector< vector<int> > result;
+    if (nums.size() == 0) return result;
+
+    vector<int> sofar;
+    subsetsHelper(nums, sofar, result);
+
+    return result;
+}
+```
+
+Tricks:
+
+- Reuse buffers and keep environment unchanged.
+
+### Subsets II
+
+
