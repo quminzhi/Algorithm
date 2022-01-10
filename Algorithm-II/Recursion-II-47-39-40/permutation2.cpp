@@ -73,7 +73,7 @@ void permutationHelper2(vector<int>& left, vector<int>& selected,
             int cur = left[i];
             left.erase(left.begin() + i);
             selected.push_back(cur);
-            permutationHelper(left, selected, result);
+            permutationHelper2(left, selected, result);
             // restore
             selected.pop_back();
             left.insert(left.begin() + i, cur);
