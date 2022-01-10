@@ -1822,3 +1822,91 @@ vector< vector<int> > combinationSum_sol2(vector<int>& candidates, int target) {
 Tricks:
 
 - Remove duplications in combination problem: select in order. 
+
+### Combination Sum II
+
+> Given a collection of candidate numbers (candidates) and a target number (target), find all unique combinations in candidates where the candidate numbers sum to target.
+>
+> Each number in candidates may only be used once in the combination.
+>
+> Note: The solution set must not contain duplicate combinations.
+
+The difference for this problem from Combination is there are duplicated elements. How to get rid of duplicated elements? One way to solve it is grouping them. For example, if there are `n` 1's, then when process 1, it will have `n+1` branches. Keep each group unique.
+
+```c++
+void combinationSum2Helper2(vector<int>& candidates_group,
+                            vector<int>& selected,
+                            vector< vector<int> >& result,
+                            int target,
+                            int start) {
+    // base case:
+    if (target == 0) {
+        result.push_back(selected);
+        return;
+    }
+    if ((target < 0) | (start >= candidates_group.size())) {
+        return;
+    }
+
+    // recursion:
+    int cnt = candidates_group[start];
+    int cur = start;
+    int next_start = start + 1;
+    while ((next_start < candidates_group.size()) && (candidates_group[next_start] == 0)) {
+        next_start++;
+    }
+
+    // select 0 to cnt times
+    for (int i = 0; i <= cnt; i++) {
+        for (int j = 0; j < i; j++) {
+            selected.push_back(cur);
+        }
+        combinationSum2Helper2(candidates_group, selected, result, target - cur * i, next_start);
+        for (int j = 0; j < i; j++) {
+            selected.pop_back();
+        }
+    }
+}
+
+/**
+ * @brief combinationSum2_sol2
+ * @param candidates
+ * @param target
+ * @return
+ * Two observations:
+ * - In this problem, each number in the input is not unique. The implication of this
+ * difference is that we need some mechanism to avoid generating duplicate combinations.
+ * - In this problem, each number can be used only once. The implication of this difference
+ * is that once a number is chosen as a candidate in the combination, it will not appear
+ * again as a candidate later.
+ * The key here is to keep all elements unique. Then is has the same solution to CombinationSum.
+ *
+ * One way to solve it is to group.
+ * ex> candidates: {1, 1, 1, 1, 3}   target = 3
+ * We will see 4 1's as a group. Then there are two elements {1, 1, 1, 1} and 3.
+ * 1st: {}(3) -> {}(3) | {1}(2) | {1, 1}(1) | {1, 1, 1}(0) | {1, 1, 1, 1}(-1)
+ * 2nd: choose 3 or not.
+ *
+ * in other word, if 1 is seen in previous candidates, then it can only be chosen. That is
+ * the first 1 can be chosen and not, but the following 1's must be chosen.
+ */
+vector< vector<int> > combinationSum2_sol2(vector<int>& candidates, int target) {
+    vector< vector<int> > result;
+    vector<int> selected;
+    sort(candidates.begin(), candidates.end());
+
+    // TODO: group, 1 <= candidates[i] <= 50
+    vector<int> candidates_group(51, 0);
+    for (int i = 0; i < candidates.size(); i++) {
+        candidates_group[candidates[i]]++;
+    }
+
+    combinationSum2Helper2(candidates_group, selected, result, target, candidates[0]);
+
+    return result;
+}
+```
+
+Tricks:
+
+- Group: one way to keep elements unique.
