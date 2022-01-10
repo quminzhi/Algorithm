@@ -377,7 +377,7 @@ Tricks:
 
 - Corner cases.
 
-### Summary
+### Two Pointer Summary
 
 It is similar to what we have learned in an array. But it can be trickier and error-prone. There are several things you should pay attention:
 
@@ -385,3 +385,88 @@ It is similar to what we have learned in an array. But it can be trickier and er
 - Carefully define the end conditions of your loop.
 
 Analyze other problems by yourself to improve your analysis skill. Don't forget to take different conditions into consideration. If it is hard to analyze for all situations, consider the worst one.
+
+### Reverse Linked List
+
+> Given the head of a singly linked list, reverse the list, and return the reversed list.
+
+We provide two ways to reverse linked list, recursion and iteration.
+
+- Recursion
+
+Reverse list is to reverse left nodes following current node and make the next following node point to current node.
+
+```bash
+# 1 -> ... -> ...
+# 1 <- ...
+```
+
+```c++
+Node* reverseListHelper(Node*& head, Node* node) {
+    if (node->next == nullptr) {
+        // the last node
+        // change the next of the first node to be nullptr
+        head->next = nullptr;
+        head = node;
+        return node;
+    }
+
+    Node* next = reverseListHelper(head, node->next);
+    next->next = node;
+    return node;
+}
+
+/**
+ * @brief reverseList
+ * @param head
+ * @return the reverse of linked list.
+ * The first solution is to solve it recursively.
+ */
+Node* reverseList_sol1(Node* head) {
+    if (head == nullptr) return head;
+    reverseListHelper(head, head);
+    return head;
+}
+```
+
+- Iteration
+
+```c++
+/**
+ * @brief reverseList_sol2
+ * @param head
+ * @return
+ * Solution 2 uses another way to construct reversed linked list.
+ * ex> 1 -> 2 -> 3 -> 4
+ *     ^
+ *    head
+ * 1st: move 2 to the left of head
+ *     2 -> 1 -> 3 -> 4
+ *          ^
+ *         head
+ * 2nd: move 3 to the leftmost index of head
+ *     3 -> 2 -> 1 -> 4
+ *               ^
+ *              head
+ * 3rd: move 4 to the leftmost index of head
+ *     4 -> 3 -> 2 -> 1
+ *                    ^
+ *                   head
+ *     ^
+ *    new head
+ */
+Node* reverseList_sol2(Node* head) {
+    if (head == nullptr) return head;
+    Node* newHead = head;
+    while (head->next != nullptr) {
+        Node* next = head->next;
+        head->next = next->next;
+        next->next = newHead;
+        newHead = next;
+    }
+    head = nullptr;
+
+    return newHead;
+}
+```
+
