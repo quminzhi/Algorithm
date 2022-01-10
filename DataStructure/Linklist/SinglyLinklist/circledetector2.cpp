@@ -61,7 +61,7 @@ int detectCycle_sol1(Node* head) {
  *     the total distance of hare is twice as that of tortoise:
  *     2 * (L1 + L2) = L1 + L2 + C * N  =>  L1 = C * (N - 1) + C - L2
  *     - when N = 0, L1 = -L2 (impossible)
- *     -      N = 1, L1 = C - L2  => L1 means: head to entrance, C - L2 means: intersection
+ *     -      N = 1, L1 = C - L2  => L1 means: head to entrance of loop, C - L2 means: intersection
  *                                             node to entrance. Great!
  *     -      N = 2, L1 = 2 * C - L2 == C - L2 (since its a loop!), got same conclusion.
  *

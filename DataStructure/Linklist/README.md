@@ -320,3 +320,68 @@ Node* getIntersectionNode_sol4(Node* headA, Node* headB) {
 ```
 Notice: if listA and listB have no common node, pA will go a and b, and pB will go b and a. Particularly, at the same time when they finish the first iteration they will both become nullptr, which will end while loop.
 
+### Remove Nth Node From End
+
+> Given the head of a linked list, remove the nth node from the end of the list and return its head.
+
+Two pointers, the 'del' points to n'th node from 'end'. 'pre' points to the previous node of 'del'.
+
+```c++
+/**
+ * @brief removeNthFromEnd
+ * @param head
+ * @param n
+ * @return
+ */
+Node* removeNthFromEnd(Node* head, int n) {
+    if (head == nullptr) return head;
+
+    Node* del = nullptr;
+    Node* pre = nullptr;
+    Node* end = head;
+    int cnt = 1;
+    while (true) {
+        if (cnt == n) {
+            del = head;
+        }
+        if (end->next != nullptr) {
+            cnt++;
+            end = end->next;
+            if (del != nullptr) {
+                // 'del' has been initialized
+                pre = del;
+                del = del->next;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
+    if (del != nullptr) {
+        // if 'del' is validated
+        if (pre == nullptr) {
+            // 'del' is head
+            head = del->next;
+        }
+        else {
+            pre->next = del->next;
+        }
+    }
+
+    return head;
+}
+```
+
+Tricks:
+
+- Corner cases.
+
+### Summary
+
+It is similar to what we have learned in an array. But it can be trickier and error-prone. There are several things you should pay attention:
+
+- Always examine if the node is null before you call the next field. 
+- Carefully define the end conditions of your loop.
+
+Analyze other problems by yourself to improve your analysis skill. Don't forget to take different conditions into consideration. If it is hard to analyze for all situations, consider the worst one.

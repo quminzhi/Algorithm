@@ -113,7 +113,6 @@ void combinationSumHelper2(vector<int>& candidates,
 vector< vector<int> > combinationSum_sol2(vector<int>& candidates, int target) {
     vector< vector<int> > result;
     vector<int> selected;
-    set< vector<int> > seen;
 
     combinationSumHelper2(candidates, selected, result, target, 0);
 

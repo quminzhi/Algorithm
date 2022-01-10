@@ -5,6 +5,11 @@ class Node {
 public:
     int val = 0;
     Node* next = nullptr;
+
+    Node()
+        :val(0), next(nullptr) {}
+    Node(int _val)
+        :val(_val), next(nullptr) {}
 };
 
 bool operator==(Node nodeA, Node nodeB);
