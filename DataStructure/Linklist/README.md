@@ -562,3 +562,59 @@ Node* oddEvenList(Node* head) {
 Tricks:
 
 - Check if pointer is null before dereference.
+
+### Palindrome Linked List
+
+> Given the head of a singly linked list, return true if it is a palindrome.
+
+The challenge of this problem is to come up with an algorithm in O(1) extra space. The algorithm contains three steps:
+
+- find middle and end node.
+- reverse the right half list.
+- traverse left and right half to check if it is a palindrome linked list.
+
+```c++
+bool isPalindrome(Node* head) {
+    if (head == nullptr) return head;
+
+    // TODO: find middle and end nodes
+    Node* mid = head; // one step a time
+    Node* end = head; // two steps a time
+    while ((end->next != nullptr) && (end->next->next != nullptr)) {
+        end = end->next->next;
+        mid = mid->next;
+    }
+    if (end->next != nullptr) {
+        // for even length
+        end = end->next;
+    }
+
+    // TODO: reverse the right half (mid->next point to the head of right half)
+    Node* right_head = mid->next;
+    Node* new_head = mid->next;
+    while ((right_head != nullptr) && (right_head->next != nullptr)) {
+        Node* move = right_head->next;
+        right_head->next = move->next;
+        move->next = new_head;
+        new_head = move;
+    }
+    mid->next = new_head;
+
+    // TODO: traverse the left and right half
+    Node* left = head;
+    Node* right = new_head;
+    while (right != nullptr) {
+        if (left->val != right->val) {
+            return false;
+        }
+        left = left->next;
+        right = right->next;
+    }
+
+    return true;
+}
+```
+
+Tricks:
+
+- Reverse part of the linked list.
