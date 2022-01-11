@@ -470,3 +470,95 @@ Node* reverseList_sol2(Node* head) {
 }
 ```
 
+### Remove Elements
+
+> Given the head of a linked list and an integer val, remove all the nodes of the linked list that has `Node.val == val`, and return the new head.
+
+Two pointers method.
+
+```c++
+/**
+ * @brief removeElements
+ * @param head
+ * @param val
+ * @return
+ * Two pointers: pre and cur.
+ */
+Node* removeElements(Node* head, int val) {
+    Node* cur = head;
+    Node* pre = nullptr;
+    while (cur != nullptr) {
+        if (cur->val == val) {
+            // !!!: delete cur: pre does not need to proceed
+            if (pre == nullptr) {
+                // node to delete is the first element
+                head = head->next;
+                cur = head;
+            }
+            else {
+                pre->next = cur->next;
+                cur = cur->next;
+            }
+        }
+        else {
+            pre = cur;
+            cur = cur->next;
+        }
+    }
+    return head;
+}
+```
+
+### Odd and Even List
+
+> Given the head of a singly linked list, group all the nodes with odd indices together followed by the nodes with even indices, and return the reordered list.
+>
+> The first node is considered odd, and the second node is even, and so on.
+> 
+> Note that the relative order inside both the even and odd groups should remain as it was in the input.
+>
+> You must solve the problem in O(1) extra space complexity and O(n) time complexity.
+
+The idea is constructing two list: odd list and even list on original list.
+
+```c++
+/**
+ * @brief oddEvenList
+ * @param head
+ * @return
+ * The solution must be in O(1) space complexity and O(N) time complexity.
+ * The idea is constructing two list: odd list and even list on original list.
+ */
+Node* oddEvenList(Node* head) {
+    // 0 or 1 element
+    if ((head == nullptr) || (head->next == nullptr)) {
+        return head;
+    }
+
+    Node* head_odd = head;
+    Node* head_even = head->next;
+    Node* p_odd = head_odd;
+    Node* p_even = head_even;
+    while ((p_odd != nullptr) && (p_even != nullptr)) {
+        if (p_odd->next != nullptr) {
+            p_odd->next = p_odd->next->next;
+            p_odd = p_odd->next;
+        }
+        if (p_even->next != nullptr) {
+            p_even->next = p_even->next->next;
+            p_even = p_even->next;
+        }
+    }
+    p_odd = head_odd;
+    while (p_odd->next != nullptr) {
+        p_odd = p_odd->next;
+    }
+    p_odd->next = head_even;
+
+    return head_odd;
+}
+```
+
+Tricks:
+
+- Check if pointer is null before dereference.
