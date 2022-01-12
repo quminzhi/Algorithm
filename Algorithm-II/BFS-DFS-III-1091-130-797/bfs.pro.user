@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 5.0.0, 2022-01-11T15:31:26. -->
+<!-- Written by QtCreator 5.0.0, 2022-01-11T17:08:36. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -242,6 +242,7 @@
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/minzhiqu/Desktop/Leetcode/Algorithm-II/BFS-DFS-III-1091-130-797/bfs.app/Contents/MacOS</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>
