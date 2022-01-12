@@ -2,7 +2,7 @@
 
 LinkList to data structure is sort of like "hello world" to C. In this section, we will discuss some topics about link list.
 
-## Implementation
+## Singly Linked List
 
 ```c++
 #ifndef LINKLIST_H
@@ -618,3 +618,236 @@ bool isPalindrome(Node* head) {
 Tricks:
 
 - Reverse part of the linked list.
+
+### Problems Summary
+
+We have provided several exercises for you. You might have noticed the similarities between them. Here we provide some tips for you:
+
+- Going through some test cases will save you time.
+- Feel free to use several pointers at the same time.
+- In many cases, you need to track the previous node of the current node.
+
+## Doubly Linked List
+
+```c++
+// linkedlist.h
+#ifndef DOUBLYLINKEDLIST_H
+#define DOUBLYLINKEDLIST_H
+
+class ListNode {
+public:
+    int val;
+    ListNode* pre;
+    ListNode* next;
+
+    ListNode()
+        : val(0), pre(nullptr), next(nullptr) {}
+    ListNode(int _val)
+        : val(_val), pre(nullptr), next(nullptr) {}
+};
+
+class DoublyLinkedList
+{
+public:
+    DoublyLinkedList()
+        : head(nullptr), size(0) {}
+
+    bool isEmpty();
+
+    int get(int index);
+    void addAtHead(int val);
+    void addAtTail(int val);
+    void addAtIndex(int index, int val);
+    void deleteAtIndex(int index);
+
+    ~DoublyLinkedList() {
+        clear();
+    }
+
+    ListNode* head;
+    int size;
+
+private:
+    void clear();
+};
+
+#endif // DOUBLYLINKEDLIST_H
+```
+
+```c++
+// linkedlist.cpp
+#include "doublylinkedlist.h"
+#include <assert.h>
+#include <testing/SimpleTest.h>
+
+int DoublyLinkedList::get(int index) {
+    assert((index >= 0) && (index < size));
+    int cnt = 0;
+    ListNode* p = head;
+    while (p != nullptr) {
+        if (cnt == index) {
+            return p->val;
+        }
+        p = p->next;
+        cnt++;
+    }
+
+    return -1;
+}
+
+
+void DoublyLinkedList::addAtHead(int val) {
+    ListNode* node = new ListNode(val);
+    if (size == 0) {
+        // no element
+        head = node;
+    }
+    else {
+        // at least one element
+        node->next = head;
+        head->pre = node;
+        head = node;
+    }
+
+    size++;
+}
+
+void DoublyLinkedList::addAtTail(int val) {
+    ListNode* node = new ListNode(val);
+    if (size == 0) {
+        head = node;
+    }
+    else {
+        ListNode* last = head; // find the last node
+        while (last->next != nullptr) {
+            last = last->next;
+        }
+        node->pre = last;
+        last->next = node;
+    }
+
+    size++;
+}
+
+void DoublyLinkedList::addAtIndex(int index, int val) {
+    assert((index >= 0) && (index <= size)); // !!!: <= size
+    if (index == 0) {
+        addAtHead(val);
+        return;
+    }
+    if (index == size) {
+        addAtTail(val);
+        return;
+    }
+
+    ListNode* node = new ListNode(val);
+    int cnt = 0;
+    ListNode* cur = head;
+    ListNode* pre = nullptr;
+    while ((cur->next != nullptr) && (cnt != index)) {
+        pre = cur;
+        cur = cur->next;
+        cnt++;
+    }
+
+    // TODO: insert
+    node->pre = pre;
+    node->next = cur;
+    if (pre != nullptr) {
+        pre->next = node;
+    }
+    cur->pre = node;
+
+    size++;
+}
+
+void DoublyLinkedList::deleteAtIndex(int index) {
+    assert(size > 0);
+    assert((index >= 0) && (index < size));
+    if (index == 0) {
+        ListNode* next = head->next;
+        if (next != nullptr) {
+            next->pre = nullptr;
+        }
+        ListNode* del = head;
+        head = next;
+
+        delete del;
+    }
+    else {
+        int cnt = 0;
+        ListNode* cur = head;
+        ListNode* pre = nullptr;
+        while ((cur->next != nullptr) && (cnt != index)) {
+            pre = cur;
+            cur = cur->next;
+            cnt++;
+        }
+        ListNode* del = cur;
+        if (pre != nullptr) {
+            pre->next = del->next;
+        }
+        if (del->next != nullptr) {
+            del->next->pre = pre;
+        }
+
+        delete del;
+    }
+
+    size--;
+}
+
+bool DoublyLinkedList::isEmpty() {
+    return (size == 0);
+}
+
+void DoublyLinkedList::clear() {
+    while (!isEmpty()) {
+        deleteAtIndex(0);
+    }
+}
+
+/* ****************************** *
+ *          UNIT TEST
+ * ****************************** */
+PROVIDED_TEST("test for sol1:") {
+    DoublyLinkedList list;
+    list.addAtHead(3);
+    list.addAtHead(2);
+    list.addAtHead(1);
+    EXPECT_EQUAL(list.size, 3);
+    list.addAtIndex(1, 5);
+    EXPECT_EQUAL(list.get(1), 5);
+    list.addAtTail(4);
+    EXPECT_EQUAL(list.get(4), 4);
+    list.deleteAtIndex(4);
+    EXPECT_EQUAL(list.size, 4);
+}
+```
+
+## Summary
+
+Let's briefly review the performance of the singly linked list and doubly linked list.
+
+They are similar in many operations:
+
+- Both of them are not able to access the data at a random position in constant time.
+- Both of them can add a new node after given node or at the beginning of the list in O(1) time.
+- Both of them can delete the first node in O(1) time.
+
+But it is a little different to delete a given node (including the last node).
+
+- In a singly linked list, it is not able to get the previous node of a given node so we have to spend O(N) time to find out the previous node before deleting the given node.
+- In a doubly-linked list, it will be much easier because we can get the previous node with the "prev" reference field. So we can delete a given node in O(1) time.
+
+## Problems II
+
+### Merge Two Sorted List
+
+> You are given the heads of two sorted linked lists list1 and list2.
+>
+> Merge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists.
+>
+> Return the head of the merged linked list.
+
+
