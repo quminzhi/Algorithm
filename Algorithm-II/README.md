@@ -2263,3 +2263,69 @@ Tricks:
 - Start from divide and conquer and derive formula.
 - Be careful for the order when solving from bottom to top.
 
+### Jump Game
+
+> You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.
+>
+> Return true if you can reach the last index, or false otherwise.
+
+Start from divide and conquer. 
+
+```bash
+# ex> 2, 3, 1, 1, 4
+#  i: 0  1  2  3  4
+# start from index 0: jump choice 1 ~ val[0]
+# =>: 1 + jump in {3, 1, 1, 4}
+#     2 + jump in {1, 1, 4}
+#     ...
+#
+# define f as f(index)
+# f(index) = true means I can jump to the end from index, f(index) = false otherwise.
+```
+
+```c++
+/**
+ * @brief canJump_sol3
+ * @param nums
+ * @return
+ * In fact, we can refine function to have only one parameter.
+ * f(index) = true means I can jump to the end from index, f(index) = false otherwise.
+ *
+ * ex> 2, 3, 1, 1, 4
+ *  i: 0  1  2  3  4
+ *
+ * In dynamic programming, we start from the last one.
+ * f(4) = true;
+ * f(3) = f(3+1) | f(3+2) | ... | f(3+maximum)
+ * ...
+ *
+ * T: O(N^2)
+ */
+bool canJump_sol3(vector<int>& nums) {
+    if (nums.size() == 0)  return false;
+    if (nums.size() == 1)  return true;
+    int size = nums.size();
+    vector<bool> buf(size, false);
+    int target_index = size - 1;
+    for (int i = size - 1; i >= 0; i--) {
+        if (i == target_index) {
+            buf[i] = true;
+        }
+        else {
+            for (int jump = 1; jump <= nums[i]; jump++) {
+                if (buf[i+jump] == true) {
+                    buf[i] = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    return buf[0];
+}
+
+```
+
+Tricks:
+
+- Simplify the defination of `buf` and grasp core information.
