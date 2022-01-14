@@ -2525,4 +2525,52 @@ PROVIDED_TEST("test for sol1:") {
 }
 ```
 
+### Jump Game III
 
+> Given an array of non-negative integers arr, you are initially positioned at start index of the array. When you are at index i, you can jump to `i + arr[i]` or `i - arr[i]`, check if you can reach to any index with value 0.
+>
+> Notice that you can not jump outside of the array at any time.
+
+The linear search can be transformed as graph search. Therefore, BFS or DFS.
+
+```c++
+/**
+ * @brief canReach_sol2
+ * @param arr
+ * @param start
+ * @return
+ * Change linear structure of arr to a graph, then DFS or BFS!
+ */
+bool canReach_sol2(vector<int>& arr, int start) {
+    if (arr.size() == 0) return false;
+    int size =  arr.size();
+
+    vector<bool> visited(size, false);
+
+    // TODO: start from 'start' with BFS
+    queue<int> que;
+    que.push(start);
+    while (!que.empty()) {
+        int cur = que.front();
+        que.pop();
+        visited[cur] = true;
+
+        if (arr[cur] == 0) {
+            return true;
+        }
+
+        if ((cur - arr[cur] >= 0) && (!visited[cur - arr[cur]])) {
+            que.push(cur - arr[cur]);
+        }
+        if ((cur + arr[cur] < size) && (!visited[cur + arr[cur]])) {
+            que.push(cur + arr[cur]);
+        }
+    }
+
+    return false;
+}
+```
+
+Tricks:
+
+- Data representation is VERY important in depending algorithm.
