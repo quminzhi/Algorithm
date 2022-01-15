@@ -2649,3 +2649,133 @@ int minJumps(vector<int>& arr) {
 Tricks:
 
 - To avoid traverse circly, use `visited` to record visited node.
+
+### Longest Palindrome Substring
+
+> Given a string s, return the longest palindromic substring in s.
+
+Dynamic programming solution is shown as follows.
+
+```c++
+/**
+ * @brief longestPalindrome
+ * @param s
+ * @return
+ * Work it out in dynamic programming way. Define f as:
+ *
+ * f(left, right): true if string[left...right] is palindrome.
+ *
+ * f(left, right) has three cases:
+ * 1. left == right, true (base case)
+ * 2. right - left == 1, meaning substrings with two letters
+ *    f(left, right) = s[left] == s[right], ex> 'aa' (true) 'bc' (false)
+ * 3. right - left > 1, meanning the length of substring is greater than 2.
+ *    f(left, right) = f(left+1, right-1) & s[left] == s[right]
+ *
+ * Derivation direction can be figured out from f(left, right) = f(left+1, right-1).
+ *
+ * T: O(N^2)
+ */
+string longestPalindrome(string s) {
+    if (s.length() == 0) return "";
+    int size = s.length();
+    vector< vector<bool> > isPalindrome(size, vector<bool>(size, false));
+
+    int longest = 1;
+    string result;
+    result.push_back(s[0]);
+
+    // case 1: single character
+    for (int i = 0; i < size; i++) {
+        isPalindrome[i][i] = true;
+    }
+
+    // case 2: substring with size of 2
+    for (int left = 0; left < size; left++) {
+        if (s[left] == s[left+1]) {
+            isPalindrome[left][left+1] = true;
+            // update longest
+            longest = 2;
+            result = s.substr(left, 2);
+        }
+    }
+
+    // case 3: length is greater than 2
+    // outter: from left to right
+    // inner: from top to bottom
+    for (int right = 2; right < size; right++) {
+        for (int left = 0; left <= right - 2; left++) {
+            if ((isPalindrome[left+1][right-1]) && (s[left] == s[right])) {
+                isPalindrome[left][right] = true;
+                // update longest
+                if ((right - left + 1) > longest) {
+                    longest = right - left + 1;
+                    result = s.substr(left, longest);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+```
+
+### Arithmetic Slices
+
+> An integer array is called arithmetic if it consists of at least three elements and if the difference between any two consecutive elements is the same.
+>
+> For example, `[1,3,5,7,9]`, `[7,7,7,7]`, and `[3,-1,-5,-9]` are arithmetic sequences.
+>
+> Given an integer array nums, return the number of arithmetic subarrays of nums.
+>
+> A subarray is a contiguous subsequence of the array.
+
+- Dynamic Programming Solution
+
+```c++
+/**
+ * @brief numberOfArithmeticSlices
+ * @param nums
+ * @return
+ * Again, dynamic programming. We define f as:
+ *
+ * f(left, right): true if right - left >= 2 and nums[left, right] is arithmetic.
+ *
+ * f(left, right) has two cases:
+ * 1. base case: f(left, left+2)
+ * 2. derive case: f(left, right) = f(left, right-1) &
+ *                 (nums[right] - nums[right-1]) == (nums[left+1] - nums[left])
+ *
+ * Derivation direction can be figured out from f(left, right) = f(left, right-1).
+ *
+ * T: O(N^2)
+ */
+int numberOfArithmeticSlices(vector<int>& nums) {
+    if (nums.size() < 3) return 0;
+    int size = nums.size();
+    int cnt = 0;
+    vector< vector<bool> > isSlice(size, vector<bool>(size, false));
+
+    // case 1:
+    for (int i = 0; i < (size - 2); i++) {
+        if ((nums[i+2] - nums[i+1]) == (nums[i+1] - nums[i])) {
+            isSlice[i][i+2] = true;
+            cnt++;
+        }
+    }
+
+    // case 2:
+    for (int right = 3; right < size; right++) {
+        for (int left = 0; left <= right - 3; left++) {
+            if ((isSlice[left][right-1]) &&
+                ((nums[right] - nums[right-1]) == (nums[left+1] - nums[left]))) {
+                isSlice[left][right] = true;
+                cnt++;
+            }
+        }
+    }
+
+    return cnt;
+}
+```
+
