@@ -2779,3 +2779,119 @@ int numberOfArithmeticSlices(vector<int>& nums) {
 }
 ```
 
+### Decode Ways
+
+> A message containing letters from A-Z can be encoded into numbers using the following mapping:
+>
+> 'A' -> "1", 'B' -> "2", ..., 'Z' -> "26"
+>
+> To decode an encoded message, all the digits must be grouped then mapped back into letters using the reverse of the mapping above (there may be multiple ways). For example, "11106" can be mapped into:
+>
+> "AAJF" with the grouping (1 1 10 6)
+> "KJF" with the grouping (11 10 6)
+>
+> Given a string s containing only digits, return the number of ways to decode it.
+
+- Recursion Solution:
+
+```c++
+int numDecodeHelper(string& s, unordered_map<string, char>& map, int start) {
+    if (start >= s.length()) {
+        return 1;
+    }
+    if (start == s.length()-1) {
+        string key = string(1, s[start]);
+        if ((map[key] <= 'Z') && (map[key] >= 'A')) {
+            return 1;
+        }
+    }
+
+    int num= 0;
+    string key = string(1, s[start]);
+    if ((map[key] <= 'Z') && (map[key] >= 'A')) {
+        num += numDecodeHelper(s, map, start+1);
+    }
+
+    key.push_back(s[start+1]);
+    if ((map[key] <= 'Z') && (map[key] >= 'A'))  {
+        num += numDecodeHelper(s, map, start+2);
+    }
+
+    return num;
+}
+
+/**
+ * @brief numDecodings_sol1
+ * @param s
+ * @return
+ * The first idea is to solve it by recursion.
+ *
+ * ex> code = '11106'
+ * numDecoding(code) = numDecoding(code.substr(1)) + numDecoding(code.substr(2)) if
+ * code[0-1] is a valid mapped character.
+ *
+ * T: O(2^N)
+ */
+int numDecodings_sol1(string s) {
+    if (s.size() == 0) return 0;
+    // TODO: construct map
+    unordered_map<string, char> map;
+    for (int i = 0; i < 26; i++) {
+        map[to_string(i+1)] = 'A' + i;
+    }
+
+    int result = numDecodeHelper(s, map, 0);
+
+    return result;
+}
+```
+
+- Dynamic Programming
+
+```c++
+/**
+ * @brief numDecodings_sol2
+ * @param s
+ * @return
+ * To avoid repeated calculation, dynamic programming comes into play. Define f as:
+ *
+ * f(index) is the number of decodings starting from index.
+ *
+ * Derivation: f(index) = f(index+1) if s[index] is valid
+ *                        + f(index+2) if s[index...index+1] is valid
+ *
+ * Base case: if index > s.size()-1, f(index) = 1;
+ *
+ * T: O(N)
+ */
+int numDecodings_sol2(string s) {
+    if (s.size() == 0) return 0;
+    int size = s.size();
+
+    // TODO: construct map
+    unordered_map<string, char> map;
+    for (int i = 0; i < 26; i++) {
+        map[to_string(i+1)] = 'A' + i;
+    }
+
+    vector<int> f(size + 1, 0);
+    f[size] = 1;
+    if ((s[size-1] >= '1') && (s[size-1] <= '9')) {
+        f[size-1] = 1;
+    }
+
+    for (int i = size - 2; i >= 0; i--) {
+        string key = string(1, s[i]);
+        if ((map[key] <= 'Z') && (map[key] >= 'A')) {
+            f[i] += f[i+1];
+        }
+        key += s[i+1];
+        if ((map[key] <= 'Z') && (map[key] >= 'A')) {
+            f[i] += f[i+2];
+        }
+    }
+
+    return f[0];
+}
+```
+
