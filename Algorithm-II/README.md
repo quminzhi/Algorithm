@@ -2574,3 +2574,78 @@ bool canReach_sol2(vector<int>& arr, int start) {
 Tricks:
 
 - Data representation is VERY important in depending algorithm.
+
+### Jump Game IV
+
+> Given an array of integers arr, you are initially positioned at the first index of the array.
+>
+> In one step you can jump from index i to index:
+> 1. i + 1 where: i + 1 < arr.length.
+> 2. i - 1 where: i - 1 >= 0.
+> 3. j where: arr[i] == arr[j] and i != j.
+>
+> Return the minimum number of steps to reach the last index of the array.
+>
+> Notice that you can not jump outside of the array at any time.
+
+The problem is similar to jump game III. To find the minimum steps, BFS is the solution.
+
+```c++
+int minJumps(vector<int>& arr) {
+    if (arr.size() == 0) return 0;
+    int size = arr.size();
+    int target = size - 1;
+    vector<bool> visited(size, false);
+
+    class QueueNode {
+    public:
+        int index;
+        int step;
+        QueueNode(int _index, int _step)
+            : index(_index), step(_step) {}
+    };
+    queue<QueueNode> que;
+    que.push(QueueNode(0, 0));
+    visited[0] = true;
+
+    // cluster[val] -> {index with val == 'val'}
+    unordered_map<int, vector<int> > cluster;
+    for (int i = 0; i < size; i++) {
+           cluster[arr[i]].push_back(i);
+    }
+
+    while (!que.empty()) {
+        QueueNode cur = que.front();
+        que.pop();
+
+
+        if (cur.index == target) {
+            return cur.step;
+        }
+
+        if ((cur.index - 1 >= 0) && (!visited[cur.index-1])) {
+            que.push(QueueNode(cur.index-1, cur.step+1));
+            visited[cur.index-1] = true;
+        }
+        if ((cur.index + 1 < size) && (!visited[cur.index+1])) {
+            que.push(QueueNode(cur.index+1, cur.step+1));
+            visited[cur.index+1] = true;
+        }
+
+        // all brothers and sisters in cluster
+        vector<int> brothers = cluster[arr[cur.index]];
+        for (int i = 0; i < brothers.size(); i++) {
+            if ((brothers[i] != cur.index) && (!visited[brothers[i]])){
+                que.push(QueueNode(brothers[i], cur.step+1));
+                visited[brothers[i]] = true;
+            }
+        }
+    }
+
+    return -1;
+}
+```
+
+Tricks:
+
+- To avoid traverse circly, use `visited` to record visited node.
