@@ -3069,4 +3069,64 @@ First, we need some function or array that represents the answer to the problem 
 
 Second, we need a way to transition between states, such as dp[5] and dp[7]. This is called a recurrence relation and can sometimes be tricky to figure out. Let's say we know `dp[0]`, `dp[1]`, and `dp[2]`. How can we find `dp[3]` given this information? Well, since `dp[2]` represents the length of the longest increasing subsequence that ends with `nums[2]`, if `nums[3] > nums[2]`, then we can simply take the subsequence ending at i = 2 and append `nums[3]` to it, increasing the length by 1. The same can be said for `nums[0]` and `nums[1]` if `nums[3]` is larger. Of course, we should try to maximize `dp[3]`, so we need to check all 3. Formally, the recurrence relation is: `dp[i] = max(dp[j] + 1)` for all j where `nums[j] < nums[i]` and `j < i`.
 
+### Find Number of LIS
 
+> Given an integer array nums, return the number of longest increasing subsequences.
+>
+> Notice that the sequence has to be strictly increasing.
+
+Based on the solution to the length of LIS, add vector `subseqs` to track paths to current ending index.
+
+```c++
+/**
+ * @brief findNumberOfLIS
+ * @param nums
+ * @return
+ * The solution is based on the algorithm for finding LIS. The difference is that we will
+ * add additional information to f. We define f as:
+ *
+ * f(end) is same.
+ * n(end), tracks the num of subseqs.
+ */
+int findNumberOfLIS(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    int size = nums.size();
+
+    vector<int> longest(size, 1);
+    vector<int> subseqs(size, 1);
+    for (int end = 1; end < size; end++) {
+        for (int i = 0; i < end; i++) {
+            if ((nums[i] < nums[end]) && (longest[i] + 1 > longest[end])){
+                longest[end] = longest[i] + 1;
+            }
+        }
+        // track all subseqs
+        int newCnt = 0;
+        for (int i = 0; i < end; i++) {
+            if ((nums[i] < nums[end]) && ((longest[i] + 1) == longest[end])) {
+                // if subseq[i] is connected to subseq[end]
+                newCnt += subseqs[i];
+            }
+        }
+        if (newCnt != 0) {
+            subseqs[end] = newCnt;
+        }
+    }
+
+    int max = 0;
+    for (int i = 0; i < size; i++) {
+        if (longest[i] > max) {
+            max = longest[i];
+        }
+    }
+
+    int cnt = 0;
+    for (int i = 0; i < size; i++) {
+        if (longest[i] == max) {
+            cnt += subseqs[i];
+        }
+    }
+
+    return cnt;
+}
+```
