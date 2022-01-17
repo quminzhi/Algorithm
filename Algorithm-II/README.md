@@ -3661,4 +3661,37 @@ Tricks:
 
 ### Integer Break
 
+> Given an integer n, break it into the sum of k positive integers, where k >= 2, and maximize the product of those integers.
+>
+> Return the maximum product you can get.
 
+Think of division recursively. What we care about is divide or not 2 divisors `i` and `num-i`.
+
+```c++
+/**
+ * @brief integerBreak_sol2
+ * @param n
+ * @return
+ * what we care about is just divide num into two number.
+ *
+ * f(num) = max of (max(i, f[i]) * max(num-i, f[num-i])), where i is in [1..num-1].
+ *
+ */
+int integerBreak_sol2(int n) {
+    if (n < 2) return 0;
+    vector<int> f(n+1, 0);
+
+    for (int num = 2; num < f.size(); num++) {
+        int maximum = 0;
+        for (int i = 1; i < num; i++) {
+            int cur = max(i, f[i]) * max(num - i, f[num-i]);
+            if (cur > maximum) {
+                maximum = cur;
+            }
+        }
+        f[num] = maximum;
+    }
+
+    return f[n];
+}
+```
