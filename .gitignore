@@ -36,3 +36,5 @@
 .DS_Store
 .gitignore
 Empty
+testing/
+*.pro
