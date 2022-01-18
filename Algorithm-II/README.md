@@ -3752,3 +3752,63 @@ int rangeBitwiseAnd(int left, int right) {
 }
 ```
 
+## Others
+
+### Shuffle An Array
+
+> Given an integer array nums, design an algorithm to randomly shuffle the array. All permutations of the array should be equally likely as a result of the shuffling.
+>
+> Implement the `Solution` class:
+>
+> - `Solution(int[] nums)` Initializes the object with the integer array `nums`.
+> - `int[] reset()` Resets the array to its original configuration and returns it.
+> - `int[] shuffle()` Returns a random shuffling of the array.
+
+How to generate a permutation of an array without enumerating all permuations. SWAP for `n` times.
+
+```c++
+class ShuffleAnArray
+{
+public:
+    ShuffleAnArray(vector<int>& _nums)
+        : nums(_nums), origins(vector<int>(_nums)) {};
+    vector<int> reset();
+    vector<int> shuffle();
+
+    vector<int>& nums;
+    vector<int> origins;
+};
+
+vector<int> ShuffleAnArray::reset() {
+    for (int i = 0; i < nums.size(); i++) {
+        nums[i] = origins[i];
+    }
+
+    return nums;
+}
+
+vector<int> ShuffleAnArray::shuffle2() {
+//    srand(time(NULL));
+    int chosen;
+    for (int i = 0; i < nums.size(); i++) {
+        chosen = rand() % nums.size();
+        // swap nums[i] and nums[chosen]
+        swap(nums[i], nums[chosen]);
+    }
+
+    return nums;
+}
+```
+
+### Happy Number
+
+> Write an algorithm to determine if a number n is happy.
+>
+> A happy number is a number defined by the following process:
+>
+> - Starting with any positive integer, replace the number by the sum of the squares of its digits.
+> - Repeat the process until the number equals 1 (where it will stay), or it loops endlessly in a cycle which does not include 1.
+> - Those numbers for which this process ends in 1 are happy.
+>
+> Return true if n is a happy number, and false if not.
+
