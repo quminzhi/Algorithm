@@ -17,6 +17,6 @@ using namespace std;
  *
  * Return true if n is a happy number, and false if not.
  */
-
+bool isHappy(int n);
 
 #endif // HAPPYNUMBER_H

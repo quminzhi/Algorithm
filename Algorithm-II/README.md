@@ -3812,3 +3812,71 @@ vector<int> ShuffleAnArray::shuffle2() {
 >
 > Return true if n is a happy number, and false if not.
 
+There are three cases:
+
+- It eventually gets to 1.
+- It eventually gets stuck in a cycle.
+- It keeps going higher and higher, up towards infinity. (not possible)
+
+Therefore, the core problem is how to detect cycle. Hashset or vector.
+
+```c++
+int next(int happy) {
+    int newHappy = 0;
+    while (happy > 0) {
+        int remainder = happy % 10;
+        happy = happy / 10;
+        newHappy += remainder * remainder;
+    }
+
+    return newHappy;
+}
+
+/**
+ * @brief isHappy
+ * @param n
+ * @return true if it is happy.
+ */
+bool isHappy(int n) {
+    vector<bool> memo(INT_MAX, false);
+    if (n == 1) return true;
+    int happy = n;
+    while ((!memo[happy]) && (happy != 1)) {
+        memo[happy] = true;
+        happy = next(happy);
+    }
+
+    return happy == 1;
+}
+```
+
+But there is a more tricky way - the power of math. There is only one cycle in fact.
+
+```c++
+/**
+ * @brief isHappy_sol2
+ * @param n
+ * @return
+ * magic math solution: there is only one cycle:
+ *
+ * 4 - 16 - 37 - 58 - 89 - 145 - 42 - 20 - 4
+ *
+ * So hardcode it.
+ */
+bool isHappy_sol2(int n) {
+    unordered_set<int> cycle = {4, 16, 37, 58, 89, 145, 42, 20};
+    if (n == 1) return true;
+    int happy = n;
+
+    while ((happy != 1) && (cycle.find(happy) == cycle.end())) {
+        happy = next(happy);
+    }
+
+    return happy == 1;
+}
+```
+
+Tricks:
+
+- Power of math.
+- Carefully design the order of conditions for loop.
