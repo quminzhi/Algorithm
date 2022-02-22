@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "../example.hpp"
+#include "../solution.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 
-class ExampleTests : public ::testing::Test {
+class TestWithContext : public ::testing::Test {
 public:
     int* x;
 
@@ -20,21 +20,19 @@ public:
     }
 };
 
-TEST_F(ExampleTests, DemonstrateTestMacros) {
+// TEST_F(<testsuite name>, testname)
+TEST_F(TestWithContext, TestWithContextDemo1) {
     EXPECT_TRUE(true);
     // EXPECT_TRUE(false);
     EXPECT_EQ(true, true);
 
     double d1 = 1.2;
-    // double d2 = 2.1;
-    double d2 = 1.2;
+    double d2 = 1.3;
     // print when it failed
     EXPECT_DOUBLE_EQ(d1, d2) << "OOOOh it failed";
-
-    EXPECT_EQ(getX(), 5);
 }
 
-TEST_F(ExampleTests, ExampleTest1111) {
+TEST_F(TestWithContext, TestWithContextDemo2) {
     EXPECT_EQ(getX(), 3);
 }
 
