@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21.3)
 
-set(This exampleTests)
+set(This LeetcodeTEST)
 
 set(SOURCES
     ${This}.cpp
