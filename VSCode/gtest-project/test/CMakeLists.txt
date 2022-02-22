@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.21.3)
+cmake_minimum_required(VERSION 3.22.0)
 
-set(This LeetcodeTEST)
+set(CMAKE_BUILD_TYPE Debug)
+set(This solutionTests)
 
 set(SOURCES
     ${This}.cpp

@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.21.3)
+cmake_minimum_required(VERSION 3.22.0)
 
-set(This Leetcode)
+set(This solution)
 
 project(${This} C CXX)
 
@@ -25,6 +25,7 @@ add_library(${This} STATIC
     ${SOURCES}
 )
 set_target_properties(${This} PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(${This} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # provide test in test directory
 add_subdirectory(test)
