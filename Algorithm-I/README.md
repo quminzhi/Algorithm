@@ -1,41 +1,8 @@
-<!-- 
-# Table of Contents
-- [Binary Search and Array](#binarysearchandarray)
-    - [Binary Search without Known Size](#binarysearchwithoutknownsize)
-    - [Array and Pointers](#arrayandpointers)
-        - [Square Array](#squarearray)
-        - [Rotate Array](#rotatearray)
-        - [Move Zeroes](#movezeroes)
-        - [Two Sum Ordered](#twosumordered)
-        - [Reverse Words](#reversewords)
-        - [Link List](#linklist)
-    - [Slide Window](#slidewindow)
-        - [Longest Substring Without Repeating Characters](#longestsubstringwithoutrepeatingcharacters)
-        - [Permutation in String](#permutationinstring)
-- [BFS and DFS](#bfsanddfs)
-    - [Flood Fill](#floodfill)
-    - [Max Area of Island](#maxareaofisland)
-    - [Merge Trees](#mergetrees)
-    - [Connect Tree](#connecttree)
-    - [Update Matrix](#updatematrix)
-- [Recursion and Backtracking]
-    - [Reverse LinkList](#reverselinklist)
-    - [Combination](#combination)
-    - [Permutation](#permutation)
-    - [Letter Case Permutation](#lettercasepermutation)
-- [Dynamic Programming](#dynamicprogramming)
-    - [Climbing Stairs](#climbingstairs)
-    - [House Robber](#houserobber)
-    - [Triangle](#triangle)
-- [Bitwise Manipulation](#bitwisemanipulation)
-    - [Power of Two](#poweroftwo)
-    - [Hamming Weight](#hammingweight)
-    - [Reverse Bits](#reversebits)
-    - [Single Number](#singlenumber)
--->
-# Binary Search and Array
+# Algorithm Set 1
 
-## Binary Search without Known Size
+## Binary Search and Array
+
+### Binary Search without Known Size
 
 > Problem: You have a sorted array of unique elements and an unknown size. You do not have an access to the array but you can use the ArrayReader interface to access it.
 > You are also given an integer target. Return the index k of the hidden array where secret[k] == target or return -1 otherwise.
