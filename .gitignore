@@ -141,3 +141,4 @@ dkms.conf
 # Customized
 build/
 _deps
+*.sh
