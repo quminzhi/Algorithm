@@ -24,8 +24,16 @@ add_library(${This} STATIC
     ${HEADERS}
     ${SOURCES}
 )
+
+# add user customized library
+add_subdirectory(lib)
+target_link_libraries(${This} PUBLIC mylib)
+
+
 set_target_properties(${This} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${This} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
+
 # provide test in test directory
 add_subdirectory(test)
+
