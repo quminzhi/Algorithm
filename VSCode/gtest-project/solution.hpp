@@ -3,4 +3,4 @@
 
 void Solution();
 
-#endif /* EXAMPLE_HPP */
+#endif /* SOLUTION_HPP */

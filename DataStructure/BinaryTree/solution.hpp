@@ -29,6 +29,16 @@ public:
     vector<int> preorderTraversal(TreeNode* root);
     vector<int> inorderTraversal(TreeNode* root);
     vector<int> postorderTraversal(TreeNode* root);
+    vector< vector<int> > levelOrderTraversal(TreeNode* root);
+
+    // Query:
+    int maxDepth(TreeNode* root);
+    bool isStrictlySymmetric(TreeNode* root);
+    bool isSymmetric(TreeNode* root);
+    bool isMirror(TreeNode* left, TreeNode* right);
+    bool hasPathSum(TreeNode* root, int targetSum);
+    bool isUnivalTree(TreeNode* root);
+    int countUnivalSubtrees(TreeNode* root);
 
     ~BinaryTree();
 
@@ -37,15 +47,17 @@ private:
     void clear();
 
     // Traverse:
-    void preorderTraversalHelper(TreeNode* root, vector<int>& result)
-    void inorderTraversalHelper(TreeNode* root, vector<int>& result)
-    void postorderTraversalHelper(TreeNode* root, vector<int>& result)
+    void preorderTraversalHelper(TreeNode* root, vector<int>& result);
+    void inorderTraversalHelper(TreeNode* root, vector<int>& result);
+    void postorderTraversalHelper(TreeNode* root, vector<int>& result);
+    void levelOrderTraversalHelper(TreeNode* root, vector< vector<int> >& result); 
     // NR: non-recursive implementation
-    void preorderTraversalHelperNR(TreeNode* root, vector<int>& result)
-    void inorderTraversalHelperNR(TreeNode* root, vector<int>& result)
-    void postorderTraversalHelperNR(TreeNode* root, vector<int>& result)
+    void preorderTraversalHelperNR(TreeNode* root, vector<int>& result);
+    void inorderTraversalHelperNR(TreeNode* root, vector<int>& result);
+    void postorderTraversalHelperNR(TreeNode* root, vector<int>& result);
+
 };
 
 void Solution();
 
-#endif /* EXAMPLE_HPP */
+#endif /* SOLUTION_HPP */
