@@ -80,5 +80,9 @@
         "vector": "cpp",
         "__bits": "cpp",
         "queue": "cpp"
-    }
+    },
+    "cSpell.ignoreWords": [
+        "Unival",
+        "Univalue"
+    ]
 }
