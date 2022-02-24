@@ -1,38 +1,24 @@
 #include <gtest/gtest.h>
+
 #include "solution.hpp"
 
-// If there is a set of tests that share same context, we can encapsulate it in to a class.
+// If there is a set of tests that share same context, we can encapsulate it in to a
+// class.
 class TestWithContext : public ::testing::Test {
-public:
-    int* x;
+   public:
 
-    int getX() {
-        return 3;
-    }
+    virtual void SetUp() override {}
 
-    virtual void SetUp() override {
-        x = new int(5);
-    }
-
-    virtual void TearDown() override {
-        delete x;
-    }
+    virtual void TearDown() override {}
 };
 
 // TEST_F(<testsuite name>, testname)
 TEST_F(TestWithContext, TestWithContextDemo1) {
-    EXPECT_TRUE(true);
-    // EXPECT_TRUE(false);
-    EXPECT_EQ(true, true);
-
-    double d1 = 1.2;
-    double d2 = 1.2;
-    // print when it failed
-    EXPECT_DOUBLE_EQ(d1, d2) << "OOOOh it failed";
-
-    EXPECT_EQ(getX(), 3);
-}
-
-TEST(MyTests, SampleTestCases) {
+    vector<int> v = {1, 2, 3, 4, INT_MAX, 5, 6};
+    BinaryTree bt(v);
+    vector<int> inorder = {4, 2, 1, 5, 3, 6};
+    EXPECT_EQ(bt.inorderTraversal(bt.root), inorder);
     EXPECT_TRUE(true);
 }
+
+TEST(MyTests, SampleTestCases) { EXPECT_TRUE(true); }

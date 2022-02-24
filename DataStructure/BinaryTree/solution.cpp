@@ -1,9 +1,44 @@
 #include "solution.hpp"
-
-#include <queue>
-#include <stack>
-#include <unordered_map>
+#include <iostream>
 using namespace std;
+
+/**
+ * @brief Construct a new Binary Tree:: Binary Tree object
+ * Assuming v[0] is root, left child of v[i] is v[2*i+1] and right child is v[2*i+2].
+ * INT_MAX means null in the vector, indicating there is no node on the given index.
+ * @param v: a vector
+ */
+BinaryTree::BinaryTree(vector<int> v) {
+    if (v.size() == 0) {
+        this->root = nullptr;
+    } else {
+        unordered_map<TreeNode*, int> index;   // track treenode and its index in vec
+        queue<TreeNode*> q;
+        TreeNode* node = new TreeNode(v[0]);
+        this->root = node;
+        index[this->root] = 0;
+        q.push(this->root);
+        while (!q.empty()) {
+            TreeNode* root = q.front();
+            q.pop();
+            int i = index[root];
+            // left child
+            if (((2 * i + 1) < v.size()) && (v[2 * i + 1] != INT_MAX)) {
+                TreeNode* left = new TreeNode(v[2 * i + 1]);
+                root->left = left;
+                q.push(left);
+                index[left] = 2 * i + 1;
+            }
+            // right child
+            if (((2 * i + 2) < v.size()) && (v[2 * i + 2] != INT_MAX)) {
+                TreeNode* right = new TreeNode(v[2 * i + 2]);
+                root->right = right;
+                q.push(right);
+                index[right] = 2 * i + 2;
+            }
+        }
+    }
+}
 
 /**
  * @brief root -> left -> right
@@ -347,7 +382,7 @@ int BinaryTree::countUnivalSubtreesHelper(TreeNode* root,
         return count;
     }
     // only right
-    if ((root->left == nullptr)) {
+    if (root->left == nullptr) {
         int count = countUnivalSubtreesHelper(root->right, isUnival);
         if ((isUnival[root->right]) && (root->val == root->right->val)) {
             isUnival[root] = true;
@@ -373,7 +408,7 @@ int BinaryTree::countUnivalSubtreesHelper(TreeNode* root,
 
 int BinaryTree::countUnivalSubtrees(TreeNode* root) {
     unordered_map<TreeNode*, bool> isUnival;
-    for () return countUnivalSubtreesHelper(root, isUnival);
+    return countUnivalSubtreesHelper(root, isUnival);
 }
 
 // write your solution here
