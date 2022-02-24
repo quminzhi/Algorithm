@@ -14,19 +14,18 @@ BinaryTree::BinaryTree(vector<int> v) {
     if (v.size() == 0) {
         this->root = nullptr;
     } else {
-        // TODO: create an array of TreeNode* based on input vector 'v'
+        // create an array of TreeNode* based on input vector 'v'
         vector<TreeNode*> arr;
         for (int i = 0; i < v.size(); i++) {
             if (v[i] != INT_MAX) {
                 TreeNode* node = new TreeNode(v[i]);
                 arr.push_back(node);
-            }
-            else {
-                arr.push_back(nullptr); // if INT_MAX, place nullptr as a placeholder
+            } else {
+                arr.push_back(nullptr);   // if INT_MAX, place nullptr as a placeholder
             }
         }
 
-        // TODO: build connection among them
+        // build connection among them
         int max_size = v.size() / 2;
         for (int i = 0; i < max_size; i++) {
             if (arr[i] == nullptr) continue;
@@ -56,7 +55,7 @@ void BinaryTree::buildTreeRec(vector<int> v) {
     } else {
         unordered_map<TreeNode*, int> index;   // track treenode and its index in vec
         queue<TreeNode*> q;
-        // TODO: build tree recursively
+        // build tree recursively
         TreeNode* node = new TreeNode(v[0]);
         this->root = node;
         index[this->root] = 0;
@@ -81,6 +80,128 @@ void BinaryTree::buildTreeRec(vector<int> v) {
             }
         }
     }
+}
+
+/**
+ * @brief
+ *
+ * @param inorder
+ * @param inorder_left_start
+ * @param inorder_right_start
+ * @param postorder_left_start
+ * @param postorder_right_start
+ * @return TreeNode*: the root of current sequence.
+ */
+TreeNode* BinaryTree::BuildTreeFromInorderAndPostorderHelper(
+    const vector<int>& inorder, const vector<int>& postorder, int inorder_start,
+    int inorder_end, int postorder_start, int postorder_end) {
+    // Base case:
+    if ((inorder_start > inorder_end) || (postorder_start > postorder_end)) {
+        return nullptr;
+    }
+
+    // root is the last element in postorder sequence
+    TreeNode* root = new TreeNode(postorder[postorder_end]);
+
+    // NOTICE: finding root index in inorder sequence can be optimized with an index hash
+    // table.
+    int root_index = inorder_start;
+    // find range for left and right children in inorder sequence
+    for (; root_index <= inorder_end; root_index++) {
+        if (inorder[root_index] == postorder[postorder_end]) {
+            break;
+        }
+    }
+
+    int total_length = inorder_end - inorder_start + 1;
+    int length_of_left_range = root_index - inorder_start;
+    int length_of_right_range = total_length - length_of_left_range - 1;
+
+    root->left = BuildTreeFromInorderAndPostorderHelper(
+        inorder, postorder, inorder_start, root_index - 1, postorder_start,
+        postorder_start + length_of_left_range - 1);
+    root->right = BuildTreeFromInorderAndPostorderHelper(
+        inorder, postorder, root_index + 1, inorder_end,
+        postorder_start + length_of_left_range, postorder_end - 1);
+
+    return root;
+}
+
+/**
+ * @brief build tree from postorder and inorder traversal sequences.
+ * Hallmark of inorder sequence: (left) root (right)
+ * Hallmark of postorder sequence: (left) (right) root
+ *
+ * So, we can figure out root from postorder sequence, and separate inorder sequence with
+ * root. We can do it recursively until there is no node in the sequence.
+ *
+ * @param inorder
+ * @param postorder
+ */
+void BinaryTree::BuildTreeFromInorderAndPostorder(vector<int> inorder,
+                                                  vector<int> postorder) {
+    this->root = BuildTreeFromInorderAndPostorderHelper(
+        inorder, postorder, 0, inorder.size() - 1, 0, postorder.size() - 1);
+}
+
+/**
+ * @brief we will improve the performance with an index hash table.
+ *
+ * @param inorder
+ * @param postorder
+ * @param inorder_start
+ * @param inorder_end
+ * @param postorder_start
+ * @param postorder_end
+ * @return TreeNode*
+ */
+TreeNode* BinaryTree::BuildTreeFromPreorderAndInorderHelper(
+    const vector<int>& preorder, const vector<int>& inorder,
+    unordered_map<int, int>& index_of, int preorder_start, int preorder_end,
+    int inorder_start, int inorder_end) {
+    if ((preorder_start > preorder_end) || (inorder_start > inorder_end)) {
+        return nullptr;
+    }
+
+    TreeNode* root = new TreeNode(preorder[preorder_start]);
+
+    // find index of root in inorder sequence
+    int root_index = index_of[preorder[preorder_start]];
+
+    int total_length = preorder_end - preorder_start + 1;
+    int length_of_left_range = root_index - inorder_start;
+    int length_of_right_range = total_length - length_of_left_range - 1;
+
+    root->left = BuildTreeFromPreorderAndInorderHelper(
+        preorder, inorder, index_of, preorder_start + 1,
+        preorder_start + length_of_left_range, inorder_start, root_index - 1);
+    root->right = BuildTreeFromPreorderAndInorderHelper(
+        preorder, inorder, index_of, preorder_start + length_of_left_range + 1,
+        preorder_end, root_index + 1, inorder_end);
+
+    return root;
+}
+
+/**
+ * @brief build tree from preorder and inorder sequences.
+ *
+ * preorder: root (left) (right)
+ * inorder: (left) root (right)
+ *
+ * The idea is similar to building tree from inorder and postorder sequences.
+ *
+ * @param preorder
+ * @param inorder
+ */
+void BinaryTree::BuildTreeFromPreorderAndInorder(vector<int> preorder,
+                                                 vector<int> inorder) {
+    // map from val to index of inorder sequence
+    unordered_map<int, int> index_of;
+    for (int i = 0; i < inorder.size(); i++) {
+        index_of[inorder[i]] = i;
+    }
+    this->root = BuildTreeFromPreorderAndInorderHelper(
+        preorder, inorder, index_of, 0, preorder.size() - 1, 0, inorder.size() - 1);
 }
 
 /**
@@ -236,7 +357,7 @@ void BinaryTree::postorderTraversalHelperNR(TreeNode* root, vector<int>& result)
         }
     }
 
-    // TODO: reverse the output
+    // reverse the output
     while (!reverse.empty()) {
         result.push_back(reverse.top());
         reverse.pop();

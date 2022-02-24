@@ -1,9 +1,9 @@
 #ifndef SOLUTION_HPP
 #define SOLUTION_HPP
-#include <vector>
 #include <queue>
 #include <stack>
 #include <unordered_map>
+#include <vector>
 using namespace std;
 
 class TreeNode {
@@ -23,7 +23,11 @@ class BinaryTree {
     BinaryTree() : root(nullptr){};
     BinaryTree(TreeNode* _root) : root(_root){};
     BinaryTree(vector<int> v);
+
+    // building tree
     void buildTreeRec(vector<int> v);
+    void BuildTreeFromInorderAndPostorder(vector<int> inorder, vector<int> postorder);
+    void BuildTreeFromPreorderAndInorder(vector<int> preorder, vector<int> inorder);
 
     // Traverse:
     vector<int> preorderTraversal(TreeNode* root);
@@ -57,6 +61,18 @@ class BinaryTree {
 
     int countUnivalSubtreesHelper(TreeNode* root,
                                   unordered_map<TreeNode*, bool>& isUnival);
+
+    TreeNode* BuildTreeFromInorderAndPostorderHelper(const vector<int>& inorder,
+                                                     const vector<int>& postorder,
+                                                     int inorder_start, int inorder_end,
+                                                     int postorder_start,
+                                                     int postorder_end);
+
+    TreeNode* BuildTreeFromPreorderAndInorderHelper(const vector<int>& preorder,
+                                                    const vector<int>& inorder,
+                                                    unordered_map<int, int>& index_of,
+                                                    int preorder_start, int preorder_end,
+                                                    int inorder_start, int inorder_end);
 };
 
 void Solution();
