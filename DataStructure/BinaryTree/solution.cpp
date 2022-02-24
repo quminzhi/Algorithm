@@ -1,19 +1,62 @@
 #include "solution.hpp"
+
 #include <iostream>
 using namespace std;
 
 /**
- * @brief Construct a new Binary Tree:: Binary Tree object
+ * @brief Construct a new Binary Tree:: Binary Tree object with an array
  * Assuming v[0] is root, left child of v[i] is v[2*i+1] and right child is v[2*i+2].
  * INT_MAX means null in the vector, indicating there is no node on the given index.
+ * An array of TreeNode will be created to build tree.
  * @param v: a vector
  */
 BinaryTree::BinaryTree(vector<int> v) {
     if (v.size() == 0) {
         this->root = nullptr;
     } else {
+        // TODO: create an array of TreeNode* based on input vector 'v'
+        vector<TreeNode*> arr;
+        for (int i = 0; i < v.size(); i++) {
+            if (v[i] != INT_MAX) {
+                TreeNode* node = new TreeNode(v[i]);
+                arr.push_back(node);
+            }
+            else {
+                arr.push_back(nullptr); // if INT_MAX, place nullptr as a placeholder
+            }
+        }
+
+        // TODO: build connection among them
+        int max_size = v.size() / 2;
+        for (int i = 0; i < max_size; i++) {
+            if (arr[i] == nullptr) continue;
+            // left child
+            if (2 * i + 1 < v.size()) {
+                arr[i]->left = arr[2 * i + 1];
+            }
+            if (2 * i + 2 < v.size()) {
+                arr[i]->right = arr[2 * i + 2];
+            }
+        }
+
+        // connect to root
+        this->root = arr[0];
+    }
+}
+
+/**
+ * @brief Construct a new Binary Tree:: Binary Tree object with queue
+ * Assuming v[0] is root, left child of v[i] is v[2*i+1] and right child is v[2*i+2].
+ * INT_MAX means null in the vector, indicating there is no node on the given index.
+ * @param v: a vector
+ */
+void BinaryTree::buildTreeRec(vector<int> v) {
+    if (v.size() == 0) {
+        this->root = nullptr;
+    } else {
         unordered_map<TreeNode*, int> index;   // track treenode and its index in vec
         queue<TreeNode*> q;
+        // TODO: build tree recursively
         TreeNode* node = new TreeNode(v[0]);
         this->root = node;
         index[this->root] = 0;

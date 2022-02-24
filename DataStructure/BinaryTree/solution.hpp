@@ -23,6 +23,7 @@ class BinaryTree {
     BinaryTree() : root(nullptr){};
     BinaryTree(TreeNode* _root) : root(_root){};
     BinaryTree(vector<int> v);
+    void buildTreeRec(vector<int> v);
 
     // Traverse:
     vector<int> preorderTraversal(TreeNode* root);
