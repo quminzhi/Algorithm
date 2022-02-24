@@ -6,6 +6,22 @@
 #include <vector>
 using namespace std;
 
+/**
+ * @brief For special problems
+ */
+class Node {
+   public:
+    Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {};
+    Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {};
+    Node(int _val, TreeNode* left, TreeNode* right)
+        : val(_val), left(left), right(right), next(nullptr) {};
+
+    int val;
+    Node* left;
+    Node* right;
+    Node* next;
+};
+
 class TreeNode {
    public:
     TreeNode() : val(0), left(nullptr), right(nullptr){};

@@ -575,5 +575,59 @@ int BinaryTree::countUnivalSubtrees(TreeNode* root) {
     return countUnivalSubtreesHelper(root, isUnival);
 }
 
+/**
+ * @brief Populating next right pointers in each node for a complete tree
+ * In this problem, we only focus on one thing, that is connect all nodes on the right
+ * edge of left children and those on the left edge of right children.
+ * @param root
+ * @return Node*
+ */
+Node* connect(Node* root) {
+    if (root == nullptr) return nullptr;
+
+    // connect right edge of left children and left edge of right children
+    Node* left = root->left;
+    Node* right = root->right;
+    while ((left != nullptr) && (right != nullptr)) {
+        left->next = right;
+        left = left->right;
+        right = right->left;
+    }
+
+    // recursively solve its children
+    connect(root->left);
+    connect(root->right);
+    return root;
+}
+
+/**
+ * @brief Populating right next pointer in each node for an arbitrary tree
+ * For arbitrary trees, it can be solved with level traversal.
+ * @param root
+ * @return Node*
+ */
+Node* connect2(Node* root) {
+    if (root == nullptr) return nullptr;   // corner case
+    queue<Node*> que;
+    que.push(root);
+    while (!que.empty()) {
+        // solve all nodes in a level at once
+        int size = que.size();
+        Node* last = nullptr;   // save previous node of 'cur'
+        for (int i = 0; i < size; i++) {
+            Node* cur = que.front();
+            que.pop();
+
+            if (cur->left != nullptr) que.push(cur->left);
+            if (cur->right != nullptr) que.push(cur->right);
+
+            if (last != nullptr) last->next = cur;   // connect
+            last = cur;                              // update last
+        }
+    }
+
+    return root;
+}
+
 // write your solution here
 void Solution() {}
