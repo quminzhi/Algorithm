@@ -32,3 +32,13 @@ TEST(MyTests, PreorderAndInorderConstruction) {
     vector<int> postorder = {9, 15, 7, 20, 3};
     EXPECT_EQ(bt.postorderTraversal(bt.root), postorder);
 }
+
+TEST(MyTests, SerializeAndDeserialize) {
+    vector<int> v = {1, 2, 3, INT_MAX, INT_MAX, 4, 5};
+    BinaryTree bt(v);
+    string stream = serialize(bt.root);
+    std::cout << stream << std::endl;
+    TreeNode* root = deserialize(stream);
+    vector<int> inorder = {2, 1, 4, 3, 5};
+    EXPECT_EQ(bt.inorderTraversal(root), inorder);
+}

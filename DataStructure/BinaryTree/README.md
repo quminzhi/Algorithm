@@ -278,3 +278,135 @@ bool searchPath(TreeNode* root, TreeNode* target, vector<TreeNode*>& path) {
     return false;
 }
 ```
+
+### Serialize and Deserialize
+
+- Serialize:
+
+```c++
+/**
+ * @brief serialize a tree into a string stream.
+ * The key is to find a sequence that can save meta data and relationship between nodes.
+ *
+ * As we did before, we can build a tree from the combination of inorder sequence and
+ * preorder sequence, or that of inorder sequence and postorder sequence. Is it possible
+ * to build tree with only one sequence? The answer is YES. But we need to make a minor
+ * modification to three traversals. That is adding 'null' string to indicate nullptr.
+ *
+ * So we have four ways to serialize and deserialize a tree.
+ *
+ * - DFS includes 1. preorder sequence, 2. inorder sequence, 3. postorder sequence.
+ * - BFS includes 4. level order sequence.
+ *
+ * We will implement preorder sequence.
+ *
+ * @param root
+ * @return string
+ */
+string serialize(TreeNode* root) {
+    if (root == nullptr) return "";
+    string stream;
+    string delimiter = ",";
+    // iterative implementation of preorder traversal
+    stack<TreeNode*> s;
+    s.push(root);
+    while (!s.empty()) {
+        TreeNode* cur = s.top();
+        s.pop();
+        // serialize current node (maybe nullptr)
+        if (cur == nullptr) {
+            stream += string("null") + delimiter;
+        } else {
+            // convert integer to a string
+            stringstream ss;
+            ss << cur->val;
+            string str = ss.str();
+            stream += str + delimiter;
+            // push right first, FILO
+            s.push(cur->right);
+            s.push(cur->left);
+        }
+    }
+
+    // delete the last ','
+    stream.pop_back();
+    return stream;
+}
+```
+
+- Deserialize:
+
+```c++
+/**
+ * @brief deserialize a string stream and build a tree.
+ * Deserialize is a reverse operation of serialization. We can solve it with a stack.
+ * 
+ * Decode stream by delimiter is important.
+ * 
+ * The stack is used to cache nodes being processed:
+ * - if left and right children of top node are solved, then pop it.
+ * - if left child is not solved, link it with the new node (if tokens[i] is not
+ * "null" or nullptr (if tokens[i] is "null"). Here we assume it is "null" and update
+ * it if not "null".
+ * - update i and push(new node) if new node is not nullptr.
+ * 
+ * @param data
+ * @return TreeNode*
+ */
+TreeNode* deserialize(string stream) {
+    if (stream.size() == 0) return nullptr;
+    vector<string> tokens;
+    // separate stream by delimiter ','
+    string delimiter = ",";
+    size_t pos = 0;
+    string token;
+    while ((pos = stream.find(delimiter)) != string::npos) {
+        token = stream.substr(0, pos);
+        tokens.push_back(token);
+        stream.erase(0, pos + delimiter.length());   // remove solved token
+    }
+    tokens.push_back(stream);   // the last token
+
+    for (string& token: tokens) {
+        std::cout << token << std::endl;
+    }
+
+    if (tokens.size() == 0) return nullptr;   // no token in stream
+
+    // Initialize nodes to point to unsolved, a placeholder
+    TreeNode* unsolved = new TreeNode();
+    TreeNode* root = new TreeNode(std::stoi(tokens[0]), unsolved, unsolved);
+    stack<TreeNode*> s;
+    s.push(root);
+    int size = tokens.size();
+    int i = 1;
+    while ((i < size) && (!s.empty())) {
+        TreeNode* cur = s.top();
+        // if current node is solved, meaning two children have been assigned
+        if ((cur->left != unsolved) && (cur->right != unsolved)) {
+            s.pop();
+            continue;
+        }
+
+        TreeNode* node = nullptr;   // assume tokens[i] is "null"
+        if (tokens[i] != "null") {
+            // update: create new node if tokens[i] != "null"
+            node = new TreeNode(std::stoi(tokens[i]), unsolved, unsolved);
+        }
+
+        // link to current node
+        if (cur->left == unsolved) {
+            cur->left = node;
+        } else {
+            cur->right = node;
+        }
+
+        // update
+        i++;
+        if (node != nullptr) s.push(node);
+    }
+
+    delete unsolved;
+    return root;
+}
+```

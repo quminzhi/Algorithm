@@ -84,6 +84,7 @@
     "cSpell.ignoreWords": [
         "Unival",
         "Univalue",
-        "inorder"
+        "inorder",
+        "stoi"
     ]
 }

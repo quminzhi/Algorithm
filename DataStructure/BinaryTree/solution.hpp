@@ -4,6 +4,7 @@
 #include <stack>
 #include <unordered_map>
 #include <vector>
+#include <string>
 using namespace std;
 
 /**
@@ -13,7 +14,7 @@ class Node {
    public:
     Node() : val(0), left(nullptr), right(nullptr), next(nullptr) {};
     Node(int _val) : val(_val), left(nullptr), right(nullptr), next(nullptr) {};
-    Node(int _val, TreeNode* left, TreeNode* right)
+    Node(int _val, Node* left, Node* right)
         : val(_val), left(left), right(right), next(nullptr) {};
 
     int val;
@@ -61,6 +62,10 @@ class BinaryTree {
     int countUnivalSubtrees(TreeNode* root);
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
 
+    // Serialize and Deserialize
+    friend string serialize(TreeNode* root);
+    friend TreeNode* deserialize(string data);
+
     TreeNode* root;
 
    private:
@@ -91,8 +96,11 @@ class BinaryTree {
                                                     int preorder_start, int preorder_end,
                                                     int inorder_start, int inorder_end);
 
-    void searchHelper(TreeNode* root, TreeNode* target, vector<TreeNode*>& path);
+    bool searchHelper(TreeNode* root, TreeNode* target, vector<TreeNode*>& path);
 };
+
+string serialize(TreeNode* root);
+TreeNode* deserialize(string data);
 
 void Solution();
 
