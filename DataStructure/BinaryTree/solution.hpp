@@ -59,6 +59,7 @@ class BinaryTree {
     bool hasPathSum(TreeNode* root, int targetSum);
     bool isUnivalTree(TreeNode* root);
     int countUnivalSubtrees(TreeNode* root);
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q);
 
     TreeNode* root;
 
@@ -89,6 +90,8 @@ class BinaryTree {
                                                     unordered_map<int, int>& index_of,
                                                     int preorder_start, int preorder_end,
                                                     int inorder_start, int inorder_end);
+
+    void searchHelper(TreeNode* root, TreeNode* target, vector<TreeNode*>& path);
 };
 
 void Solution();

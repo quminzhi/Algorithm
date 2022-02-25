@@ -629,5 +629,74 @@ Node* connect2(Node* root) {
     return root;
 }
 
+/**
+ * @brief search and save search path for target
+ *
+ * @param root
+ * @param target
+ * @param path
+ */
+bool BinaryTree::searchHelper(TreeNode* root, TreeNode* target, vector<TreeNode*>& path) {
+    if (root == nullptr) return false;
+    if (root == target) {
+        // found
+        path.push_back(target);
+        return true;
+    }
+
+    path.push_back(root);
+    // left search
+    if (searchHelper(root->left, target, path)) {
+        return true;
+    }
+    // right search
+    if (searchHelper(root->right, target, path)) {
+        return true;
+    }
+        
+    path.pop_back();
+    return false;
+}
+
+/**
+ * @brief find the lowest common ancestor (LCA) of two given nodes in the tree.
+ * The lowest common ancestor is defined between two nodes p and q as the lowest node in T
+ * that has both p and q as descendants (where we allow a node to be a descendant of
+ * itself).
+ *
+ * Notice all node values are UNIQUE. Two paths must follow:
+ *
+ * p_path: (common path) -> other nodes
+ * q_path: (common path) -> other nodes
+ *
+ * - Searching p and q with DFS and recording search path for them.
+ * - The lowest common ancestor is the rightmost common node of two paths.
+ *
+ * @param root
+ * @param p
+ * @param q
+ * @return TreeNode*: the pointer to lowest common ancestor of p and q
+ */
+TreeNode* BinaryTree::lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    // search p and q
+    vector<TreeNode*> p_path;
+    vector<TreeNode*> q_path;
+    searchHelper(root, p, p_path);
+    searchHelper(root, q, q_path);
+
+    // find rightmost common node
+    int lca_idx = 0;
+    int size = min(p_path.size(), q_path.size());
+    for (int i = 0; i < size; i++) {
+        if (p_path[i] == q_path[i]) {
+            lca_idx = i;
+        } else {
+            break;
+        }
+    }
+
+    return p_path[lca_idx];
+}
+
 // write your solution here
 void Solution() {}
