@@ -1,6 +1,6 @@
 #ifndef FOO1_HPP
 #define FOO1_HPP
 
-void hello();
+// write your library here
 
 #endif

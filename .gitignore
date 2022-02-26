@@ -182,3 +182,4 @@ dkms.conf
 build/
 _deps
 *.sh
+googletest/
