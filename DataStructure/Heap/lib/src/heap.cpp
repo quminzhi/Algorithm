@@ -21,17 +21,11 @@ Heap::Heap(vector<int> _heap) {
     }
 }
 
-int Heap::size() const {
-    return this->heapSize;
-}
+int Heap::size() const { return this->heapSize; }
 
-int Heap::peek() const {
-    return this->heap[0];
-}
+int Heap::peek() const { return this->heap[0]; }
 
-bool Heap::isEmpty() const {
-    return this->heapSize == 0;
-}
+bool Heap::isEmpty() const { return this->heapSize == 0; }
 
 // operations
 /**
@@ -39,7 +33,7 @@ bool Heap::isEmpty() const {
  * 1. put it into the last index of the heap.
  * 2. update along its search path.
  *
- * @param val 
+ * @param val
  */
 void Heap::push(int val) {
     // Corner case: the first element
@@ -79,7 +73,7 @@ int Heap::pop() {
 
     // move the last node to the root of heap
     popped = this->heap[0];
-    this->heap[0] = this->heap[this->heapSize-1];
+    this->heap[0] = this->heap[this->heapSize - 1];
     this->heapSize--;
 
     // update heap
@@ -87,21 +81,31 @@ int Heap::pop() {
     int left = 0;
     int right = 0;
     while (true) {
-        // if left child exists, check property
+        // root exchange will exchange with min(left, right) if root is not the minimum
+        // among them. if left child exists, check property
         left = 2 * root + 1;
-        if ((left < this->heapSize) && (this->heap[left] < this->heap[root])) {
+        right = 2 * root + 2;
+        if ((left >= this->heapSize) && (right >= this->heapSize)) {
+            // case 1: neither left nor right child exist
+            break;
+        }
+        if ((right >= this->heapSize) && (this->heap[left] < this->heap[root])) {
+            // case 2: only left child exists
             swap(this->heap[root], this->heap[left]);
             root = left;
             continue;
         }
-        // if right child exists, check property
-        right = 2 * root + 2;
-        if ((right < this->heapSize) && (this->heap[right] < this->heap[root])) {
-            swap(this->heap[root], this->heap[right]);
-            root = right;
+        // Notice: no way that only right child exists due to the property of a complete
+        // tree
+        // case 3: both of left and right children exist
+        int min = this->heap[left] > this->heap[right] ? right : left;
+        if (this->heap[root] > this->heap[min]) {
+            swap(this->heap[root], this->heap[min]);
+            root = min;
             continue;
         }
-        // root is the smallest, well done
+
+        // case 4: root is the smallest, well done
         break;
     }
 
@@ -118,22 +122,34 @@ void Heap::expandHeap() {
 string Heap::toString() const {
     string output;
     ostringstream os;
-    os << "heap: { heapSize: " << this->heapSize << ", capacity: " << this->capacity << " }\n";
+    os << "heap: { heapSize: " << this->heapSize << ", capacity: " << this->capacity
+       << " }\n";
     os << "{";
     for (int i = 0; i < this->heapSize; i++) {
         if (i == (this->heapSize - 1)) {
             os << this->heap[i] << "}";
-        }
-        else {
+        } else {
             os << this->heap[i] << ", ";
         }
     }
-    
+
     output = os.str();
     return output;
 }
 
-std::ostream& operator <<(std::ostream& os, const Heap& h) {
+std::ostream& operator<<(std::ostream& os, const Heap& h) {
     os << h.toString();
     return os;
+}
+
+vector<int> heapSort(const vector<int>& v) {
+    vector<int> sorted;
+    // heapify
+    Heap h(v);
+    // pop until heap is empty
+    while (!h.isEmpty()) {
+        sorted.push_back(h.pop());
+    }
+
+    return sorted;
 }

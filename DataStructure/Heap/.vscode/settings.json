@@ -80,5 +80,8 @@
         "vector": "cpp",
         "__bits": "cpp",
         "filesystem": "cpp"
-    }
+    },
+    "cSpell.ignoreWords": [
+        "heapify"
+    ]
 }

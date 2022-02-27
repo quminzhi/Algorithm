@@ -33,3 +33,9 @@ TEST(MyTests, HeapTEST) {
     h.pop();
     EXPECT_EQ(h.size(), 0);
 }
+
+TEST(MyTests, HeapSortTEST) {
+    vector<int> v = {99, 82, 17, 36, 1, 26, 71, 89, 17, 22, 2, 5, 7};
+    vector<int> sorted = {1, 2, 5, 7, 17, 17, 22, 26, 36, 71, 82, 89, 99};
+    EXPECT_EQ(heapSort(v), sorted);
+}

@@ -40,4 +40,7 @@ class Heap {
 
 std::ostream& operator<<(std::ostream& os, const Heap& h);
 
+// related problems:
+vector<int> heapSort(const vector<int>& v);
+
 #endif
