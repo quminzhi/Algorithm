@@ -39,3 +39,9 @@ TEST(MyTests, HeapSortTEST) {
     vector<int> sorted = {1, 2, 5, 7, 17, 17, 22, 26, 36, 71, 82, 89, 99};
     EXPECT_EQ(heapSort(v), sorted);
 }
+
+TEST(MyTests, TopKFrequentTEST) {
+    vector<int> v = {1, 1, 1, 2, 2, 3};
+    vector<int> res = {1, 2};
+    EXPECT_EQ(topKFrequent(v, 2), res);
+}

@@ -42,5 +42,7 @@ std::ostream& operator<<(std::ostream& os, const Heap& h);
 
 // related problems:
 vector<int> heapSort(const vector<int>& v);
+int findKthLargest(vector<int>& nums, int k);
+vector<int> topKFrequent(vector<int>& nums, int k);
 
 #endif

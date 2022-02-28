@@ -79,9 +79,11 @@
         "variant": "cpp",
         "vector": "cpp",
         "__bits": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "queue": "cpp"
     },
     "cSpell.ignoreWords": [
-        "heapify"
+        "heapify",
+        "nums"
     ]
 }

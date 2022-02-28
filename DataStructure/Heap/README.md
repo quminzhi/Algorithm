@@ -8,6 +8,71 @@ Heap is a binary tree with following properties:
 - Min-heap: for each node, its left child and right child are smaller than it.
 - Max-heap: for each node, its left and right children are greater than it.
 
+### Build Heap
+
+There are two ways to build heap:
+
+- `siftDown` swaps a node that is too small with its largest child (thereby moving it down) until it is at least as large as both nodes below it.
+- `siftUp` swaps a node that is too large with its parent (thereby moving it up) until it is no larger than the node above it.
+
+Why building a heap with `sift down` approach has time complexity of `O(N)`.
+
+[Time complexity analysis of building a heap](https://stackoverflow.com/questions/9755721/how-can-building-a-heap-be-on-time-complexity#:~:text=Heapify%20is%20O(n)%20when,O(n%20log%20n)%20.)
+
+```c++
+/**
+ * @brief Construct a new Heap:: Heap object
+ * The tree is built with the 'sift down' approach, which has the time complexity of O(N)
+ * 
+ * Notice the order of sift down. The idea is somewhat like dynamic algorithm, keep the 
+ * property of min heap from bottom to top.
+ * 
+ * @param _heap 
+ */
+Heap::Heap(vector<int> _heap) {
+    this->capacity = this->INIT_CAPACITY;
+    this->heap.resize(this->capacity, 0);
+    int size = _heap.size();
+    while (size >= this->capacity) {
+        expandHeap();
+    }
+    // copy
+    this->heapSize = size;
+    for (int i = 0; i < size; i++) {
+        this->heap[i] = _heap[i];
+    }
+    // update every node within the heap in 'sift down' strategy
+    int root, left, right;
+    for (int i = this->heapSize - 1; i >= 0 ; i--) {
+        root = i;
+        while (true) {
+            left = 2 * root + 1;
+            right = 2 * root + 2;
+            // case 1: no child
+            if ((left >= this->heapSize) && (right >= this->heapSize)) {
+                break;
+            }
+            // case 2: left child only
+            if ((right >= this->heapSize) && (this->heap[root] > this->heap[left])) {
+                swap(this->heap[root], this->heap[left]);
+                root = left; // update pointer
+                continue;
+            }
+            // case 3: left and right child
+            int min = this->heap[left] > this->heap[right] ? right : left;
+            if (this->heap[root] > this->heap[min]) {
+                swap(this->heap[root], this->heap[min]);
+                root = min;
+                continue;
+            }
+
+            // otherwise: root is at correct index
+            break;
+        }
+    }
+}
+```
+
 ## Operation
 
 We will take min-heap as an example.
@@ -119,4 +184,85 @@ For more details, feel free to check `heap.hpp` and `heap.cpp` in `lib` director
 ## Application
 
 ### Heap Sort
+
+- Build a heap from a vector, and the time complexity: `O(N)`
+- Repeatedly pop an element from the heap until it it empty, and the time complexity `O(NlogN)`
+
+```c++
+vector<int> heapSort(const vector<int>& v) {
+    vector<int> sorted;
+    // heapify
+    Heap h(v);
+    // pop until heap is empty
+    while (!h.isEmpty()) {
+        sorted.push_back(h.pop());
+    }
+
+    return sorted;
+}
+```
+
+### Top K Frequent Elements
+
+> Given an integer array `nums` and an integer `k`, return the `k` most frequent elements. You may return the answer in any order.
+
+There are some tricks in this problem:
+
+- Customize Comparison Function for `priority_queue`. By defaultm, `priority_queue` is a max heap, which means it is descending order. To keep top k frequent elements, we need convert it to min heap. That is redefine comparison function.
+
+```c++
+    auto cmp = [&counter](int lhs, int rhs) { // capture counter variable
+        return counter[lhs] > counter[rhs];
+    };
+    priority_queue<int, vector<int>, decltype(cmp)> h(cmp);
+```
+
+The prototype of **Lambda Function**: `[capture clause](parameter list) (mutable) (throw()) (return type) { lambda body }`.
+
+- **Capture Clause**: A lambda can introduce new variables in its body (in C++14), and it can also access, or capture, variables from the surrounding scope. A lambda begins with the capture clause. It specifies which variables are captured, and whether the capture is by value or by reference. Variables that have the ampersand (`&`) prefix are accessed by reference and variables that don't have it are accessed by value.
+- **Mutable Specification**: Typically, a lambda's function call operator is const-by-value, but use of the mutable keyword cancels this out. It doesn't produce mutable data members. The mutable specification enables the body of a lambda expression to modify variables that are captured by value. Some of the examples later in this article show how to use mutable.
+- **Return Type**: The return type of a lambda expression is automatically deduced. You don't have to use the auto keyword unless you specify a trailing-return-type. The trailing-return-type resembles the return-type part of an ordinary function or member function. However, the return type must follow the parameter list, and you must include the trailing-return-type keyword `->` before the return type.
+
+```c++
+auto x1 = [](int i) -> int { return i; };
+```
+
+The complete solution is shown below.
+
+```c++
+/**
+ * @brief capture the top k frequent elements
+ * 
+ * @param nums 
+ * @param k 
+ * @return vector<int> 
+ */
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int, int> counter;
+    for (int val : nums) {
+        counter[val] += 1;
+    }
+
+    // min heap
+    auto cmp = [&counter](int lhs, int rhs) {
+        return counter[lhs] > counter[rhs];
+    };
+    priority_queue<int, vector<int>, decltype(cmp)> h(cmp);
+    for (pair<int, int> p : counter) {
+        h.push(p.first);
+        if (h.size() > k) {
+            h.pop();
+        }
+    }
+
+    // output
+    vector<int> result(k);
+    for (int i = k-1; i >= 0; i--) {
+        result[i] = h.top();
+        h.pop();
+    }
+
+    return result;
+}
+```
 

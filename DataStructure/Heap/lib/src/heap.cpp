@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <queue> // priority_queue
+#include <unordered_map>
 
 Heap::Heap() {
     this->heapSize = 0;
@@ -9,15 +11,73 @@ Heap::Heap() {
     this->heap.resize(this->capacity, 0);
 }
 
+// /**
+//  * @brief Construct a new Heap:: Heap object
+//  * The tree is built by repeatedly pushing new elements. The time complexity is O(NlogN)
+//  * 
+//  * @param _heap 
+//  */
+// Heap::Heap(vector<int> _heap) {
+//     this->heapSize = 0;
+//     this->capacity = this->INIT_CAPACITY;
+//     this->heap.resize(this->capacity, 0);
+//     while (this->heapSize >= this->capacity) {
+//         expandHeap();
+//     }
+//     for (int i = 0; i < _heap.size(); i++) {
+//         this->push(_heap[i]);
+//     }
+// }
+
+/**
+ * @brief Construct a new Heap:: Heap object
+ * The tree is built with the 'sift down' approach, which has the time complexity of O(N)
+ * 
+ * Notice the order of sift down. The idea is somewhat like dynamic algorithm, keep the 
+ * property of min heap from bottom to top.
+ * 
+ * @param _heap 
+ */
 Heap::Heap(vector<int> _heap) {
-    this->heapSize = 0;
     this->capacity = this->INIT_CAPACITY;
     this->heap.resize(this->capacity, 0);
-    while (this->heapSize >= this->capacity) {
+    int size = _heap.size();
+    while (size >= this->capacity) {
         expandHeap();
     }
-    for (int i = 0; i < _heap.size(); i++) {
-        this->push(_heap[i]);
+    // copy
+    this->heapSize = size;
+    for (int i = 0; i < size; i++) {
+        this->heap[i] = _heap[i];
+    }
+    // update every node within the heap in 'sift down' strategy
+    int root, left, right;
+    for (int i = this->heapSize - 1; i >= 0 ; i--) {
+        root = i;
+        while (true) {
+            left = 2 * root + 1;
+            right = 2 * root + 2;
+            // case 1: no child
+            if ((left >= this->heapSize) && (right >= this->heapSize)) {
+                break;
+            }
+            // case 2: left child only
+            if ((right >= this->heapSize) && (this->heap[root] > this->heap[left])) {
+                swap(this->heap[root], this->heap[left]);
+                root = left; // update pointer
+                continue;
+            }
+            // case 3: left and right child
+            int min = this->heap[left] > this->heap[right] ? right : left;
+            if (this->heap[root] > this->heap[min]) {
+                swap(this->heap[root], this->heap[min]);
+                root = min;
+                continue;
+            }
+
+            // otherwise: root is at correct index
+            break;
+        }
     }
 }
 
@@ -142,14 +202,79 @@ std::ostream& operator<<(std::ostream& os, const Heap& h) {
     return os;
 }
 
+/**
+ * @brief 
+ * - Build a heap from a vector, and the time complexity: `O(N)`
+ * - Repeatedly pop an element from the heap until it it empty, and the time complexity `O(NlogN)`
+ * @param v 
+ * @return vector<int> 
+ */
 vector<int> heapSort(const vector<int>& v) {
     vector<int> sorted;
     // heapify
     Heap h(v);
+    // std::cout << h << std::endl;
     // pop until heap is empty
     while (!h.isEmpty()) {
+        // std::cout << h << std::endl;
         sorted.push_back(h.pop());
     }
 
     return sorted;
+}
+
+/**
+ * @brief find k-th largest element with max heap
+ * 
+ * @param nums 
+ * @param k 
+ * @return int 
+ */
+int findKthLargest(vector<int>& nums, int k) {
+    priority_queue<int> pq; // max heap
+    for (int val : nums) {
+        pq.push(val);
+    }
+
+    while (k > 1) {
+        pq.pop();
+        k--;
+    }
+
+    return pq.top();
+}
+
+/**
+ * @brief capture the top k frequent elements
+ * 
+ * @param nums 
+ * @param k 
+ * @return vector<int> 
+ */
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int, int> counter;
+    for (int val : nums) {
+        counter[val] += 1;
+    }
+
+    // min heap
+    auto cmp = [&counter](int lhs, int rhs) {
+        return counter[lhs] > counter[rhs];
+    };
+    priority_queue<int, vector<int>, decltype(cmp)> h(cmp);
+    for (pair<int, int> p : counter) {
+        h.push(p.first);
+        if (h.size() > k) {
+            h.pop();
+        }
+    }
+
+    // output
+    vector<int> result(k);
+    for (int i = k-1; i >= 0; i--) {
+        result[i] = h.top();
+        h.pop();
+    }
+
+    return result;
 }
