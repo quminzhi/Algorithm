@@ -45,3 +45,21 @@ TEST(MyTests, TopKFrequentTEST) {
     vector<int> res = {1, 2};
     EXPECT_EQ(topKFrequent(v, 2), res);
 }
+
+TEST(MyTests, KthLargestTEST) {
+    vector<int> v = {4, 5, 8, 2};
+    KthLargest ks(3, v);
+    EXPECT_EQ(ks.add(3), 4);
+    EXPECT_EQ(ks.add(5), 5);
+    EXPECT_EQ(ks.add(10), 5);
+    EXPECT_EQ(ks.add(9), 8);
+    EXPECT_EQ(ks.add(4), 8);
+
+    vector<int> v2 = {};
+    KthLargest ks2(1, v2);
+    EXPECT_EQ(ks2.add(-3), -3);
+    EXPECT_EQ(ks2.add(-2), -2);
+    EXPECT_EQ(ks2.add(-4), -2);
+    EXPECT_EQ(ks2.add(0), 0);
+    EXPECT_EQ(ks2.add(4), 4);
+}

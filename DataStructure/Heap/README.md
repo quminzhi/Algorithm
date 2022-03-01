@@ -208,7 +208,7 @@ vector<int> heapSort(const vector<int>& v) {
 
 There are some tricks in this problem:
 
-- Customize Comparison Function for `priority_queue`. By defaultm, `priority_queue` is a max heap, which means it is descending order. To keep top k frequent elements, we need convert it to min heap. That is redefine comparison function.
+- Customize Comparison Function for `priority_queue`. By default, `priority_queue` is a max heap, which means it is in a descending order. To keep top k frequent elements, we need convert it to min heap. That is to redefine comparison function.
 
 ```c++
     auto cmp = [&counter](int lhs, int rhs) { // capture counter variable
@@ -266,3 +266,89 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
 }
 ```
 
+### Kth Largest Element
+
+> Design a class to find the `kth` largest element in a stream. Note that it is the `kth` largest element in the sorted order, not the `kth `distinct element.
+>
+> Implement `KthLargest` class:
+>
+> - `KthLargest(int k, int[] nums)` Initializes the object with the integer k and the stream of integers nums.
+> - `int add(int val)` Appends the integer val to the stream and returns the element representing the kth largest element in the stream.
+
+To make it clear, an example is shown as below:
+
+```c++
+// Input
+["KthLargest", "add", "add", "add", "add", "add"]
+[[3, [4, 5, 8, 2]], [3], [5], [10], [9], [4]]
+// Output
+[null, 4, 5, 5, 8, 8]
+
+// Explanation
+KthLargest kthLargest = new KthLargest(3, [4, 5, 8, 2]);
+kthLargest.add(3);   // return 4
+kthLargest.add(5);   // return 5
+kthLargest.add(10);  // return 5
+kthLargest.add(9);   // return 8
+kthLargest.add(4);   // return 8
+```
+
+Our algorithm is to maintain a min heap and keep its size to be k so that the kth largest element is the root element in the min heap.
+
+Note: the size of `pq` may be less than k.
+
+```c++
+// hpp
+class KthLargest {
+public:
+    KthLargest(int k, vector<int>& nums);
+    int add(int val);
+
+    priority_queue< int, vector<int>, std::greater<int> > pq; // min heap
+    int kth;
+};
+```
+
+```c++
+// cpp
+/**
+ * @brief Construct a new Kth Largest:: Kth Largest object
+ * Push each element in the priority queue (max heap by default). But for our algorithm,
+ * we should push it into a min heap. Keep the size of min heap to be k so that the root
+ * of the min heap is the kth largest element.
+ * 
+ * @param k
+ * @param nums
+ */
+KthLargest::KthLargest(int k, vector<int>& nums) {
+    this->kth = k;
+    for (int val : nums) {
+        this->pq.push(val);
+    }
+
+    // keep the size of pq to be k
+    while (this->pq.size() > k) {
+        this->pq.pop();
+    }
+}
+
+/**
+ * @brief append a val to max heap and return the kth largest element
+ * The trick here is to maintain a min heap and keep the heap size to be k. The kth
+ * element is the smallest one in the min heap. In the constructor, we have kept the
+ * size of pq to be k. Here we only need push new val and pop the minimum to get kth
+ * largest element.
+ *
+ * @param val
+ * @return int
+ */
+int KthLargest::add(int val) {
+    // push the given element
+    this->pq.push(val);
+    while (this->pq.size() > this->kth) {
+        this->pq.pop();
+    }
+
+    return this->pq.top();
+}
+```

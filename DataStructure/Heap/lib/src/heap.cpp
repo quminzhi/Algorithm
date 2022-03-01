@@ -1,10 +1,5 @@
 #include "heap.hpp"
 
-#include <iostream>
-#include <sstream>
-#include <queue> // priority_queue
-#include <unordered_map>
-
 Heap::Heap() {
     this->heapSize = 0;
     this->capacity = this->INIT_CAPACITY;
@@ -13,9 +8,10 @@ Heap::Heap() {
 
 // /**
 //  * @brief Construct a new Heap:: Heap object
-//  * The tree is built by repeatedly pushing new elements. The time complexity is O(NlogN)
-//  * 
-//  * @param _heap 
+//  * The tree is built by repeatedly pushing new elements. The time complexity is
+//  O(NlogN)
+//  *
+//  * @param _heap
 //  */
 // Heap::Heap(vector<int> _heap) {
 //     this->heapSize = 0;
@@ -32,11 +28,11 @@ Heap::Heap() {
 /**
  * @brief Construct a new Heap:: Heap object
  * The tree is built with the 'sift down' approach, which has the time complexity of O(N)
- * 
- * Notice the order of sift down. The idea is somewhat like dynamic algorithm, keep the 
+ *
+ * Notice the order of sift down. The idea is somewhat like dynamic algorithm, keep the
  * property of min heap from bottom to top.
- * 
- * @param _heap 
+ *
+ * @param _heap
  */
 Heap::Heap(vector<int> _heap) {
     this->capacity = this->INIT_CAPACITY;
@@ -52,7 +48,7 @@ Heap::Heap(vector<int> _heap) {
     }
     // update every node within the heap in 'sift down' strategy
     int root, left, right;
-    for (int i = this->heapSize - 1; i >= 0 ; i--) {
+    for (int i = this->heapSize - 1; i >= 0; i--) {
         root = i;
         while (true) {
             left = 2 * root + 1;
@@ -64,7 +60,7 @@ Heap::Heap(vector<int> _heap) {
             // case 2: left child only
             if ((right >= this->heapSize) && (this->heap[root] > this->heap[left])) {
                 swap(this->heap[root], this->heap[left]);
-                root = left; // update pointer
+                root = left;   // update pointer
                 continue;
             }
             // case 3: left and right child
@@ -203,11 +199,12 @@ std::ostream& operator<<(std::ostream& os, const Heap& h) {
 }
 
 /**
- * @brief 
+ * @brief
  * - Build a heap from a vector, and the time complexity: `O(N)`
- * - Repeatedly pop an element from the heap until it it empty, and the time complexity `O(NlogN)`
- * @param v 
- * @return vector<int> 
+ * - Repeatedly pop an element from the heap until it it empty, and the time complexity
+ * `O(NlogN)`
+ * @param v
+ * @return vector<int>
  */
 vector<int> heapSort(const vector<int>& v) {
     vector<int> sorted;
@@ -225,13 +222,13 @@ vector<int> heapSort(const vector<int>& v) {
 
 /**
  * @brief find k-th largest element with max heap
- * 
- * @param nums 
- * @param k 
- * @return int 
+ *
+ * @param nums
+ * @param k
+ * @return int
  */
 int findKthLargest(vector<int>& nums, int k) {
-    priority_queue<int> pq; // max heap
+    priority_queue<int> pq;   // max heap
     for (int val : nums) {
         pq.push(val);
     }
@@ -246,10 +243,10 @@ int findKthLargest(vector<int>& nums, int k) {
 
 /**
  * @brief capture the top k frequent elements
- * 
- * @param nums 
- * @param k 
- * @return vector<int> 
+ *
+ * @param nums
+ * @param k
+ * @return vector<int>
  */
 vector<int> topKFrequent(vector<int>& nums, int k) {
     unordered_map<int, int> counter;
@@ -258,9 +255,7 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
     }
 
     // min heap
-    auto cmp = [&counter](int lhs, int rhs) {
-        return counter[lhs] > counter[rhs];
-    };
+    auto cmp = [&counter](int lhs, int rhs) { return counter[lhs] > counter[rhs]; };
     priority_queue<int, vector<int>, decltype(cmp)> h(cmp);
     for (pair<int, int> p : counter) {
         h.push(p.first);
@@ -271,10 +266,51 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
 
     // output
     vector<int> result(k);
-    for (int i = k-1; i >= 0; i--) {
+    for (int i = k - 1; i >= 0; i--) {
         result[i] = h.top();
         h.pop();
     }
 
     return result;
+}
+
+/**
+ * @brief Construct a new Kth Largest:: Kth Largest object
+ * Push each element in the priority queue (max heap by default). But for our algorithm,
+ * we should push it into a min heap. Keep the size of min heap to be k so that the root
+ * of the min heap is the kth largest element.
+ * 
+ * @param k
+ * @param nums
+ */
+KthLargest::KthLargest(int k, vector<int>& nums) {
+    this->kth = k;
+    for (int val : nums) {
+        this->pq.push(val);
+    }
+
+    // keep the size of pq to be k
+    while (this->pq.size() > k) {
+        this->pq.pop();
+    }
+}
+
+/**
+ * @brief append a val to max heap and return the kth largest element
+ * The trick here is to maintain a min heap and keep the heap size to be k. The kth
+ * element is the smallest one in the min heap. In the constructor, we have kept the
+ * size of pq to be k. Here we only need push new val and pop the minimum to get kth
+ * largest element.
+ *
+ * @param val
+ * @return int
+ */
+int KthLargest::add(int val) {
+    // push the given element
+    this->pq.push(val);
+    while (this->pq.size() > this->kth) {
+        this->pq.pop();
+    }
+
+    return this->pq.top();
 }

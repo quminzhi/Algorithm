@@ -2,6 +2,9 @@
 #define HEAP_HPP
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include <queue> // priority_queue
+#include <unordered_map>
 using namespace std;
 
 /**
@@ -44,5 +47,14 @@ std::ostream& operator<<(std::ostream& os, const Heap& h);
 vector<int> heapSort(const vector<int>& v);
 int findKthLargest(vector<int>& nums, int k);
 vector<int> topKFrequent(vector<int>& nums, int k);
+
+class KthLargest {
+public:
+    KthLargest(int k, vector<int>& nums);
+    int add(int val);
+
+    priority_queue< int, vector<int>, std::greater<int> > pq; // min heap
+    int kth;
+};
 
 #endif
