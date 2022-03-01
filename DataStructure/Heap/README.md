@@ -462,3 +462,47 @@ vector<int> kWeakestRows(vector<vector<int> >& mat, int k) {
     return result;
 }
 ```
+
+### Kth Smallest Element in a Sorted Matrix
+
+> Given an n x n matrix where each of the rows and columns is sorted in ascending order, return the `kth` smallest element in the matrix.
+>
+> Note that it is the `kth` smallest element in the sorted order, not the `kth` distinct element.
+>
+> You must find a solution with a memory complexity better than `O(n2)`.
+
+Generic method for Kth largest number and Kth smallest number: Notice that priority queue is actually a heap. Ascending priority queue is implemented with min heap and descending priority queue is implemented with max heap. Every time we pop an element, the maximum element is popped in max heap and the minimum one in min heap.
+
+- Kth largest: maintain a min heap and keep the size of it to be k. `pq.pop()` will get rid of all smaller numbers.
+- Kth smallest: maintain a max heap and keep the size of it to be k. `pq.pop()` will remove all larger numbers.
+
+```c++
+/**
+ * @brief return kth smallest number in an semi-ordered matrix
+ * 'semi-ordered' means two properties are guaranteed:
+ *
+ * - each row is ordered
+ * - each colum is ordered
+ *
+ * One brute way is ignore those properties and put all numbers into a max heap with 
+ * the size of k. Then the root of the max heap is the answer.
+ * 
+ * Time complexity: O(K) + O(N * log(K))
+ * @param matrix
+ * @param k
+ * @return int
+ */
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+    priority_queue<int> pq;
+    for (int i = 0; i < matrix.size(); i++) {
+        for (int j = 0; j < matrix[0].size(); j++) {
+            pq.push(matrix[i][j]);
+            while (pq.size() > k) {
+                pq.pop();
+            }
+        }
+    }
+
+    return pq.top();
+}
+```

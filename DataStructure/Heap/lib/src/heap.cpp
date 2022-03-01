@@ -349,7 +349,7 @@ int lastStoneWeight(vector<int>& stones) {
  * @param k
  * @return vector<int>: k weakest rows in the given matrix.
  */
-vector<int> kWeakestRows(vector<vector<int> >& mat, int k) {
+vector<int> kWeakestRows(vector<vector<int>>& mat, int k) {
     unordered_map<int, int> m;   // row num -> num of soldiers on that row
 
     // define comparison rules
@@ -377,4 +377,33 @@ vector<int> kWeakestRows(vector<vector<int> >& mat, int k) {
     }
 
     return result;
+}
+
+/**
+ * @brief return kth smallest number in an semi-ordered matrix
+ * 'semi-ordered' means two properties are guaranteed:
+ *
+ * - each row is ordered
+ * - each colum is ordered
+ *
+ * One brute way is ignore those properties and put all numbers into a max heap with the
+ * size of k. Then the root of the max heap is the answer.
+ * 
+ * Time complexity: O(K) + O(N * log(K))
+ * @param matrix
+ * @param k
+ * @return int
+ */
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+    priority_queue<int> pq;
+    for (int i = 0; i < matrix.size(); i++) {
+        for (int j = 0; j < matrix[0].size(); j++) {
+            pq.push(matrix[i][j]);
+            while (pq.size() > k) {
+                pq.pop();
+            }
+        }
+    }
+
+    return pq.top();
 }
