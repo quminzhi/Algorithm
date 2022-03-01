@@ -47,6 +47,8 @@ std::ostream& operator<<(std::ostream& os, const Heap& h);
 vector<int> heapSort(const vector<int>& v);
 int findKthLargest(vector<int>& nums, int k);
 vector<int> topKFrequent(vector<int>& nums, int k);
+int lastStoneWeight(vector<int>& stones);
+vector<int> kWeakestRows(vector< vector<int> >& mat, int k);
 
 class KthLargest {
 public:

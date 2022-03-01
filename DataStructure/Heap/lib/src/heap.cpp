@@ -279,7 +279,7 @@ vector<int> topKFrequent(vector<int>& nums, int k) {
  * Push each element in the priority queue (max heap by default). But for our algorithm,
  * we should push it into a min heap. Keep the size of min heap to be k so that the root
  * of the min heap is the kth largest element.
- * 
+ *
  * @param k
  * @param nums
  */
@@ -313,4 +313,68 @@ int KthLargest::add(int val) {
     }
 
     return this->pq.top();
+}
+
+/**
+ * @brief Simulate smash game with max heap.
+ *
+ * @param stones
+ * @return int
+ */
+int lastStoneWeight(vector<int>& stones) {
+    priority_queue<int> pq(stones.begin(), stones.end());
+    // game starts
+    int first, second;
+    while (pq.size() > 1) {
+        // choose two heaviest stones
+        first = pq.top();
+        pq.pop();
+        second = pq.top();
+        pq.pop();
+
+        // smash
+        pq.push(abs(first - second));
+    }
+
+    if (pq.empty()) return 0;
+    return pq.top();
+}
+
+/**
+ * @brief
+ * A row i is weaker than a row j if one of the following is true:
+ *  - The number of soldiers in row i is less than the number of soldiers in row j.
+ *  - Both rows have the same number of soldiers and i < j.
+ * @param mat
+ * @param k
+ * @return vector<int>: k weakest rows in the given matrix.
+ */
+vector<int> kWeakestRows(vector<vector<int> >& mat, int k) {
+    unordered_map<int, int> m;   // row num -> num of soldiers on that row
+
+    // define comparison rules
+    auto cmp = [&m](int i, int j) -> bool {
+        return (m[i] > m[j]) || ((m[i] == m[j]) && (i > j));
+    };
+    // notice: 'vector<int>' is the type of the underlying container to use to store the
+    // elements
+    priority_queue<int, vector<int>, decltype(cmp)> pq(cmp);
+
+    for (int row = 0; row < mat.size(); row++) {
+        for (int col = 0; col < mat[0].size(); col++) {
+            if (mat[row][col] == 1) {
+                m[row] += 1;
+            }
+        }
+        pq.push(row);
+    }
+
+    vector<int> result;
+    // get k weakest rows
+    for (int i = 0; i < k; i++) {
+        result.push_back(pq.top());
+        pq.pop();
+    }
+
+    return result;
 }

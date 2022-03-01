@@ -352,3 +352,113 @@ int KthLargest::add(int val) {
     return this->pq.top();
 }
 ```
+
+### Last Stone Weight
+
+> You are given an array of integers stones where `stones[i]` is the weight of the ith stone.
+> We are playing a game with the stones. On each turn, we choose the heaviest two stones and smash them together. Suppose the heaviest two stones have weights x and y with `x <= y`. The result of this smash is:
+>
+> - If `x == y`, both stones are destroyed, and
+> - If `x != y`, the stone of weight x is destroyed, and the stone of weight y has new weight `y - x`.
+>
+> At the end of the game, there is at most one stone left.
+> Return the smallest possible weight of the left stone. If there are no stones left, return 0.
+
+Finding kth elements in an ordered sequence is what `heap` is good at.
+
+```c++
+/**
+ * @brief Simulate smash game with max heap.
+ * 
+ * @param stones 
+ * @return int 
+ */
+int lastStoneWeight(vector<int>& stones) {
+    priority_queue<int> pq(stones.begin(), stones.end());
+    // game starts
+    int first, second;
+    while (pq.size() > 1) {
+        // choose two heaviest stones
+        first = pq.top();
+        pq.pop();
+        second = pq.top();
+        pq.pop();
+        
+        // smash
+        pq.push(abs(first - second));
+    }
+
+    if (pq.empty()) return 0;
+    return pq.top();
+}
+```
+
+### The K Weakest Rows in a Matrix
+
+> You are given an `m x n` binary matrix mat of 1's (representing soldiers) and 0's (representing civilians). The soldiers are positioned in front of the civilians. That is, all the 1's will appear to the left of all the 0's in each row.
+>
+> A row `i` is weaker than a row `j` if one of the following is true:
+>
+> - The number of soldiers in row `i` is less than the number of soldiers in row `j`.
+> - Both rows have the same number of soldiers and `i < j`.
+>
+> Return the indices of the `k` weakest rows in the matrix ordered from weakest to strongest.
+
+The key here is to define a min heap in C++ according to the given rules:
+
+- min heap: define greater (`lhs > rhs`)
+- max heap (default): define less (`lhs < rhs`)
+
+```c++
+    unordered_map<int, int> m;   // row num -> num of soldiers on that row
+    // define comparison rules
+    auto cmp = [&m](int i, int j) -> bool {
+        return (m[i] > m[j]) || ((m[i] == m[j]) && (i > j));
+    };
+    // notice: 'vector<int>' is the type of the underlying container to use to store the
+    // elements
+    priority_queue<int, vector<int>, decltype(cmp)> pq(cmp);
+```
+
+The full code is shown as follows.
+
+```c++
+/**
+ * @brief
+ * A row i is weaker than a row j if one of the following is true:
+ *  - The number of soldiers in row i is less than the number of soldiers in row j.
+ *  - Both rows have the same number of soldiers and i < j.
+ * @param mat
+ * @param k
+ * @return vector<int>: k weakest rows in the given matrix.
+ */
+vector<int> kWeakestRows(vector<vector<int> >& mat, int k) {
+    unordered_map<int, int> m;   // row num -> num of soldiers on that row
+
+    // define comparison rules
+    auto cmp = [&m](int i, int j) -> bool {
+        return (m[i] > m[j]) || ((m[i] == m[j]) && (i > j));
+    };
+    // notice: 'vector<int>' is the type of the underlying container to use to store the
+    // elements
+    priority_queue<int, vector<int>, decltype(cmp)> pq(cmp);
+
+    for (int row = 0; row < mat.size(); row++) {
+        for (int col = 0; col < mat[0].size(); col++) {
+            if (mat[row][col] == 1) {
+                m[row] += 1;
+            }
+        }
+        pq.push(row);
+    }
+
+    vector<int> result;
+    // get k weakest rows
+    for (int i = 0; i < k; i++) {
+        result.push_back(pq.top());
+        pq.pop();
+    }
+
+    return result;
+}
+```
