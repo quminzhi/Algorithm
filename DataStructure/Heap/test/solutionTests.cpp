@@ -70,3 +70,13 @@ TEST(MyTests, MeetingRooms) {
     };
     EXPECT_EQ(minMeetingRooms(intervals), 2);
 }
+
+TEST(MyTests, kClosestPoints) {
+    vector< vector<int> > points = {
+        {3, 3}, {5, -1}, {-2, 4}
+    };
+    vector< vector<int> > expected = {
+        {-2, 4}, {3, 3}
+    };
+    EXPECT_EQ(kClosest(points, 2), expected);
+}

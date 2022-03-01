@@ -49,8 +49,9 @@ int findKthLargest(vector<int>& nums, int k);
 vector<int> topKFrequent(vector<int>& nums, int k);
 int lastStoneWeight(vector<int>& stones);
 vector<int> kWeakestRows(vector< vector<int> >& mat, int k);
-int kthSmallest(vector<vector<int>>& matrix, int k);
+int kthSmallest(vector< vector<int> >& matrix, int k);
 int minMeetingRooms(vector< vector<int> >& intervals);
+vector< vector<int> > kClosest(vector< vector<int> >& points, int k);
 
 class KthLargest {
 public:

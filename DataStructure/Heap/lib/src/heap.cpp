@@ -459,3 +459,36 @@ int minMeetingRooms(vector< vector<int> >& intervals) {
 
     return room_counter;
 }
+
+double EuclideanDistanceToOrigin(int i, int j) {
+    return sqrt(pow(i, 2) + pow(j, 2));
+}
+
+/**
+ * @brief return k closest points to origin
+ * Since we want k closest points, we need maintain a max heap and keep its size to be k.
+ * @param points 
+ * @param k 
+ * @return vector< vector<int> > 
+ */
+vector< vector<int> > kClosest(vector< vector<int> >& points, int k) {
+    auto cmp = [&points](vector<int> left, vector<int> right) -> bool {
+        return EuclideanDistanceToOrigin(left[0], left[1]) < EuclideanDistanceToOrigin(right[0], right[1]);
+    };
+    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp)> pq(cmp);
+
+    for (auto& point : points) {
+        pq.push(point);
+        while (pq.size() > k) {
+            pq.pop();
+        }
+    }
+
+    vector< vector<int> > closest;
+    while (!pq.empty()) {
+        closest.push_back(pq.top());
+        pq.pop();
+    }
+
+    return closest;
+}
