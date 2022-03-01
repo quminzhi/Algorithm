@@ -506,3 +506,82 @@ int kthSmallest(vector<vector<int>>& matrix, int k) {
     return pq.top();
 }
 ```
+
+### Meeting Rooms II
+
+> Given an array of meeting time intervals intervals where `intervals[i] = [starti, endi]`, return the minimum number of conference rooms required.
+
+We need to allocate room to meetings that occur earlier. Hence we are going to sort all input intervals in terms of start time. We use a min heap to track when the allocated rooms get free (end time).
+
+- Customize Comparison Function
+
+```c++
+// customize cmp function for sort: ascending order
+    auto cmp = [&intervals](vector<int> left, vector<int> right) -> bool {
+        return left[0] < right[0];
+    };
+    std::sort(intervals.begin(), intervals.end(), cmp);
+
+    // customize cmp function for pq (arg list: the type of key of intervals)
+    // min heap: greater, max heap: less
+    auto cmp2 = [&intervals](vector<int> left, vector<int> right) -> bool {
+        return left[1] > right[1];
+    };
+    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp2)> pq(cmp2);
+```
+
+Full code is shown as below:
+
+```c++
+/**
+ * @brief We need to allocate room to meetings that occur earlier. Hence we are going
+ * to sort all input intervals in terms of start time. We use a min heap to track when
+ * the allocated rooms get free (end time).
+ * 
+ * There are two scenarios when a new request comes:
+ *  - the start time of new meeting is greater than the min in the min heap, meaning 
+ * it can use that room. We pop the min and push the end time of the new meeting into
+ * the min heap.
+ *  - the start time of new meeting is smaller than the min in the min heap, we have
+ * to allocate a new room for it. Room counter increases one and push the end time of
+ * the new meeting into the heap.
+ * 
+ * @param intervals 
+ * @return int 
+ */
+int minMeetingRooms(vector< vector<int> >& intervals) {
+    // customize cmp function for sort: ascending order
+    auto cmp = [&intervals](vector<int> left, vector<int> right) -> bool {
+        return left[0] < right[0];
+    };
+    std::sort(intervals.begin(), intervals.end(), cmp);
+
+    // customize cmp function for pq (arg list: the type of key of intervals)
+    // min heap: greater, max heap: less
+    auto cmp2 = [&intervals](vector<int> left, vector<int> right) -> bool {
+        return left[1] > right[1];
+    };
+    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp2)> pq(cmp2);
+
+    // allocate rooms
+    int room_counter = 0;
+    for (vector<int> meeting : intervals) {
+        if (pq.empty()) {
+            room_counter++;
+            pq.push(meeting);
+        } else {
+            if (pq.top()[1] > meeting[0]) {
+                // no free room
+                room_counter++;
+                pq.push(meeting);
+            } else {
+                // available
+                pq.pop();
+                pq.push(meeting);
+            }
+        }
+    }
+
+    return room_counter;
+}
+```

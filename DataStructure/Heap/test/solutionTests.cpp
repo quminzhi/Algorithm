@@ -63,3 +63,10 @@ TEST(MyTests, KthLargestTEST) {
     EXPECT_EQ(ks2.add(0), 0);
     EXPECT_EQ(ks2.add(4), 4);
 }
+
+TEST(MyTests, MeetingRooms) {
+    vector< vector<int> > intervals = {
+        {0, 30}, {15, 20}, {5, 10}
+    };
+    EXPECT_EQ(minMeetingRooms(intervals), 2);
+}

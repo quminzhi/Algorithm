@@ -50,6 +50,7 @@ vector<int> topKFrequent(vector<int>& nums, int k);
 int lastStoneWeight(vector<int>& stones);
 vector<int> kWeakestRows(vector< vector<int> >& mat, int k);
 int kthSmallest(vector<vector<int>>& matrix, int k);
+int minMeetingRooms(vector< vector<int> >& intervals);
 
 class KthLargest {
 public:
