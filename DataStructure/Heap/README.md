@@ -594,4 +594,140 @@ int minMeetingRooms(vector< vector<int> >& intervals) {
 >
 > You may return the answer in any order. The answer is guaranteed to be unique (except for the order that it is in).
 
+Full code is shown as below,
 
+```c++
+double EuclideanDistanceToOrigin(int i, int j) {
+    return sqrt(pow(i, 2) + pow(j, 2));
+}
+
+/**
+ * @brief return k closest points to origin
+ * Since we want k closest points, we need maintain a max heap and keep its size to be k.
+ * @param points 
+ * @param k 
+ * @return vector< vector<int> > 
+ */
+vector< vector<int> > kClosest(vector< vector<int> >& points, int k) {
+    auto cmp = [&points](vector<int> left, vector<int> right) -> bool {
+        return EuclideanDistanceToOrigin(left[0], left[1]) < EuclideanDistanceToOrigin(right[0], right[1]);
+    };
+    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp)> pq(cmp);
+
+    for (auto& point : points) {
+        pq.push(point);
+        while (pq.size() > k) {
+            pq.pop();
+        }
+    }
+
+    vector< vector<int> > closest;
+    while (!pq.empty()) {
+        closest.push_back(pq.top());
+        pq.pop();
+    }
+
+    return closest;
+}
+```
+
+### Minimum Cost to Connect Sticks
+
+> You have some number of sticks with positive integer lengths. These lengths are given as an array sticks, where `sticks[i]` is the length of the `ith` stick.
+>
+> You can connect any two sticks of lengths `x` and `y` into one stick by paying a cost of `x + y`. You must connect all the sticks until there is only one stick remaining.
+>
+> Return the minimum cost of connecting all the given sticks into one stick in this way.
+
+The observation is that we should connect two smallest one at each step to get the minimum cost. That's where min heap comes into stage.
+
+```c++
+/**
+ * @brief return minimum cost to connect sticks
+ * The observation is that we should connect two smallest one at each step to get
+ * the minimum cost. That's where min heap comes into stage.
+ *
+ * @param sticks
+ * @return int
+ */
+int connectSticks(vector<int>& sticks) {
+    priority_queue<int, vector<int>, std::greater<int>> pq(sticks.begin(), sticks.end());
+    int cost = 0;
+    int s1, s2;
+    while (pq.size() > 1) {
+        // retrieve two smallest sticks
+        s1 = pq.top();
+        pq.pop();
+        s2 = pq.top();
+        pq.pop();
+        cost += s1 + s2;
+        pq.push(s1 + s2);
+    }
+
+    return cost;
+}
+```
+
+### Furthest Building
+
+> You are given an integer array `heights` representing the heights of buildings, some `bricks`, and some `ladders`.
+>
+> You start your journey from building `0` and move to the next building by possibly using bricks or ladders.
+>
+> While moving from building `i` to building `i+1` (0-indexed)
+>
+> - If the current building's height is greater than or equal to the next building's height, you do not need a ladder or bricks.
+> - If the current building's height is less than the next building's height, you can either use one ladder **or** (`h[i+1] - h[i]`) bricks.
+>
+> Return the furthest building index (0-indexed) you can reach if you use the given ladders and bricks optimally.
+
+The key idea is to use k ladders on top k positive `margins[0, where we are now]`.
+
+We can use a min heap to track top k positive margins so far.
+
+```c++
+/**
+ * @brief return the furthest building we can reach from building[0]
+ * There are something to think about:
+ * 1. when do I need bricks or ladders when going from one building to another?
+ *   building[i] < building[i+1]
+ * 2. Which tool should I use when it is needed to reach a optimal outcome?
+ *   The basic idea is to use ladder for maximum cost when going from one building
+ * to another. To achieve that, we have an algorithm as follows:
+ *   - Use ladders for top k margins, where k is the size of ladders
+ *   - If no bricks available, we are done.
+ * 
+ * To be short, keep k ladders applied on top k current margins
+ * 
+ * @param heights 
+ * @param bricks 
+ * @param ladders 
+ * @return int 
+ */
+int furthestBuilding(vector<int>& heights, int bricks, int ladders) {
+    vector<int> margins(heights.size()-1, 0); // height margin of (i, i+1)
+    for (int i = 0; i < heights.size() - 1; i++) {
+        margins[i] = heights[i+1] - heights[i];
+    }
+
+    priority_queue<int, vector<int>, std::greater<int>> pq; // min heap
+    int i = 0;
+    for (; i < margins.size(); i++) {
+       if (margins[i] > 0) {
+           if (ladders > 0) {
+               // use ladders first
+               ladders--;
+               pq.push(margins[i]);
+           } else {
+               // use bricks to replace the minimum margin in current margins
+               pq.push(margins[i]);
+               bricks -= pq.top();
+               if (bricks < 0) break;
+               pq.pop();
+           }
+       }
+    }
+
+    return i;
+}
+```

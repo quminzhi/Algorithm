@@ -388,7 +388,7 @@ vector<int> kWeakestRows(vector<vector<int>>& mat, int k) {
  *
  * One brute way is ignore those properties and put all numbers into a max heap with the
  * size of k. Then the root of the max heap is the answer.
- * 
+ *
  * Time complexity: O(K) + O(N * log(K))
  * @param matrix
  * @param k
@@ -412,19 +412,19 @@ int kthSmallest(vector<vector<int>>& matrix, int k) {
  * @brief We need to allocate room to meetings that occur earlier. Hence we are going
  * to sort all input intervals in terms of start time. We use a min heap to track when
  * the allocated rooms get free (end time).
- * 
+ *
  * There are two scenarios when a new request comes:
- *  - the start time of new meeting is greater than the min in the min heap, meaning 
+ *  - the start time of new meeting is greater than the min in the min heap, meaning
  * it can use that room. We pop the min and push the end time of the new meeting into
  * the min heap.
  *  - the start time of new meeting is smaller than the min in the min heap, we have
  * to allocate a new room for it. Room counter increases one and push the end time of
  * the new meeting into the heap.
- * 
- * @param intervals 
- * @return int 
+ *
+ * @param intervals
+ * @return int
  */
-int minMeetingRooms(vector< vector<int> >& intervals) {
+int minMeetingRooms(vector<vector<int>>& intervals) {
     // customize cmp function for sort: ascending order
     auto cmp = [&intervals](vector<int> left, vector<int> right) -> bool {
         return left[0] < right[0];
@@ -436,7 +436,7 @@ int minMeetingRooms(vector< vector<int> >& intervals) {
     auto cmp2 = [&intervals](vector<int> left, vector<int> right) -> bool {
         return left[1] > right[1];
     };
-    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp2)> pq(cmp2);
+    priority_queue<vector<int>, vector<vector<int>>, decltype(cmp2)> pq(cmp2);
 
     // allocate rooms
     int room_counter = 0;
@@ -460,22 +460,21 @@ int minMeetingRooms(vector< vector<int> >& intervals) {
     return room_counter;
 }
 
-double EuclideanDistanceToOrigin(int i, int j) {
-    return sqrt(pow(i, 2) + pow(j, 2));
-}
+double EuclideanDistanceToOrigin(int i, int j) { return sqrt(pow(i, 2) + pow(j, 2)); }
 
 /**
  * @brief return k closest points to origin
  * Since we want k closest points, we need maintain a max heap and keep its size to be k.
- * @param points 
- * @param k 
- * @return vector< vector<int> > 
+ * @param points
+ * @param k
+ * @return vector< vector<int> >
  */
-vector< vector<int> > kClosest(vector< vector<int> >& points, int k) {
+vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
     auto cmp = [&points](vector<int> left, vector<int> right) -> bool {
-        return EuclideanDistanceToOrigin(left[0], left[1]) < EuclideanDistanceToOrigin(right[0], right[1]);
+        return EuclideanDistanceToOrigin(left[0], left[1]) <
+               EuclideanDistanceToOrigin(right[0], right[1]);
     };
-    priority_queue<vector<int>, vector< vector<int> >, decltype(cmp)> pq(cmp);
+    priority_queue<vector<int>, vector<vector<int>>, decltype(cmp)> pq(cmp);
 
     for (auto& point : points) {
         pq.push(point);
@@ -484,11 +483,81 @@ vector< vector<int> > kClosest(vector< vector<int> >& points, int k) {
         }
     }
 
-    vector< vector<int> > closest;
+    vector<vector<int>> closest;
     while (!pq.empty()) {
         closest.push_back(pq.top());
         pq.pop();
     }
 
     return closest;
+}
+
+/**
+ * @brief return minimum cost to connect sticks
+ * The observation is that we should connect two smallest one at each step to get
+ * the minimum cost. That's where min heap comes into stage.
+ *
+ * @param sticks
+ * @return int
+ */
+int connectSticks(vector<int>& sticks) {
+    priority_queue<int, vector<int>, std::greater<int>> pq(sticks.begin(), sticks.end());
+    int cost = 0;
+    int s1, s2;
+    while (pq.size() > 1) {
+        // retrieve two smallest sticks
+        s1 = pq.top();
+        pq.pop();
+        s2 = pq.top();
+        pq.pop();
+        cost += s1 + s2;
+        pq.push(s1 + s2);
+    }
+
+    return cost;
+}
+
+/**
+ * @brief return the furthest building we can reach from building[0]
+ * There are something to think about:
+ * 1. when do I need bricks or ladders when going from one building to another?
+ *   building[i] < building[i+1]
+ * 2. Which tool should I use when it is needed to reach a optimal outcome?
+ *   The basic idea is to use ladder for maximum cost when going from one building
+ * to another. To achieve that, we have an algorithm as follows:
+ *   - Use ladders for top k margins, where k is the size of ladders
+ *   - If no bricks available, we are done.
+ * 
+ * To be short, keep k ladders applied on top k current margins
+ * 
+ * @param heights 
+ * @param bricks 
+ * @param ladders 
+ * @return int 
+ */
+int furthestBuilding(vector<int>& heights, int bricks, int ladders) {
+    vector<int> margins(heights.size()-1, 0); // height margin of (i, i+1)
+    for (int i = 0; i < heights.size() - 1; i++) {
+        margins[i] = heights[i+1] - heights[i];
+    }
+
+    priority_queue<int, vector<int>, std::greater<int>> pq; // min heap
+    int i = 0;
+    for (; i < margins.size(); i++) {
+       if (margins[i] > 0) {
+           if (ladders > 0) {
+               // use ladders first
+               ladders--;
+               pq.push(margins[i]);
+           } else {
+               // use bricks to replace the minimum margin in current margins
+               pq.push(margins[i]);
+               bricks -= pq.top();
+               if (bricks < 0) break;
+               pq.pop();
+           }
+       }
+    }
+
+    return i;
 }

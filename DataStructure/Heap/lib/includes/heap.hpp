@@ -5,6 +5,7 @@
 #include <sstream>
 #include <queue> // priority_queue
 #include <unordered_map>
+#include <functional>
 using namespace std;
 
 /**
@@ -52,6 +53,8 @@ vector<int> kWeakestRows(vector< vector<int> >& mat, int k);
 int kthSmallest(vector< vector<int> >& matrix, int k);
 int minMeetingRooms(vector< vector<int> >& intervals);
 vector< vector<int> > kClosest(vector< vector<int> >& points, int k);
+int connectSticks(vector<int>& sticks);
+int furthestBuilding(vector<int>& heights, int bricks, int ladders);
 
 class KthLargest {
 public:

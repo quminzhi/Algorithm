@@ -80,3 +80,8 @@ TEST(MyTests, kClosestPoints) {
     };
     EXPECT_EQ(kClosest(points, 2), expected);
 }
+
+TEST(MyTests, furthestBuildings) {
+    vector<int> heights = {4, 12, 2, 7, 3, 18, 20, 3, 19};
+    EXPECT_EQ(furthestBuilding(heights, 10, 2), 7);
+}
