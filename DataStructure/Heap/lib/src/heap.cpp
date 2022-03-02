@@ -527,37 +527,65 @@ int connectSticks(vector<int>& sticks) {
  * to another. To achieve that, we have an algorithm as follows:
  *   - Use ladders for top k margins, where k is the size of ladders
  *   - If no bricks available, we are done.
- * 
+ *
  * To be short, keep k ladders applied on top k current margins
- * 
- * @param heights 
- * @param bricks 
- * @param ladders 
- * @return int 
+ *
+ * @param heights
+ * @param bricks
+ * @param ladders
+ * @return int
  */
 int furthestBuilding(vector<int>& heights, int bricks, int ladders) {
-    vector<int> margins(heights.size()-1, 0); // height margin of (i, i+1)
+    vector<int> margins(heights.size() - 1, 0);   // height margin of (i, i+1)
     for (int i = 0; i < heights.size() - 1; i++) {
-        margins[i] = heights[i+1] - heights[i];
+        margins[i] = heights[i + 1] - heights[i];
     }
 
-    priority_queue<int, vector<int>, std::greater<int>> pq; // min heap
+    priority_queue<int, vector<int>, std::greater<int>> pq;   // min heap
     int i = 0;
     for (; i < margins.size(); i++) {
-       if (margins[i] > 0) {
-           if (ladders > 0) {
-               // use ladders first
-               ladders--;
-               pq.push(margins[i]);
-           } else {
-               // use bricks to replace the minimum margin in current margins
-               pq.push(margins[i]);
-               bricks -= pq.top();
-               if (bricks < 0) break;
-               pq.pop();
-           }
-       }
+        if (margins[i] > 0) {
+            if (ladders > 0) {
+                // use ladders first
+                ladders--;
+                pq.push(margins[i]);
+            } else {
+                // use bricks to replace the minimum margin in current margins
+                pq.push(margins[i]);
+                bricks -= pq.top();
+                if (bricks < 0) break;
+                pq.pop();
+            }
+        }
     }
 
     return i;
+}
+
+/**
+ * @brief Construct a new Median Finder:: Median Finder object
+ * Maintain left half of sequence with max heap (lo) and maintain right half with 
+ * min heap (hi).
+ *   - if size = 2 * n + 1, then keep lo holding n + 1 numbers and hi holding n numbers.
+ *   - if size = 2 * n, then both of lo and hi hold n numbers.
+ */
+MedianFinder::MedianFinder() {}
+
+void MedianFinder::addNum(int num) {
+    lo.push(num);
+
+    // balancing step: pop the max of lo (max heap) to hi (min heap) 
+    // notice that lo.top() is not necessarily 'num', it should be the max number of lo
+    hi.push(lo.top());
+    lo.pop();
+
+    // keep our presumed property
+    if (lo.size() < hi.size()) {
+        lo.push(hi.top());
+        hi.pop();
+    }
+}
+
+double MedianFinder::findMedian() {
+    return lo.size() > hi.size() ? lo.top() : ((double)lo.top() + hi.top()) * 0.5;
 }

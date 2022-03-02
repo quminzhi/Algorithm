@@ -1,11 +1,11 @@
 #ifndef HEAP_HPP
 #define HEAP_HPP
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <queue> // priority_queue
-#include <unordered_map>
 #include <functional>
+#include <iostream>
+#include <queue>   // priority_queue
+#include <sstream>
+#include <unordered_map>
+#include <vector>
 using namespace std;
 
 /**
@@ -13,7 +13,7 @@ using namespace std;
  * Trick:
  * - formula to find parent becomes easy: parent index of node i is '(i - 1) / 2'
  * - left child is '2 * i + 1' and right child is '2 * i + 2'
- * 
+ *
  */
 class Heap {
    public:
@@ -26,7 +26,7 @@ class Heap {
 
     // operations
     void push(int val);
-    int pop(); // pop the first element
+    int pop();   // pop the first element
 
     int heapSize;
     int capacity;
@@ -49,20 +49,30 @@ vector<int> heapSort(const vector<int>& v);
 int findKthLargest(vector<int>& nums, int k);
 vector<int> topKFrequent(vector<int>& nums, int k);
 int lastStoneWeight(vector<int>& stones);
-vector<int> kWeakestRows(vector< vector<int> >& mat, int k);
-int kthSmallest(vector< vector<int> >& matrix, int k);
-int minMeetingRooms(vector< vector<int> >& intervals);
-vector< vector<int> > kClosest(vector< vector<int> >& points, int k);
+vector<int> kWeakestRows(vector<vector<int>>& mat, int k);
+int kthSmallest(vector<vector<int>>& matrix, int k);
+int minMeetingRooms(vector<vector<int>>& intervals);
+vector<vector<int>> kClosest(vector<vector<int>>& points, int k);
 int connectSticks(vector<int>& sticks);
 int furthestBuilding(vector<int>& heights, int bricks, int ladders);
 
 class KthLargest {
-public:
+   public:
     KthLargest(int k, vector<int>& nums);
     int add(int val);
 
-    priority_queue< int, vector<int>, std::greater<int> > pq; // min heap
+    priority_queue<int, vector<int>, std::greater<int>> pq;   // min heap
     int kth;
+};
+
+class MedianFinder {
+   public:
+    MedianFinder();
+    void addNum(int num);
+    double findMedian();
+
+    priority_queue<int> lo;                                   // max heap
+    priority_queue<int, vector<int>, std::greater<int>> hi;   // min heap
 };
 
 #endif

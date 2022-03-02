@@ -85,3 +85,17 @@ TEST(MyTests, furthestBuildings) {
     vector<int> heights = {4, 12, 2, 7, 3, 18, 20, 3, 19};
     EXPECT_EQ(furthestBuilding(heights, 10, 2), 7);
 }
+
+TEST(MyTests, MedianFinder) {
+    MedianFinder finder;
+    finder.addNum(1);
+    EXPECT_EQ(finder.findMedian(), 1);
+    finder.addNum(2);
+    EXPECT_EQ(finder.findMedian(), 1.5);
+    finder.addNum(3);
+    EXPECT_EQ(finder.findMedian(), 2);
+    finder.addNum(4);
+    EXPECT_EQ(finder.findMedian(), 2.5);
+    finder.addNum(5);
+    EXPECT_EQ(finder.findMedian(), 3);
+}

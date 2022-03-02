@@ -731,3 +731,48 @@ int furthestBuilding(vector<int>& heights, int bricks, int ladders) {
     return i;
 }
 ```
+
+### Find Median from Data Stream
+
+> The median is the middle value in an ordered integer list. If the size of the list is even, there is no middle value and the median is the mean of the two middle values.
+>
+> - For example, for `arr = [2,3,4]`, the median is `3`.
+> - For example, for `arr = [2,3]`, the median is `(2 + 3) / 2 = 2.5`.
+>
+> Implement the MedianFinder class:
+>
+> - `MedianFinder()` initializes the `MedianFinder` object.
+> - `void addNum(int num)` adds the integer num from the data stream to the data structure.
+> - `double findMedian()` returns the median of all elements so far. Answers within 10^-5 of the actual answer will be accepted.
+
+Using two heaps to track left and right half of input stream.
+
+```c++
+/**
+ * @brief Construct a new Median Finder:: Median Finder object
+ * Maintain left half of sequence with max heap (lo) and maintain right half with 
+ * min heap (hi).
+ *   - if size = 2 * n + 1, then keep lo holding n + 1 numbers and hi holding n numbers.
+ *   - if size = 2 * n, then both of lo and hi hold n numbers.
+ */
+MedianFinder::MedianFinder() {}
+
+void MedianFinder::addNum(int num) {
+    lo.push(num);
+
+    // balancing step: pop the max of lo (max heap) to hi (min heap) 
+    // notice that lo.top() is not necessarily 'num', it should be the max number of lo
+    hi.push(lo.top());
+    lo.pop();
+
+    // keep our presumed property
+    if (lo.size() < hi.size()) {
+        lo.push(hi.top());
+        hi.pop();
+    }
+}
+
+double MedianFinder::findMedian() {
+    return lo.size() > hi.size() ? lo.top() : ((double)lo.top() + hi.top()) * 0.5;
+}
+```
