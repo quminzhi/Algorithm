@@ -120,9 +120,7 @@ int mySqrtMath(int x) {
 }
 
 // pseudo code to make program run
-int guess(int x) {
-    return 0;
-}
+int guess(int x) { return 0; }
 
 /**
  * @brief
@@ -162,16 +160,16 @@ int searchRotatedArrHelper(vector<int>& nums, int target, int left, int right) {
         if (nums[mid] >= nums[left]) {
             if ((target < nums[mid]) && (target >= nums[left])) {
                 // left half is ordered
-                return bsearchHelper(nums, target, left, mid-1);
+                return bsearchHelper(nums, target, left, mid - 1);
             } else {
-                return searchRotatedArrHelper(nums, target, mid+1, right);
-            } 
+                return searchRotatedArrHelper(nums, target, mid + 1, right);
+            }
         } else {
             if ((target > nums[mid]) && (target <= nums[right])) {
                 // right half is ordered
-                return bsearchHelper(nums, target, mid+1, right);
+                return bsearchHelper(nums, target, mid + 1, right);
             } else {
-                return searchRotatedArrHelper(nums, target, left, mid-1);
+                return searchRotatedArrHelper(nums, target, left, mid - 1);
             }
         }
     }
@@ -191,22 +189,20 @@ int searchRotatedArrHelper(vector<int>& nums, int target, int left, int right) {
  * @return int
  */
 int searchRotatedArr(vector<int>& nums, int target) {
-    return searchRotatedArrHelper(nums, target, 0, nums.size()-1);
+    return searchRotatedArrHelper(nums, target, 0, nums.size() - 1);
 }
 
 // pseudo code to make program run
-bool isBadVersion(int version) {
-    return true;
-}
+bool isBadVersion(int version) { return true; }
 
 /**
  * @brief search the first bad version
  * search bad version first and start from it finding the first one.
- * 
+ *
  * O(log(N) + N)
- * 
- * @param n 
- * @return int 
+ *
+ * @param n
+ * @return int
  */
 int firstBadVersionI(int n) {
     int left = 0;
@@ -223,7 +219,7 @@ int firstBadVersionI(int n) {
 
     // if not found
     if (left > right) return -1;
-    
+
     // find the first bad version
     while (isBadVersion(mid)) {
         mid--;
@@ -234,15 +230,15 @@ int firstBadVersionI(int n) {
 /**
  * @brief We will solve the same problem with another form of binary search, which
  * will find until there is only one element left. [left, right)
- * 
+ *
  * Observations:
  * 1. if current version is good, then all versions before it are good.
  * 2. if current version is bad, then all following versions are bad.
- * 
+ *
  * O(log(N))
- * 
- * @param n 
- * @return int 
+ *
+ * @param n
+ * @return int
  */
 int firstBadVersionII(int n) {
     if (n <= 0) return -1;
@@ -261,7 +257,7 @@ int firstBadVersionII(int n) {
     }
 
     // check if left is out of bound is MUST
-    if (left == (unsigned int)n + 1) return -1; // out of bound
+    if (left == (unsigned int)n + 1) return -1;   // out of bound
     if (isBadVersion(left)) {
         return left;
     } else {
@@ -271,24 +267,24 @@ int firstBadVersionII(int n) {
 
 /**
  * @brief find the index of any peak in an array
- * 
+ *
  * Observations:
  * 1. if nums[i-1] < nums[i] < nums[i+1], peak should be in the right of i
  * 2. if nums[i-1] > nums[i] > nums[i+1], peak should be in the left of i
- * 
- * @param nums 
- * @return int 
+ *
+ * @param nums
+ * @return int
  */
 int findPeakElement(vector<int>& nums) {
     int left = 0;
     int right = nums.size();
     int mid = 0;
-    nums.push_back(-INT_MAX); // add right boundary
+    nums.push_back(-INT_MAX);   // add right boundary
     while (left < right) {
         mid = left + ((right - left) >> 1);
         if (mid - 1 < 0) {
             // no left neighbor
-            if (nums[mid] > nums[mid+1]) {
+            if (nums[mid] > nums[mid + 1]) {
                 return mid;
             } else {
                 // search right half
@@ -296,10 +292,10 @@ int findPeakElement(vector<int>& nums) {
             }
         } else {
             // has left neighbor
-            if ((nums[mid-1] < nums[mid]) && (nums[mid] > nums[mid+1])) {
+            if ((nums[mid - 1] < nums[mid]) && (nums[mid] > nums[mid + 1])) {
                 return mid;
             } else {
-                if (nums[mid-1] >= nums[mid]) {
+                if (nums[mid - 1] >= nums[mid]) {
                     // search left half first
                     right = mid;
                 } else {
@@ -316,12 +312,12 @@ int findPeakElement(vector<int>& nums) {
 /**
  * @brief we solve the problem with template 2. Note that we need to locate a point,
  * That's what template 2 is good at. We just need to find divide conditions.
- * 
+ *
  * - if right > current, search right half
  * - otherwise, search left half
- * 
- * @param nums 
- * @return int 
+ *
+ * @param nums
+ * @return int
  */
 int findPeakElementII(vector<int>& nums) {
     int left = 0;
@@ -329,8 +325,8 @@ int findPeakElementII(vector<int>& nums) {
     int mid = 0;
     // while there are more than one elements in the array
     while (left < right) {
-        mid = left + ((right - left) >> 1); // always choose left one
-        if (nums[mid] > nums[mid+1]) {
+        mid = left + ((right - left) >> 1);   // always choose left one
+        if (nums[mid] > nums[mid + 1]) {
             right = mid;
         } else {
             left = mid + 1;
@@ -342,21 +338,21 @@ int findPeakElementII(vector<int>& nums) {
 
 /**
  * @brief find minimum number in a rotated array.
- * 
+ *
  * ex> 4 5 6 1 3
- * 
+ *
  * Notice: the rotated array consists of two ordered sequence and a infection point.
  * On the infection point (6 -> 1), the order is reversed and the minimum is after
  * infection point.
- * 
+ *
  * How to find infection point?
- * 
+ *
  * - if nums[mid] > nums[left], infection point is on the right half.
  * - if otherwise, infection point is on the left half.
  * - if nums[mid-1] > nums[mid] or nums[mid] > nums[mid+1], it is found.
- * 
- * @param nums 
- * @return int 
+ *
+ * @param nums
+ * @return int
  */
 int findMin(vector<int>& nums) {
     int left = 0;
@@ -364,15 +360,15 @@ int findMin(vector<int>& nums) {
 
     // if last number is greater than first number, no rotation
     if (nums[right] > nums[left]) return nums[left];
-    
+
     int mid = 0;
     while (left < right) {
         mid = left + ((right - left) >> 1);
-        if ((mid > 0) && (nums[mid-1] > nums[mid])) {
+        if ((mid > 0) && (nums[mid - 1] > nums[mid])) {
             return nums[mid];
         }
-        if (((mid + 1) < nums.size()) && (nums[mid] > nums[mid+1])) {
-            return nums[mid+1];
+        if (((mid + 1) < nums.size()) && (nums[mid] > nums[mid + 1])) {
+            return nums[mid + 1];
         }
         if (nums[mid] > nums[left]) {
             left = mid + 1;
@@ -383,4 +379,53 @@ int findMin(vector<int>& nums) {
 
     // no infection point found, meaning rotate step is 0
     return nums[0];
+}
+
+/**
+ * @brief return the range of target in nums
+ * Find leftmost target and rightmost target with template II
+ * @param nums
+ * @param target
+ * @return vector<int>
+ */
+vector<int> searchRange(vector<int>& nums, int target) {
+    vector<int> result = {-1, -1};
+    if (nums.size() == 0) return result;
+    // find the leftmost
+    // if target <= nums[mid], left half search. (target == left, left half search)
+    // otherwise, right half search
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (target <= nums[mid]) {
+            // left half search
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (nums[left] == target) result[0] = left;
+    
+
+    // find the rightmost
+    // if target <= nums[mid], left half search. (target == left, left half search)
+    // otherwise, right half search
+    left = 0;
+    right = nums.size() - 1;
+    while (left + 1 < right) {
+        mid = left + ((right - left) >> 1);
+        if (target >= nums[mid]) {
+            // right half search
+            left = mid;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    if (nums[left] == target) result[1] = left;
+    if (nums[right] == target) result[1] = right;
+
+    return result;
 }

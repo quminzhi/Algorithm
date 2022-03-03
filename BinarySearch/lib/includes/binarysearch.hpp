@@ -20,4 +20,6 @@ int findPeakElementI(vector<int>& nums);
 int findPeakElementII(vector<int>& nums);
 int findMin(vector<int>& nums);
 
+vector<int> searchRange(vector<int>& nums, int target);
+
 #endif

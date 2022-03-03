@@ -449,3 +449,90 @@ int findMin(vector<int>& nums) {
     return nums[0];
 }
 ```
+
+### Template III
+
+```c++
+int binarySearch(vector<int>& nums, int target){
+    if (nums.size() == 0)
+        return -1;
+
+    int left = 0
+    int right = nums.size() - 1;
+    while (left + 1 < right) {   // <-- condition
+        int mid = left + ((right - left) >> 1);
+        if (nums[mid] == target) {
+            return mid;
+        } else {
+            if (nums[mid] < target) {
+                left = mid;      // <-- change of boundary
+            } else {
+                right = mid;
+            }
+        }
+    }
+
+    // Post-processing:
+    // End Condition: left + 1 == right
+    if (nums[left] == target) return left;
+    if (nums[right] == target) return right;
+    return -1;
+}
+```
+
+features:
+
+- Guarantees Search Space is at least 3 in size at each step.
+- Post-processing required. Loop/Recursion ends when you have 2 elements left. Need to assess if the remaining elements meet the condition.
+
+#### Search for a Range
+
+> Given an array of integers `nums` sorted in non-decreasing order, find the starting and ending position of a given target value.
+>
+> If target is not found in the array, return `[-1, -1]`.
+>
+> You must write an algorithm with `O(log n)` runtime complexity.
+
+To search a range, we can search leftmost index of the target and rightmost index of the target if it exists.
+
+- Leftmost search:
+
+```c++
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (target <= nums[mid]) {
+            // left half search
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (nums[left] == target) result[0] = left;
+```
+
+Notice when we search the index of leftmost target, the condition is `target <= nums[mid]`, which means we need to search left half even `target == nums[mid]`. In that case, we move right boundary as small as possible `right = mid`. When `target > nums[mid]`, we know that `mid` is not the answer and just `left = mid + 1`. **One side benefit of `left = mid + 1`, it will move left back to the first element (`nums[mid+1]`), and keep the final left point to the first target element.** The loop condition in this case is `left < right`, which means we want left and right boundary will converge to one point.
+
+- Rightmost search:
+
+```c++
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left + 1 < right) {
+        mid = left + ((right - left) >> 1);
+        if (target >= nums[mid]) {
+            // right half search
+            left = mid;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    if (nums[left] == target) result[1] = left;
+    if (nums[right] == target) result[1] = right;
+```
+
+As a counterpart, when we search the index of rightmost target, the condition becomes `target >= nums[mid]` and we will move right as carefully as possible `left = mid`. With the same idea before, `right = mid - 1` will give us a desired property, one that keep `nums[left]` or `nums[right]` to be the last target element. Another distinction is loop condition (`left + 1 < right`) which means the loop will continue if there are at least three elements in the search range.
