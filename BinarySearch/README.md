@@ -243,3 +243,209 @@ int searchRotatedArr(vector<int>& nums, int target) {
     return searchRotatedArrHelper(nums, target, 0, nums.size()-1);
 }
 ```
+
+### Template II
+
+This version of binary search defines search range as `[left, right)` different from template I `[left, right]`.
+
+```c++
+int binarySearch(vector<int>& nums, int target){
+    if (nums.size() == 0)
+        return -1;
+
+    int left = 0, right = nums.size();
+    while (left < right) {
+        int mid = left + ((right - left) >> 1);
+        if (nums[mid] == target) { 
+            return mid; 
+        } else {
+            if (nums[mid] < target) {
+                left = mid + 1; 
+            } else {
+                right = mid;
+            }
+        }
+  }
+
+  // Post-processing:
+  // End Condition: left == right
+  // Note: left may be nums.size(), which should be excluded
+  if(left != nums.size() && nums[left] == target) return left;
+  return -1;
+}
+```
+
+There are something to note:
+
+- Guarantees Search Space is at least 2 in size at each step.
+- Post-processing required. Loop/Recursion ends when you have 1 element left (`left == right`). Need to assess if the remaining element meets the condition.
+- Use the element's right neighbor to determine if the condition is met and decide whether to go left or right. (See find peek)
+
+```c++
+// say 
+left = 4, right = 5
+// we got:
+// it is found that mid always points to the left when left and right have distance 
+// of 1.  
+mid = left + ((right - left) >> 1) = 4
+// two cases for recursion
+// case 1: search in right half, left and right becomes 5 (which is the right)
+left = mid + 1 = 5
+// case 2: search in left half, left and right becomes 4 (which is the left)
+right = mid = 4
+```
+
+### First Bad Version
+
+> You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad.
+>
+> Suppose you have n versions `[1, 2, ..., n]` and you want to find out the first bad one, which causes all the following ones to be bad.
+>
+> You are given an API `bool isBadVersion(version)` which returns whether version is bad. Implement a function to find the first bad version. You should minimize the number of calls to the API.
+
+The one of benefits of template II is it enables us to search until only one element left in the array.
+
+```c++
+/**
+ * @brief We will solve the same problem with another form of binary search, which
+ * will find until there is only one element left. [left, right)
+ * 
+ * Observations:
+ * 1. if current version is good, then all versions before it are good.
+ * 2. if current version is bad, then all following versions are bad.
+ * 
+ * @param n 
+ * @return int 
+ */
+int firstBadVersionII(int n) {
+    if (n <= 0) return -1;
+    unsigned int left = 0;
+    unsigned int right = (unsigned int)n + 1;
+    unsigned int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (isBadVersion(mid)) {
+            // search left half, since observation 2
+            right = mid;
+        } else {
+            // search right half, observation 1
+            left = mid + 1;
+        }
+    }
+
+    // check if left is out of bound is MUST
+    if (left == (unsigned int)n + 1) return -1; // out of bound
+    if (isBadVersion(left)) {
+        return left;
+    } else {
+        return left + 1;
+    }
+}
+```
+
+- When all numbers are non-negative, it is suggested to use `unsigned int` instead of `int` for solving a larger input.
+
+#### Find Peek Element
+
+> A peak element is an element that is strictly greater than its neighbors.
+>
+> Given an integer array `nums`, find a peak element, and return its index. If the array contains multiple peaks, return the index to any of the peaks.
+>
+> You may imagine that `nums[-1] = nums[n] = -∞`.
+>
+> You must write an algorithm that runs in `O(log n)` time.
+
+```c++
+/**
+ * @brief we solve the problem with template 2. Note that we need to locate a point,
+ * That's what template 2 is good at. We just need to find divide conditions.
+ * 
+ * - if right > current, search right half
+ * - otherwise, search left half
+ * 
+ * @param nums 
+ * @return int 
+ */
+int findPeakElementII(vector<int>& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    // while there are more than one elements in the array
+    while (left < right) {
+        mid = left + ((right - left) >> 1); // always choose left one
+        if (nums[mid] > nums[mid+1]) { // right-conditional
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+```
+
+**Explanation:** why there is no out-of-boundary problem?
+
+- First, if there is only one element left, it will jump out of the while loop.
+- Second, if there are two elements, it always chooses the left one (since the divide operation in C++).
+- Last, if there are more than two elements, the last one cannot be choose. (The last one can only be chosen in two cases above).
+
+#### Find Minimum in Rotated Sorted Array
+
+> Suppose an array of length n sorted in ascending order is rotated between 1 and `n` times. For example, the array `nums = [0,1,2,4,5,6,7]` might become:
+>
+> - `[4,5,6,7,0,1,2]` if it was rotated 4 times.
+> - `[0,1,2,4,5,6,7]` if it was rotated 7 times.
+>
+> Given the sorted rotated array nums of unique elements, return the minimum element of this array.
+>
+> You must write an algorithm that runs in O(log n) time.
+
+The idea is the minimum follows 'injection point', which is defined as `[max(nums), min(nums)]`
+
+```c++
+/**
+ * @brief find minimum number in a rotated array.
+ * 
+ * ex> 4 5 6 1 3
+ * 
+ * Notice: the rotated array consists of two ordered sequence and a infection point.
+ * On the infection point (6 -> 1), the order is reversed and the minimum is after
+ * infection point.
+ * 
+ * How to find infection point?
+ * 
+ * - if nums[mid] > nums[left], infection point is on the right half.
+ * - if otherwise, infection point is on the left half.
+ * - if nums[mid-1] > nums[mid] or nums[mid] > nums[mid+1], it is found.
+ * 
+ * @param nums 
+ * @return int 
+ */
+int findMin(vector<int>& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+
+    // if last number is greater than first number, no rotation
+    if (nums[right] > nums[left]) return nums[left];
+    
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if ((mid > 0) && (nums[mid-1] > nums[mid])) {
+            return nums[mid];
+        }
+        if (((mid + 1) < nums.size()) && (nums[mid] > nums[mid+1])) {
+            return nums[mid+1];
+        }
+        if (nums[mid] > nums[left]) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+
+    // no infection point found, meaning rotate step is 0
+    return nums[0];
+}
+```

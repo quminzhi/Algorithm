@@ -22,3 +22,21 @@ TEST(MyTests, BinarySearchTEST) {
     vector<int> nums2 = {3, 1};
     EXPECT_EQ(searchRotatedArr(nums2, 1), 1);
 }
+
+TEST(MyTest, PeekFinderTEST) {
+    vector<int> mountains = {-2147483647, -2147483648};
+    EXPECT_EQ(findPeakElementII(mountains), 0);
+    vector<int> mountains2 = {-2147483648, -2147483647};
+    EXPECT_EQ(findPeakElementII(mountains2), 1);
+}
+
+TEST(MyTest, findMinTEST) {
+    vector<int> nums = {4, 5, 6, 7, 0, 1, 2};
+    EXPECT_EQ(findMin(nums), 0);
+
+    vector<int> nums2 = {11, 13, 15, 17};
+    EXPECT_EQ(findMin(nums2), 11);
+
+    vector<int> nums3 = {1, 2};
+    EXPECT_EQ(findMin(nums3), 1);
+}

@@ -13,4 +13,11 @@ int guessNumber(int n);
 int guess(int x);
 int searchRotatedArr(vector<int>& nums, int target);
 
+int firstBadVersionI(int n);
+int firstBadVersionII(int n);
+bool isBadVersion(int version);
+int findPeakElementI(vector<int>& nums);
+int findPeakElementII(vector<int>& nums);
+int findMin(vector<int>& nums);
+
 #endif
