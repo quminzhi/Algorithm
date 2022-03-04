@@ -21,5 +21,7 @@ int findPeakElementII(vector<int>& nums);
 int findMin(vector<int>& nums);
 
 vector<int> searchRange(vector<int>& nums, int target);
+vector<int> findClosestElementsI(vector<int>& arr, int k, int x);
+vector<int> findClosestElementsII(vector<int>& arr, int k, int x);
 
 #endif

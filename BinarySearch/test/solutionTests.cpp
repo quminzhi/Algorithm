@@ -40,3 +40,13 @@ TEST(MyTest, findMinTEST) {
     vector<int> nums3 = {1, 2};
     EXPECT_EQ(findMin(nums3), 1);
 }
+
+TEST(MyTest, findKClosestTEST) {
+    vector<int> arr = {1, 2, 3, 4, 5};
+    vector<int> expected = {1, 2, 3, 4};
+    // EXPECT_EQ(findClosestElements(arr, 4, -1), expected);
+
+    vector<int> arr2 = {0, 0, 1, 2, 3, 3, 4, 7, 7, 8};
+    vector<int> expected2 = {3, 3, 4};
+    EXPECT_EQ(findClosestElements(arr2, 3, 5), expected2);
+}

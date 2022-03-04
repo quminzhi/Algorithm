@@ -536,3 +536,121 @@ Notice when we search the index of leftmost target, the condition is `target <= 
 ```
 
 As a counterpart, when we search the index of rightmost target, the condition becomes `target >= nums[mid]` and we will move right as carefully as possible `left = mid`. With the same idea before, `right = mid - 1` will give us a desired property, one that keep `nums[left]` or `nums[right]` to be the last target element. Another distinction is loop condition (`left + 1 < right`) which means the loop will continue if there are at least three elements in the search range.
+
+#### Find K Closest Elements
+
+> Given a sorted integer array `arr`, two integers k and x, return the k closest integers to x in the array. The result should also be sorted in ascending order.
+>
+> An integer a is closer to x than an integer b if:
+>
+> - `|a - x| < |b - x|`, or
+> - `|a - x| == |b - x|` and `a < b`
+>
+> x is not necessarily in the `arr`.
+
+- We will use find the k closest elements by binary search plus slide window.
+
+```c++
+/**
+ * @brief return k closet numbers in the arr to x, nums is sorted in ascending order.
+ * The idea is 1. finding x or the element closest to x first and 2. searching
+ * bidirectionally starting from that point.
+ * @param arr
+ * @param k
+ * @param x
+ * @return vector<int>
+ */
+vector<int> findClosestElements(vector<int>& arr, int k, int x) {
+    // base case: k == arr.size()
+    if (arr.size() == k) {
+        vector<int> ret(arr.begin(), arr.end());
+        sort(ret.begin(), ret.end());
+        return ret;
+    }
+
+    // find the first one or first closest one
+    // the closet will be in either arr[left] or arr[left-1]
+    int left = 0;
+    int right = arr.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (x <= arr[mid]) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    // search bidirectionally
+    // notice that: we cannot decide left or left - 1 is the closest
+    vector<int> result;
+    int l = left - 1;
+    int r = left;
+    int min = 0;
+    while (result.size() < k) {
+        // no nums available
+        if ((l < 0) && (r >= arr.size())) {
+            break;
+        }
+        // only right
+        if (l < 0) {
+            result.push_back(arr[r]);
+            r++;
+            continue;
+        }
+        // only left
+        if (r >= arr.size()) {
+            result.push_back(arr[l]);
+            l--;
+            continue;
+        }
+        // both exist
+        if (abs(arr[l] - x) > abs(arr[r] - x)) {
+            // right win
+            result.push_back(arr[r]);
+            r++;
+        } else {
+            result.push_back(arr[l]);
+            l--;
+        }
+    }
+
+    sort(result.begin(), result.end());
+
+    return result;
+}
+```
+
+- The second solution is called binary range search. We are concentrated on find left boundary of the range of the answer.
+
+We can actually find the bounds of our sliding window much faster - and independent of `k`! First of all, what is the biggest index the left bound could be? If there needs to be `k` elements, then the left bound's upper limit is `arr.length - k`, because if it were any further to the right, you would run out of elements to include in the final answer.
+
+Let's consider two indices at each binary search operation, the usual `mid`, and some index `mid + k`. The relationship between these indices is significant because only one of them could possibly be in a final answer. For example, if `mid = 2`, and `k = 3`, then `arr[2]` and `arr[5]` could not possibly both be in the answer, since that would require taking 4 elements `[arr[2], arr[3], arr[4], arr[5]]`. To be short, our solution range is `[mid, mid + k)`.
+
+This leads us to the question: how do we move our pointers left and right? If the element at `arr[mid]` is closer to `x` than `arr[mid + k]`, then that means **`arr[mid + k]`, as well as every element to the right of it can never be in the answer**. This means we should **move our right pointer** to avoid considering them. The logic is the same vice-versa - if `arr[mid + k]` is closer to `x`, then move the left pointer.
+
+```c++
+vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
+    int left = 0;
+    int right = arr.size() - k;
+    int mid = 0;
+    // find left boundary: converge to an point
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (abs(arr[mid] - x) > abs(arr[mid+k] - x)) {
+            // move left
+            left = mid + 1;
+        }  else {
+            right = mid;
+        }
+    }
+
+    vector<int> result;
+    for (int i = left; i < left + k; i++) {
+        result.push_back(arr[i]);
+    }
+
+    return result;
+}
+```

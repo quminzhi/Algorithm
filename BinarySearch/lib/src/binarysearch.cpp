@@ -407,7 +407,6 @@ vector<int> searchRange(vector<int>& nums, int target) {
         }
     }
     if (nums[left] == target) result[0] = left;
-    
 
     // find the rightmost
     // if target <= nums[mid], left half search. (target == left, left half search)
@@ -426,6 +425,107 @@ vector<int> searchRange(vector<int>& nums, int target) {
 
     if (nums[left] == target) result[1] = left;
     if (nums[right] == target) result[1] = right;
+
+    return result;
+}
+
+/**
+ * @brief return k closet numbers in the arr to x, nums is sorted in ascending order.
+ * The idea is 1. finding x or the element closest to x first and 2. searching
+ * bidirectionally starting from that point.
+ * @param arr
+ * @param k
+ * @param x
+ * @return vector<int>
+ */
+vector<int> findClosestElements(vector<int>& arr, int k, int x) {
+    // base case: k == arr.size()
+    if (arr.size() == k) {
+        vector<int> ret(arr.begin(), arr.end());
+        sort(ret.begin(), ret.end());
+        return ret;
+    }
+
+    // find the first one or first closest one
+    // the closet will be in either arr[left] or arr[left-1]
+    int left = 0;
+    int right = arr.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (x <= arr[mid]) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    // search bidirectionally
+    // notice that: we cannot decide left or left - 1 is the closest
+    vector<int> result;
+    int l = left - 1;
+    int r = left;
+    int min = 0;
+    while (result.size() < k) {
+        // no nums available
+        if ((l < 0) && (r >= arr.size())) {
+            break;
+        }
+        // only right
+        if (l < 0) {
+            result.push_back(arr[r]);
+            r++;
+            continue;
+        }
+        // only left
+        if (r >= arr.size()) {
+            result.push_back(arr[l]);
+            l--;
+            continue;
+        }
+        // both exist
+        if (abs(arr[l] - x) > abs(arr[r] - x)) {
+            // right win
+            result.push_back(arr[r]);
+            r++;
+        } else {
+            result.push_back(arr[l]);
+            l--;
+        }
+    }
+
+    sort(result.begin(), result.end());
+
+    return result;
+}
+
+/**
+ * @brief range search, define range to be [mid, mid + k)
+ * 
+ * @param arr 
+ * @param k 
+ * @param x 
+ * @return vector<int> 
+ */
+vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
+    int left = 0;
+    int right = arr.size() - k;
+    int mid = 0;
+    // find left boundary: converge to an point
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (abs(arr[mid] - x) > abs(arr[mid+k] - x)) {
+            // move left
+            left = mid + 1;
+        }  else {
+            right = mid;
+        }
+    }
+
+    vector<int> result;
+    for (int i = left; i < left + k; i++) {
+        result.push_back(arr[i]);
+    }
 
     return result;
 }
