@@ -75,7 +75,7 @@ int searchLoop(vector<int>& nums, int target) {
  * @param x
  * @return int
  */
-int mySqrt(int x) {
+int mySqrtI(int x) {
     if (x < 2) return x;
     int left = 2;
     int right = x / 2;
@@ -100,6 +100,25 @@ int mySqrt(int x) {
     // notice that the result will converge to 'a+1' which trigers if branch (sqr > x),
     // then right = mid - 1 which happens to be 'a'
     return right;
+}
+
+int mySqrtII(int x) {
+    if (x < 2) return x;
+    long left = 0;
+    long right = x;
+    long mid = 0;
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);   // int overflow warning
+        if (mid * mid <= x) {                     // int overflow warning
+            // the true sqrt is bigger than mid
+            left = mid;
+        } else {
+            // the true sqrt is smaller than mid
+            right = mid - 1;
+        }
+    }
+
+    return left;
 }
 
 /**
@@ -413,8 +432,8 @@ vector<int> searchRange(vector<int>& nums, int target) {
     // otherwise, right half search
     left = 0;
     right = nums.size() - 1;
-    while (left + 1 < right) {
-        mid = left + ((right - left) >> 1);
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
         if (target >= nums[mid]) {
             // right half search
             left = mid;
@@ -422,9 +441,7 @@ vector<int> searchRange(vector<int>& nums, int target) {
             right = mid - 1;
         }
     }
-
     if (nums[left] == target) result[1] = left;
-    if (nums[right] == target) result[1] = right;
 
     return result;
 }
@@ -501,11 +518,11 @@ vector<int> findClosestElements(vector<int>& arr, int k, int x) {
 
 /**
  * @brief range search, define range to be [mid, mid + k)
- * 
- * @param arr 
- * @param k 
- * @param x 
- * @return vector<int> 
+ *
+ * @param arr
+ * @param k
+ * @param x
+ * @return vector<int>
  */
 vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
     int left = 0;
@@ -514,10 +531,10 @@ vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
     // find left boundary: converge to an point
     while (left < right) {
         mid = left + ((right - left) >> 1);
-        if (abs(arr[mid] - x) > abs(arr[mid+k] - x)) {
+        if (abs(arr[mid] - x) > abs(arr[mid + k] - x)) {
             // move left
             left = mid + 1;
-        }  else {
+        } else {
             right = mid;
         }
     }
@@ -528,4 +545,140 @@ vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
     }
 
     return result;
+}
+
+/**
+ * @brief return sqrt of x, err < 1e-6
+ *
+ * @param x
+ * @return double
+ */
+double findSqrt(int x) {
+    double left = 0;
+    double right = x;
+    while (right - left > 1e-8) {
+        double mid = left + ((right - left) / 2);
+        if (mid * mid >= x) {
+            right = mid;
+        } else {
+            left = mid;
+        }
+    }
+
+    return left;
+}
+
+/**
+ * @brief find the closest number in BST to target number. Binary search and track closest
+ * value.
+ *
+ * The nature of binary search tree (BST) is range search.
+ *
+ * @param root
+ * @param target
+ * @return int
+ */
+int closestValue(TreeNode* root, double target) {
+    if (root == nullptr) return -1;
+
+    int closest = INT_MAX;
+    double diff = INT_MAX;   // = abs(target - closest), diff CANNOT be int but double
+    TreeNode* p = root;
+    while (p != nullptr) {
+        if (p->val == target) {
+            return p->val;
+        } else {
+            // update closest
+            double p_diff = abs(target - p->val);
+            if (p_diff < diff) {
+                closest = p->val;
+                diff = p_diff;
+            }
+
+            if (p->val > target) {
+                p = p->left;
+            } else {
+                p = p->right;
+            }
+        }
+    }
+    return closest;
+}
+
+// pseudo code
+int ArrayReader::get(int index) { return -1; }
+
+/**
+ * @brief Notice 1 <= secret.length <= 10^4. Just binary search on that range.
+ * searchI implement normal binary search.
+ * @param reader
+ * @param target
+ * @return int
+ */
+int searchI(const ArrayReader& reader, int target) {
+    int left = 0;
+    int right = 1e4;
+    int mid = 0;
+    while (left <= right) {
+        mid = left + ((right - left) >> 1);
+        if (reader.get(mid) == target) {
+            return mid;
+        } else {
+            if (reader.get(mid) < target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    return -1;
+}
+
+/**
+ * @brief search leftmost method
+ *
+ * @param reader
+ * @param target
+ * @return int
+ */
+int searchII(const ArrayReader& reader, int target) {
+    int left = 0;
+    int right = 1e4;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+
+        if (reader.get(mid) >= target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (reader.get(left) == target) return left;
+    return -1;
+}
+
+double powHelper(double x, long n) {
+    if (n == 0) return 1;
+    double half = powHelper(x, n / 2);
+    if ((n & 1) == 1) {
+        return half * half * x;
+    } else {
+        return half * half;
+    }
+}
+
+/**
+ * @brief 
+ * 
+ * @param x 
+ * @param n 
+ * @return double 
+ */
+double myPow(double x, long n) {
+    if (n < 0) {
+        x = 1 / x;
+        n = -n;
+    }
+    return powHelper(x, n);
 }

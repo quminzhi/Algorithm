@@ -23,6 +23,15 @@ TEST(MyTests, BinarySearchTEST) {
     EXPECT_EQ(searchRotatedArr(nums2, 1), 1);
 }
 
+TEST(MyTests, MySqrtTEST) {
+    EXPECT_EQ(mySqrtII(2), 1);
+    EXPECT_EQ(mySqrtII(3), 1);
+    EXPECT_EQ(mySqrtII(8), 2);
+    EXPECT_EQ(mySqrtII(10), 3);
+    EXPECT_EQ(mySqrtII(101), 10);
+    EXPECT_EQ(mySqrtII(2147395599), 46339);
+}
+
 TEST(MyTest, PeekFinderTEST) {
     vector<int> mountains = {-2147483647, -2147483648};
     EXPECT_EQ(findPeakElementII(mountains), 0);
@@ -48,5 +57,10 @@ TEST(MyTest, findKClosestTEST) {
 
     vector<int> arr2 = {0, 0, 1, 2, 3, 3, 4, 7, 7, 8};
     vector<int> expected2 = {3, 3, 4};
-    EXPECT_EQ(findClosestElements(arr2, 3, 5), expected2);
+    EXPECT_EQ(findClosestElementsII(arr2, 3, 5), expected2);
+}
+
+TEST(MyTest, findSqrtTEST) {
+    EXPECT_DOUBLE_EQ(findSqrt(1), 0.9999999925494194);
+    EXPECT_DOUBLE_EQ(findSqrt(2), 1.4142135605216026);
 }

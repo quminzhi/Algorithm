@@ -83,6 +83,7 @@
     },
     "cSpell.ignoreWords": [
         "bsearch",
-        "indicies"
+        "indicies",
+        "nullptr"
     ]
 }

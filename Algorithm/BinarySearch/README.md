@@ -518,11 +518,13 @@ Notice when we search the index of leftmost target, the condition is `target <= 
 - Rightmost search:
 
 ```c++
-    int left = 0;
-    int right = nums.size() - 1;
-    int mid = 0;
-    while (left + 1 < right) {
-        mid = left + ((right - left) >> 1);
+    // find the rightmost
+    // if target <= nums[mid], left half search. (target == left, left half search)
+    // otherwise, right half search
+    left = 0;
+    right = nums.size() - 1;
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1); // +1 is important for left == right-1
         if (target >= nums[mid]) {
             // right half search
             left = mid;
@@ -530,9 +532,7 @@ Notice when we search the index of leftmost target, the condition is `target <= 
             right = mid - 1;
         }
     }
-
     if (nums[left] == target) result[1] = left;
-    if (nums[right] == target) result[1] = right;
 ```
 
 As a counterpart, when we search the index of rightmost target, the condition becomes `target >= nums[mid]` and we will move right as carefully as possible `left = mid`. With the same idea before, `right = mid - 1` will give us a desired property, one that keep `nums[left]` or `nums[right]` to be the last target element. Another distinction is loop condition (`left + 1 < right`) which means the loop will continue if there are at least three elements in the search range.
@@ -654,3 +654,88 @@ vector<int> findClosestElementsII(vector<int>& arr, int k, int x) {
     return result;
 }
 ```
+
+#### Closest Binary Search Tree
+
+> Given the root of a binary search tree and a target value, return the value in the BST that is closest to the target.
+
+The essence of binary search is a binary search tree. A process of binary search can be represented with a binary search tree.
+
+```c++
+/**
+ * @brief find the closest number in BST to target number. Binary search and track closest 
+ * value.
+ * 
+ * The nature of binary search tree (BST) is range search.
+ *  
+ * @param root
+ * @param target
+ * @return int
+ */
+int closestValue(TreeNode* root, double target) {
+    if (root == nullptr) return -1;
+    
+    int closest = INT_MAX;
+    double diff = INT_MAX; // = abs(target - closest), diff CANNOT be int but double
+    TreeNode* p = root;
+    while (p != nullptr) {
+        if (p->val == target) {
+            return p->val;
+        } else {
+            // update closest
+            double p_diff = abs(target - p->val);
+            if (p_diff < diff) {
+                closest = p->val;
+                diff = p_diff;
+            }
+
+            if (p->val > target) {
+                p = p->left;
+            } else {
+                p = p->right;
+            }
+        }
+    }
+    return closest;
+}
+```
+
+#### Search in a Sorted Array of Unknown Size
+
+> You have a sorted array of unique elements and an unknown size. You do not have an access to the array but you can use the ArrayReader interface to access it. You can call `ArrayReader.get(i)` that:
+>
+> - returns the value at the ith index (0-indexed) of the secret array (i.e., `secret[i]`), or
+> - returns 2^31 - 1 if the i is out of the boundary of the array.
+>
+> You are also given an integer target.
+>
+> Return the index `k` of the hidden array where `secret[k] == target` or return `-1` otherwise.
+
+Notice `1 <= secret.length <= 10^4`
+
+```c++
+/**
+ * @brief search leftmost method
+ *
+ * @param reader
+ * @param target
+ * @return int
+ */
+int searchII(const ArrayReader& reader, int target) {
+    int left = 0;
+    int right = 1e4;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+
+        if (reader.get(mid) >= target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    if (reader.get(left) == target) return left;
+    return -1;
+}
+```
+
