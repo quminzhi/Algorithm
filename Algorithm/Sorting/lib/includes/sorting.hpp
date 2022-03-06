@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
-void qsort(vector<int>& nums, int left, int right);
+void qsort(vector<int>& vec, int left, int right);
+void merge_sort(vector<int>& vec, vector<int>& tmp, int left, int right);
 
 #endif

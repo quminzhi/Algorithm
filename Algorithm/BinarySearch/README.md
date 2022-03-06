@@ -123,7 +123,7 @@ int mySqrt(int x) {
         }
     }
 
-    // notice that the result will converge to 'a+1' which trigers if branch (sqr > x),
+    // notice that the result will converge to 'a+1' which triggers if branch (sqr > x),
     // then right = mid - 1 which happens to be 'a'
     return right;
 }
