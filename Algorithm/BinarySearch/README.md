@@ -466,9 +466,6 @@ int findMin(vector<int>& nums) {
     int left = 0;
     int right = nums.size() - 1;
 
-    // if last number is greater than first number, no rotation
-    if (nums[right] > nums[left]) return nums[left];
-
     int mid = 0;
     while (left < right) {
         if (nums[right] > nums[left]) return nums[left];
@@ -502,9 +499,13 @@ if (nums[mid] == nums[left]) {
 
 ```c++
 /**
+ * Following algorithm only works in rotated array. So we need to check if the nums is
+ * in order. If so, just return the first element.
+ * 
  * ex> 11, 13, 14, 1, 2, 5, 7
  *     left       min
  *     mid     mid      mid
+ * 
  * There are three cases:
  * 1. nums[mid] == nums[left], left = left + 1
  * 2. nums[mid] > nums[left], left = mid + 1
@@ -513,9 +514,6 @@ if (nums[mid] == nums[left]) {
 int findMin(vector<int>& nums) {
     int left = 0;
     int right = nums.size() - 1;
-
-        // if last number is greater than first number, no rotation
-    if (nums[right] > nums[left]) return nums[left];
 
     int mid = 0;
     while (left < right) {
