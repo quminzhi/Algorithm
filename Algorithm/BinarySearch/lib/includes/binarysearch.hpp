@@ -31,6 +31,7 @@ bool isBadVersion(int version);
 int findPeakElementI(vector<int>& nums);
 int findPeakElementII(vector<int>& nums);
 int findMin(vector<int>& nums);
+int findMinII(vector<int>& nums); // with duplicates
 
 vector<int> searchRange(vector<int>& nums, int target);
 vector<int> findClosestElementsI(vector<int>& arr, int k, int x);

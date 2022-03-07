@@ -450,6 +450,92 @@ int findMin(vector<int>& nums) {
 }
 ```
 
+And there is another way to solve the problem.
+
+```c++
+/**
+ * ex> 11, 13, 14, 1, 2, 5, 7
+ *     left       min
+ *     mid     mid      mid
+ * There are three cases:
+ * 1. nums[mid] == nums[left], left = mid + 1
+ * 2. nums[mid] > nums[left], left = mid + 1
+ * 3. nums[mid] < nums[left], nums[mid] may be the answer and so right = mid.
+ */
+int findMin(vector<int>& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+
+    // if last number is greater than first number, no rotation
+    if (nums[right] > nums[left]) return nums[left];
+
+    int mid = 0;
+    while (left < right) {
+        if (nums[right] > nums[left]) return nums[left];
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] < nums[left]) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    
+    return nums[left];
+}
+```
+
+#### Find Minimum in Rotated Sorted Array II
+
+> When there are duplicates in the `nums`, what's the solution to find the minimum?
+
+The solution to duplicates is exactly same as the idea of the second solution above. But we need to be careful to the condition when `nums[mid] == nums[left]`, in which case the target must be on the left of `nums[left]`.
+
+```c++
+// 10, 12, 1, 10, 10, 10
+// left   min     mid
+// when nums[mid] == nums[left], we need to find the last number of duplicates, which
+// happens to be nums[left]. So we can move mid to left and proceed as we did before.
+if (nums[mid] == nums[left]) {
+    left += 1 // ==== mid = left; left = mid + 1;
+}
+```
+
+```c++
+/**
+ * ex> 11, 13, 14, 1, 2, 5, 7
+ *     left       min
+ *     mid     mid      mid
+ * There are three cases:
+ * 1. nums[mid] == nums[left], left = left + 1
+ * 2. nums[mid] > nums[left], left = mid + 1
+ * 3. nums[mid] < nums[left], nums[mid] may be the answer and so right = mid.
+ */
+int findMin(vector<int>& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+
+        // if last number is greater than first number, no rotation
+    if (nums[right] > nums[left]) return nums[left];
+
+    int mid = 0;
+    while (left < right) {
+        if (nums[right] > nums[left]) return nums[left];
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] == nums[left]) {
+            left += 1;
+        } else {
+            if (nums[mid] < nums[left]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+    }
+    
+    return nums[left];
+}
+```
+
 ### Template III
 
 ```c++
@@ -777,4 +863,42 @@ bool isPerfectSquare(int num) {
 > Note that the letters wrap around (circular).
 >
 > - For example, if `target == 'z'` and `letters == ['a', 'b']`, the answer is `'a'`.
+
+```c++
+/**
+ * @brief return the next smallest number greater than target.
+ * 1. find rightmost letter that equals target
+ * 2. if letters[left] <= target, return rightmost letter + 1
+ * @param letters
+ * @param target
+ * @return char
+ */
+char nextGreatestLetter(vector<char>& letters, char target) {
+    int left = 0;
+    int right = letters.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
+        if (letters[mid] <= target) {
+            left = mid;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    // letters[left] has three possible outcome:
+    // 1. letters[left] > target, when target is smaller than the smallest element of
+    // letters.
+    // 2. letters[left] == target, left must be the rightmost target.
+    // 3. letters[left] == biggest one smaller than target when target is bigger than all
+    // the elements of letters.
+    if (letters[left] > target) {
+        return letters[left];
+    } else {
+        return letters[(left + 1) % letters.size()];
+    }
+}
+```
+
+#### Find Minimum in Rotated Sorted Array II
 

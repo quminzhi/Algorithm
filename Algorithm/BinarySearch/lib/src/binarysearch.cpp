@@ -401,6 +401,39 @@ int findMin(vector<int>& nums) {
 }
 
 /**
+ * @brief with duplicates in nums
+ *
+ * @param nums
+ * @return int
+ */
+int findMinII(vector<int>& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+
+    // if last number is greater than first number, no rotation
+    if (nums[right] > nums[left]) return nums[left];
+
+    int mid = 0;
+    while (left < right) {
+        // check if nums in range is in order
+        if (nums[right] > nums[left]) return nums[left];
+        
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] == nums[left]) {
+            left += 1;
+        } else {
+            if (nums[mid] < nums[left]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+    }
+
+    return nums[left];
+}
+
+/**
  * @brief return the range of target in nums
  * Find leftmost target and rightmost target with template II
  * @param nums
@@ -707,7 +740,7 @@ bool isPerfectSquare(int num) {
 /**
  * @brief return the next smallest number greater than target.
  * 1. find rightmost letter that equals target
- * 2. return rightmost letter + 1
+ * 2. if letters[left] <= target, return rightmost letter + 1
  * @param letters
  * @param target
  * @return char
