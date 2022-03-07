@@ -39,10 +39,13 @@ vector<int> findClosestElementsII(vector<int>& arr, int k, int x);
 int closestValue(TreeNode* root, double target);
 class ArrayReader {
    public:
-    int get(int index);
-}
+    int get(int index) const;
+};
 int searchI(const ArrayReader& reader, int target);
 int searchII(const ArrayReader& reader, int target);
 double myPow(double x, long n); // allow negative power
+bool isPerfectSquare(int num);
+char nextGreatestLetter(vector<char>& letters, char target);
+
 
 #endif

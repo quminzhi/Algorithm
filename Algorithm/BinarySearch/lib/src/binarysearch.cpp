@@ -606,7 +606,7 @@ int closestValue(TreeNode* root, double target) {
 }
 
 // pseudo code
-int ArrayReader::get(int index) { return -1; }
+int ArrayReader::get(int index) const { return -1; }
 
 /**
  * @brief Notice 1 <= secret.length <= 10^4. Just binary search on that range.
@@ -669,11 +669,11 @@ double powHelper(double x, long n) {
 }
 
 /**
- * @brief 
- * 
- * @param x 
- * @param n 
- * @return double 
+ * @brief
+ *
+ * @param x
+ * @param n
+ * @return double: return x^n (say: x to the nth power)
  */
 double myPow(double x, long n) {
     if (n < 0) {
@@ -681,4 +681,59 @@ double myPow(double x, long n) {
         n = -n;
     }
     return powHelper(x, n);
+}
+
+/**
+ * @brief True if num is a perfect square
+ * The idea is same to find sqrt of num.
+ */
+bool isPerfectSquare(int num) {
+    long left = 1;
+    int right = num;
+    long mid = 1;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (mid * mid >= num) {   // overflow warning
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    if (left * left == num) return true;   // overflow warning
+    return false;
+}
+
+/**
+ * @brief return the next smallest number greater than target.
+ * 1. find rightmost letter that equals target
+ * 2. return rightmost letter + 1
+ * @param letters
+ * @param target
+ * @return char
+ */
+char nextGreatestLetter(vector<char>& letters, char target) {
+    int left = 0;
+    int right = letters.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
+        if (letters[mid] <= target) {
+            left = mid;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    // letters[left] has three possible outcome:
+    // 1. letters[left] > target, when target is smaller than the smallest element of
+    // letters.
+    // 2. letters[left] == target, left must be the rightmost target.
+    // 3. letters[left] == biggest one smaller than target when target is bigger than all
+    // the elements of letters.
+    if (letters[left] > target) {
+        return letters[left];
+    } else {
+        return letters[(left + 1) % letters.size()];
+    }
 }

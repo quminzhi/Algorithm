@@ -739,3 +739,42 @@ int searchII(const ArrayReader& reader, int target) {
 }
 ```
 
+#### Valid Perfect Square
+
+> Given a positive integer `num`, write a function which returns `True` if `num` is a perfect square else `False`.
+>
+> Follow up: Do not use any built-in library function such as sqrt.
+
+Same idea with `MySqrt(int x)`.
+
+```c++
+/**
+ * @brief True if num is a perfect square
+ * The idea is same to find sqrt of num.
+ */
+bool isPerfectSquare(int num) {
+    long left = 1;
+    int right = num;
+    long mid = 1;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (mid * mid >= num) {   // overflow warning
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    if (left * left == num) return true;   // overflow warning
+    return false;
+}
+```
+
+#### Find Smallest Letter Greater than Target
+
+> Given a characters array `letters` that is sorted in **non-decreasing** order and a character `target`, return the smallest character in the array that is larger than `target`.
+>
+> Note that the letters wrap around (circular).
+>
+> - For example, if `target == 'z'` and `letters == ['a', 'b']`, the answer is `'a'`.
+

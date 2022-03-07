@@ -64,3 +64,12 @@ TEST(MyTest, findSqrtTEST) {
     EXPECT_DOUBLE_EQ(findSqrt(1), 0.9999999925494194);
     EXPECT_DOUBLE_EQ(findSqrt(2), 1.4142135605216026);
 }
+
+TEST(MyTest, FindSmallestLargerTEST) {
+    vector<char> v1 = {'c', 'f', 'j'};
+    EXPECT_EQ(nextGreatestLetter(v1, 'a'), 'c');
+    EXPECT_EQ(nextGreatestLetter(v1, 'z'), 'c');
+
+    vector<char> v2 = {'a', 'b'};
+    EXPECT_EQ(nextGreatestLetter(v2, 'z'), 'a');
+}
