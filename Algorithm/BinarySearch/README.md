@@ -898,5 +898,71 @@ char nextGreatestLetter(vector<char>& letters, char target) {
 }
 ```
 
-#### Find Minimum in Rotated Sorted Array II
+#### Intersection of Two Arrays
 
+> Given two integer arrays `nums1` and `nums2`, return an array of their intersection. Each element in the result must be unique and you may return the result in any order.
+
+The idea is straightforward:
+
+- Sort the array with bigger size (N).
+- Loop on the smaller one (M) and binary search on sorted array. Since the result should be unique, we can solve it by feed smaller array in an `unordered_set`.
+
+```c++
+/**
+ * @brief return intersection of two arrays, elements of returned array should be unique.
+ * 1. Sort the array with bigger size (N).
+ * 2. Loop on the smaller one (M) and binary search on sorted array.
+ * 
+ * Time complexity: O(NlogN) + O(M*logN)
+ * @param nums1 
+ * @param nums2 
+ * @return vector<int> 
+ */
+vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> result;
+    if (nums1.size() < nums2.size()) {
+        sort(nums2.begin(), nums2.end());
+        unordered_set<int> unique(nums1.begin(), nums1.end());
+        for (int num : unique) {
+            if (bsearchHelper(nums2, num, 0, nums2.size()-1) != -1) {
+                result.push_back(num);
+            }
+        }
+    } else {
+        sort(nums1.begin(), nums1.end());
+        unordered_set<int> unique(nums2.begin(), nums2.end());
+        for (int num : unique) {
+            if (bsearchHelper(nums1, num, 0, nums1.size()-1) != -1) {
+                result.push_back(num);
+            }
+        }
+    }
+
+    return result;
+}
+```
+
+#### Intersection of Two Arrays II
+
+> Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays and you may return the result in any order.
+
+We will sort two arrays first and iterate them like `merge join` to get common elements. Also we can save space by utilizing one of two arrays.
+
+```c++
+vector<int> intersectionII(vector<int>& nums1, vector<int>& nums2) {
+    sort(begin(nums1), end(nums1));
+    sort(begin(nums2), end(nums2));
+    int i = 0, j = 0, k = 0;
+    while (i < nums1.size() && j < nums2.size()) {
+        if (nums1[i] < nums2[j]) {
+            i++;
+        } else if (nums1[i] > nums2[j]) {
+            j++;
+        } else {
+            nums1[k++] = nums1[i++];
+            j++;
+        }
+    }
+    return vector<int>(begin(nums1), begin(nums1) + k);
+}
+```

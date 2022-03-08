@@ -48,5 +48,7 @@ double myPow(double x, long n); // allow negative power
 bool isPerfectSquare(int num);
 char nextGreatestLetter(vector<char>& letters, char target);
 
+vector<int> intersectionI(vector<int>& nums1, vector<int>& nums2);
+vector<int> intersectionII(vector<int>& nums1, vector<int>& nums2);
 
 #endif

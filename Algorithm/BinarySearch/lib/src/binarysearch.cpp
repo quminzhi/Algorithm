@@ -1,6 +1,8 @@
 #include "binarysearch.hpp"
 
 #include <cmath>
+#include <unordered_set>
+#include <unordered_map>
 
 int bsearchHelper(vector<int>& nums, int target, int left, int right) {
     if (left > right) return -1;
@@ -770,3 +772,81 @@ char nextGreatestLetter(vector<char>& letters, char target) {
         return letters[(left + 1) % letters.size()];
     }
 }
+
+/**
+ * @brief return intersection of two arrays, elements of returned array should be unique.
+ * 1. Sort the array with bigger size (N).
+ * 2. Loop on the smaller one (M) and binary search on sorted array.
+ * 
+ * Time complexity: O(NlogN) + O(M*logN)
+ * @param nums1 
+ * @param nums2 
+ * @return vector<int> 
+ */
+vector<int> intersectionI(vector<int>& nums1, vector<int>& nums2) {
+    vector<int> result;
+    if (nums1.size() < nums2.size()) {
+        sort(nums2.begin(), nums2.end());
+        unordered_set<int> unique(nums1.begin(), nums1.end());
+        for (int num : unique) {
+            if (bsearchHelper(nums2, num, 0, nums2.size()-1) != -1) {
+                result.push_back(num);
+            }
+        }
+    } else {
+        sort(nums1.begin(), nums1.end());
+        unordered_set<int> unique(nums2.begin(), nums2.end());
+        for (int num : unique) {
+            if (bsearchHelper(nums1, num, 0, nums1.size()-1) != -1) {
+                result.push_back(num);
+            }
+        }
+    }
+
+    return result;
+}
+
+int bsearchForIntersection(vector<int>& nums, int target) {
+    if (nums.size == 0) return -1;
+    int left = 0;
+    int right = nums.size() - 1;
+    int mid = 0;
+    while (left <= right) {
+        mid = left + ((right - left) >> 1);
+        if (nums[mid] == target) {
+            nums.
+        }
+    }
+}
+
+/**
+ * @brief return intersection of two arrays, all intersection elements including duplicates
+ * 1. create a statistic map for each array
+ * 2. compare maps.
+ * 
+ * @param nums1 
+ * @param nums2 
+ * @return vector<int> 
+ */
+vector<int> intersectionII(vector<int>& nums1, vector<int>& nums2) {
+    unordered_map<int, int> m1;
+    unordered_map<int, int> m2;
+    for (int num : nums1) {
+        m1[num]++;
+    }
+    for (int num : nums2) {
+        m2[num]++;
+    }
+
+    vector<int> result;
+    for (auto p : m1) {
+        if (m2.find(p.first) != m2.end()) {
+            for (int i = 0; i < min(m1[p.first], m2[p.first]); i++) {
+                result.push_back(p.first);
+            }
+        }
+    }
+
+    return result;
+}
+
