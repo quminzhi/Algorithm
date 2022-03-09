@@ -966,3 +966,163 @@ vector<int> intersectionII(vector<int>& nums1, vector<int>& nums2) {
     return vector<int>(begin(nums1), begin(nums1) + k);
 }
 ```
+
+#### Two Sum
+
+> Given a 1-indexed array of integers `numbers` that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number. Let these two numbers be `numbers[index1]` and `numbers[index2]` where `1 <= index1 < index2 <= numbers.length`.
+>
+> Return the indices of the two numbers, index1 and index2, added by one as an integer array `[index1, index2]` of length 2.
+>
+> The tests are generated such that there is exactly one solution. You may not use the same element twice.
+
+- Two pointers: given the array is sorted, set two pointers, `min_ptr` and `max_ptr`, to search the result. The idea is based on the property of sorted array that two end values are extremes:
+    - if `numbers[min_ptr] + numbers[max_ptr] > target`, `numbers[max_ptr]` cannot be the result, since when it adds minimum of the array it is still greater than target.
+    - As a counterpart, if `numbers[min_ptr] + numbers[max_ptr] < target` `numbers[min_ptr]` cannot be chosen as the result.
+
+```c++
+/**
+ * @brief the property of sorted array. Two ends are extremes.
+ * 
+ * @param numbers 
+ * @param target 
+ * @return vector<int> 
+ */
+vector<int> twoSum(vector<int>& numbers, int target) {
+    int min = 0, max = numbers.size() - 1;
+    while (min < max) {
+        if (numbers[min] + numbers[max] == target) {
+            return {min+1, max+1};
+        }
+        else {
+            if (numbers[min] + numbers[max] > target) {
+                max--;
+            } else {
+                min++;
+            }
+        }
+    }
+
+    return {-1, -1};
+}
+```
+
+#### Find the Duplicate Number
+
+> Given an array of integers nums containing `n + 1` integers where each integer is in the range `[1, n]` inclusive.
+>
+> There is only one repeated number in nums, return this repeated number.
+>
+> You must solve the problem without modifying the array nums and uses only constant extra space.
+
+The observation is the last duplicate number must break the rule of `nums[i] <= countBeforeNumber(nums[i])`.
+
+```c++
+/**
+ * @brief find duplicate numbers[1...n+1], only one duplicate number repeats m times.
+ * 
+ * count(n) returns the total number that's less than 'n'
+ * ex> 1 3 2 3 4 5  sort--> 1 2 3 3 4 5
+ * count(1 2 3 3 4 5) -> (1:1, 2:2, 3:4, 4:5, 5:6)
+ * 
+ * count(1 2 3 3 4 5) -> (1:1, 3:3, 4:4, 5:5)
+ * 
+ * So the duplicate number breaks the rule of count(n) <= n, and on the left of duplicate
+ * number are numbers follows the rule, and the others are not. Binary search comes into play.
+ * 
+ * @param nums 
+ * @return int 
+ */
+int findDuplicate(vector<int>& nums) {
+    sort(nums.begin(), nums.end());
+    int left = 0, right = nums.size() - 1;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
+        if (nums[mid] >= mid - 0 + 1) {
+            // n >= count(n)
+            left = mid;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return nums[left];
+}
+```
+
+#### Median of Two Sorted Arrays
+
+> Given two sorted arrays `nums1` and `nums2` of size m and n respectively, return the median of the two sorted arrays.
+>
+> The overall run time complexity should be `O(log (m+n))`.
+
+The basic idea comes from horse race problem.
+
+```c++
+/**
+ * @brief find kth number in two sorted array.
+ * How to decompose the problem of finding kth in two sorted array?
+ *
+ * ex>  nums1: 1, 4, 5, 7, 10 (find k/2)
+ *      nums2: 2, 2, 5, 6 (find k/2)
+ *
+ * How finding k/2th in two arrays helps us?
+ * There are some cases to discuss:
+ * 1. nums1.size() >= k/2 and nums2.size() >= k/2. We can compare nums1[k/2] and
+ * nums2[k/2], and eliminate k/2 elements from smaller array based on the idea from horse
+ * race problem.
+ * 2. nums1.size() < k/2, eliminate k/2 elements from nums2.size() and vice versa.
+ * 3. nums1.size() < k/2, and nums2.size() < k/2, CANNOT exists, since k is (sz1 + sz2) /
+ * 2
+ *
+ * @param nums1
+ * @param start1
+ * @param nums2
+ * @param start2
+ * @param k: 1-indexed
+ * @return double
+ */
+double findKthHelper(vector<int>& nums1, int start1, vector<int>& nums2, int start2,
+                     int k) {
+    if (start1 >= nums1.size()) {
+        // no element in nums1, k is one-indexed
+        return nums2[start2 + k - 1];
+    }
+    if (start2 >= nums2.size()) {
+        // no element in nums2
+        return nums1[start1 + k - 1];
+    }
+    if (k == 1) {
+        return min(nums1[start1], nums2[start2]);
+    }
+
+    int mid1 = start1 + k / 2 - 1;
+    int mid2 = start2 + k / 2 - 1;
+    // incorporate case 1 and case 2:
+    int val1 = mid1 >= nums1.size() ? INT_MAX : nums1[mid1];
+    int val2 = mid2 >= nums2.size() ? INT_MAX : nums2[mid2];
+    if (val1 <= val2) {
+        return findKthHelper(nums1, mid1 + 1, nums2, start2, k - k / 2);
+    } else {
+        return findKthHelper(nums1, start1, nums2, mid2 + 1, k - k / 2);
+    }
+}
+
+/**
+ * @brief the more general question is finding kth value in two sorted array.
+ *
+ * @param nums1
+ * @param nums2
+ * @return double
+ */
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+    int len = nums1.size() + nums2.size();
+    if (len & 1) {
+        // odd length
+        return findKthHelper(nums1, 0, nums2, 0, len / 2 + 1);
+    } else {
+        return 0.5 * (findKthHelper(nums1, 0, nums2, 0, len / 2) +
+                      findKthHelper(nums1, 0, nums2, 0, len / 2 + 1));
+    }
+}
+```

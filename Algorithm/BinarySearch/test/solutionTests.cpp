@@ -73,3 +73,14 @@ TEST(MyTest, FindSmallestLargerTEST) {
     vector<char> v2 = {'a', 'b'};
     EXPECT_EQ(nextGreatestLetter(v2, 'z'), 'a');
 }
+
+TEST(MyTest, FindDuplicatesTEST) {
+    vector<int> nums = {7, 9, 7, 4, 2, 8, 7, 7, 1, 5};
+    EXPECT_EQ(findDuplicate(nums), 7);
+}
+
+TEST(MyTest, FindMedianSortedArraysTEST) {
+    vector<int> nums1 = {0, 0, 0, 0, 0};
+    vector<int> nums2 = {-1, 0, 0, 0, 0, 0, 1};
+    EXPECT_DOUBLE_EQ(findMedianSortedArrays(nums1, nums2), 0.0);
+}

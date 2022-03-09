@@ -50,5 +50,9 @@ char nextGreatestLetter(vector<char>& letters, char target);
 
 vector<int> intersectionI(vector<int>& nums1, vector<int>& nums2);
 vector<int> intersectionII(vector<int>& nums1, vector<int>& nums2);
+vector<int> twoSum(vector<int>& numbers, int target);
+
+int findDuplicate(vector<int>& nums);
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
 
 #endif
