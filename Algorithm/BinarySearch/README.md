@@ -1056,7 +1056,9 @@ int findDuplicate(vector<int>& nums) {
 >
 > The overall run time complexity should be `O(log (m+n))`.
 
-The basic idea comes from horse race problem.
+The basic idea comes from horse race problem and one observation: **`k / 2` elements can be safely eliminated each time**.
+
+To be more general, for `m` sorted arrays and finding kth element, `k / m` elements can be safely eliminated each time.
 
 ```c++
 /**
