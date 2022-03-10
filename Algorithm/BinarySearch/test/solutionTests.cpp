@@ -84,3 +84,11 @@ TEST(MyTest, FindMedianSortedArraysTEST) {
     vector<int> nums2 = {-1, 0, 0, 0, 0, 0, 1};
     EXPECT_DOUBLE_EQ(findMedianSortedArrays(nums1, nums2), 0.0);
 }
+
+TEST(MyTest, FindKthPairDistanceTEST) {
+    vector<int> nums = {1, 2, 4, 5, 37, 99};
+    EXPECT_EQ(pairDistanceLessOrEqual(nums, 2), 3);
+
+    vector<int> nums1 = {62, 100, 4};
+    EXPECT_EQ(smallestDistancePair(nums1, 2), 58);
+}

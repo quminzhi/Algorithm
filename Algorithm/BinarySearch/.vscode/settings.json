@@ -82,8 +82,10 @@
         "__functional_03": "cpp"
     },
     "cSpell.ignoreWords": [
+        "Nlog",
         "bsearch",
         "indicies",
-        "nullptr"
+        "nullptr",
+        "nums"
     ]
 }

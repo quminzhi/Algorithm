@@ -54,5 +54,8 @@ vector<int> twoSum(vector<int>& numbers, int target);
 
 int findDuplicate(vector<int>& nums);
 double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
+int smallestDistancePair(vector<int>& nums, int k);
+int pairDistanceLessOrEqual(vector<int> nums, int m);
+
 
 #endif

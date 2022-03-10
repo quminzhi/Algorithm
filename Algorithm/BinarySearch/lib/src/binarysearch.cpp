@@ -961,3 +961,60 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
                       findKthHelper(nums1, 0, nums2, 0, len / 2 + 1));
     }
 }
+
+/**
+ * @brief return count of pairs with distance less or equal to m
+ * 
+ * ex> 1 2 5 7 12 20  (m=10)
+ *     ^        ^  ^
+ *    (j)       j  i
+ * 
+ * so there are i - j pairs ending with i that have distance less than m
+ * 
+ * @param nums: must be ordered
+ * @param m 
+ * @return int 
+ */
+int pairDistanceLessOrEqual(vector<int> nums, int m) {
+    int count = 0;
+    for (int i = nums.size() - 1; i > 0; i--) {
+        int j = 0;
+        while ((j < nums.size()) && (nums[i] - nums[j] > m)) {
+            j++;
+        }
+        count += i - j;
+    }
+
+    return count;
+}
+
+/**
+ * @brief return kth smallest pair in nums.
+ * There are two classic ways to find kth element in a sequence:
+ * 1. priority queue or heap.
+ * 2. binary search.
+ * 
+ * With binary search, we have to find a function reflecting a counting property of given
+ * array. In this problem, our search range is (0, nums[max] - nums[min]). Assuming m is
+ * in that range, pairLessOrEqual(m) returns the count of pairs with distance less or equal 
+ * to m.
+ * @param nums 
+ * @param k 
+ * @return int 
+ */
+int smallestDistancePair(vector<int>& nums, int k) {
+    sort(nums.begin(), nums.end());
+    int left = 0, right = nums[nums.size()-1] - nums[0];
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (pairDistanceLessOrEqual(nums, mid) >= k) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+

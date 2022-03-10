@@ -1128,3 +1128,34 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
     }
 }
 ```
+
+#### Find K-th Smallest Pair Distance
+
+> The distance of a pair of integers a and b is defined as the absolute difference between a and b.
+>
+> Given an integer array `nums` and an integer `k`, return the kth smallest distance among all the pairs `nums[i]` and `nums[j]` where `0 <= i < j < nums.length`.
+
+This problem can be generalized as a template for finding kth element with binary search without having direct access to the array. We only know two things:
+
+- the range of ordered array
+- how many numbers less than given value returned by `prefixCount()`.
+
+```c++
+// k is 1-indexed
+int findKthElement(int max, int min, int k) {
+    int left = min, right = max;
+    int mid = 0;
+    while (left < right) {
+        mid = left + ((right - left) >> 1);
+        if (prefixCount(mid) >= k-1) {
+            // the count of numbers less than mid is greater than k-1
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+```
+
