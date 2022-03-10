@@ -92,3 +92,17 @@ TEST(MyTest, FindKthPairDistanceTEST) {
     vector<int> nums1 = {62, 100, 4};
     EXPECT_EQ(smallestDistancePair(nums1, 2), 58);
 }
+
+TEST(MyTest, HelperFunctionTEST) {
+    vector<int> nums = {1, 3, 5, 6};
+    EXPECT_EQ(mySum(nums.begin(), nums.end()), 15);
+    EXPECT_EQ(myMax(nums.begin(), nums.end()), 6);
+}
+
+TEST(MyTest, SplitArrayTEST) {
+    vector<int> nums = {2, 3, 1, 2, 4, 3};
+    EXPECT_EQ(splitArray(nums, 5), 4);
+
+    vector<int> nums2 = {7, 2, 5, 10, 8};
+    EXPECT_EQ(splitArray(nums2, 2), 18);
+}

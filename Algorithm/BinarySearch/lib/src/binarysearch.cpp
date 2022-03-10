@@ -1,6 +1,7 @@
 #include "binarysearch.hpp"
 
 #include <cmath>
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -964,16 +965,16 @@ double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
 
 /**
  * @brief return count of pairs with distance less or equal to m
- * 
+ *
  * ex> 1 2 5 7 12 20  (m=10)
  *     ^        ^  ^
  *    (j)       j  i
- * 
+ *
  * so there are i - j pairs ending with i that have distance less than m
- * 
+ *
  * @param nums: must be ordered
- * @param m 
- * @return int 
+ * @param m
+ * @return int
  */
 int pairDistanceLessOrEqual(vector<int> nums, int m) {
     int count = 0;
@@ -993,18 +994,18 @@ int pairDistanceLessOrEqual(vector<int> nums, int m) {
  * There are two classic ways to find kth element in a sequence:
  * 1. priority queue or heap.
  * 2. binary search.
- * 
+ *
  * With binary search, we have to find a function reflecting a counting property of given
  * array. In this problem, our search range is (0, nums[max] - nums[min]). Assuming m is
- * in that range, pairLessOrEqual(m) returns the count of pairs with distance less or equal 
- * to m.
- * @param nums 
- * @param k 
- * @return int 
+ * in that range, pairLessOrEqual(m) returns the count of pairs with distance less or
+ * equal to m.
+ * @param nums
+ * @param k
+ * @return int
  */
 int smallestDistancePair(vector<int>& nums, int k) {
     sort(nums.begin(), nums.end());
-    int left = 0, right = nums[nums.size()-1] - nums[0];
+    int left = 0, right = nums[nums.size() - 1] - nums[0];
     int mid = 0;
     while (left < right) {
         mid = left + ((right - left) >> 1);
@@ -1018,3 +1019,80 @@ int smallestDistancePair(vector<int>& nums, int k) {
     return left;
 }
 
+int mySum(vector<int>::iterator begin, vector<int>::iterator end) {
+    int sum = 0;
+    for (auto it = begin; it != end; it++) {
+        sum += *it;
+    }
+    return sum;
+}
+
+int myMax(vector<int>::iterator begin, vector<int>::iterator end) {
+    int max = -INT_MAX;
+    for (auto it = begin; it != end; it++) {
+        if (*it > max) {
+            max = *it;
+        }
+    }
+    return max;
+}
+
+/**
+ * @brief return the maximum of val of m continuous subarrays. The maximum should be as
+ * small as possible among different subdivisions.
+ *
+ * The first solution is to solve the problem recursively.
+ *
+ * ex> splitArray({7, 2, 5, 10, 8}, 3)
+ *   = min(
+ *         max({7}, splitArray({2, 5, 10, 8}, 2)),
+ *         max({7, 2}, splitArray({5, 10, 8}, 2)),
+ *         max({7, 2, 5}, splitArray({10, 8}, 2))   <== a base case
+ *     )
+ *
+ * 1. base case: size of array == split number or m == 1
+ * 2. recursion formula:
+ *    splitArray(arr, m) = min(possible split, m-1);
+ *
+ * @param nums
+ * @param m
+ * @return int
+ */
+int splitArrayHelper(vector<int>& nums, vector<int>& sum, int begin, int m) {
+    if (nums.size() - begin == m) {
+        return myMax(nums.begin() + begin, nums.end());
+    }
+
+    if (m == 1) {
+        return sum[nums.size() - 1] - sum[begin - 1];
+        // return mySum(nums.begin() + begin, nums.end());
+    }
+
+    int min = INT_MAX;
+    int division = 0;
+    // offset to array starting from 'begin'
+    for (int offset = 0; offset <= nums.size() - begin - m; offset++) {
+        division = max(sum[begin + offset] - sum[begin-1],
+                       splitArrayHelper(nums, sum, begin + offset + 1, m - 1));
+        // why +1, end is not included in mySum()
+        // division = max(mySum(nums.begin() + begin, nums.begin() + begin + offset + 1),
+        //    splitArrayHelper(nums, begin + offset + 1, m - 1));
+        if (division < min) {
+            min = division;
+        }
+    }
+
+    return min;
+}
+
+int splitArray(vector<int>& nums, int m) {
+    // optimize: cache sum to void repeated calculation
+    // sum[i] means sum of nums[0...i]
+    vector<int> sum(nums.size(), 0);
+    sum[0] = nums[0];
+    for (int i = 1; i < nums.size(); i++) {
+        sum[i] = sum[i - 1] + nums[i];
+    }
+
+    return splitArrayHelper(nums, sum, 0, m);
+}

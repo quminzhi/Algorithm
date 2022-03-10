@@ -56,6 +56,9 @@ int findDuplicate(vector<int>& nums);
 double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2);
 int smallestDistancePair(vector<int>& nums, int k);
 int pairDistanceLessOrEqual(vector<int> nums, int m);
-
+int splitArray(vector<int>& nums, int m);
+int splitArrayHelper(vector<int>& nums, vector<int>& sum, int begin, int m);
+int mySum(vector<int>::iterator begin, vector<int>::iterator end);
+int myMax(vector<int>::iterator begin, vector<int>::iterator end);
 
 #endif

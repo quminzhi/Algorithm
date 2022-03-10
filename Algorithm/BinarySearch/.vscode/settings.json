@@ -86,6 +86,7 @@
         "bsearch",
         "indicies",
         "nullptr",
-        "nums"
+        "nums",
+        "subarrays"
     ]
 }
