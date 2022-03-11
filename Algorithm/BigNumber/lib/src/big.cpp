@@ -31,16 +31,18 @@ vector<int> Big::addHelper(vector<int>& v1, vector<int>& v2) {
         result[k++] = t % 10;
         carry = t / 10;
     }
-    while (i < result.size() && carry != 0) {
+    while (i < v1.size()) {
         t = v1[i++] + carry;
         result[k++] = t % 10;
         carry = t / 10;
     }
-    while (j < result.size() && carry != 0) {
+    while (j < v2.size()) {
         t = v2[j++] + carry;
         result[k++] = t % 10;
         carry = t / 10;
     }
+
+    if (carry != 0) result[result.size()-1] = carry;
 
     // pop 0 on the most significant bit
     if (result[result.size() - 1] == 0) {

@@ -18,6 +18,8 @@ TEST(MyTests, BigTestCases) {
     Big opt("1999999999", "1");
     EXPECT_EQ(opt.add(), "2000000000");
     EXPECT_EQ(opt.add(opt.v1, opt.v2), "2000000000");
+    Big opt1("1999999999", "0");
+    EXPECT_EQ(opt1.add(), "1999999999");
     Big opt2("999", "1");
     EXPECT_EQ(opt2.add(), "1000");
     EXPECT_EQ(opt2.add(opt2.v1, opt2.v2), "1000");
