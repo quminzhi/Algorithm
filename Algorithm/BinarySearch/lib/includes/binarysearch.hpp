@@ -60,5 +60,6 @@ int splitArray(vector<int>& nums, int m);
 int splitArrayHelper(vector<int>& nums, vector<int>& sum, int begin, int m);
 int mySum(vector<int>::iterator begin, vector<int>::iterator end);
 int myMax(vector<int>::iterator begin, vector<int>::iterator end);
+int splitArrayII(vector<int>& nums, int m);
 
 #endif

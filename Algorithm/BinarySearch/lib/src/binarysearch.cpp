@@ -1072,7 +1072,7 @@ int splitArrayHelper(vector<int>& nums, vector<int>& sum, int begin, int m) {
     int division = 0;
     // offset to array starting from 'begin'
     for (int offset = 0; offset <= nums.size() - begin - m; offset++) {
-        division = max(sum[begin + offset] - sum[begin-1],
+        division = max(sum[begin + offset] - sum[begin - 1],
                        splitArrayHelper(nums, sum, begin + offset + 1, m - 1));
         // why +1, end is not included in mySum()
         // division = max(mySum(nums.begin() + begin, nums.begin() + begin + offset + 1),
@@ -1095,4 +1095,68 @@ int splitArray(vector<int>& nums, int m) {
     }
 
     return splitArrayHelper(nums, sum, 0, m);
+}
+
+/**
+ * @brief In the section, we will solve spliting problem by dynamic programming.
+ *
+ * Define f as:
+ *   f(start, m) = minimum val of all spliting divisions.
+ *
+ * Deduction:
+ *   f(start, m) = min(max(f(start + i, m - 1), sum(start...i))), where i is possible
+ * offset. where i = [1, last].
+ *
+ * ex > solve[0][2] =? max(solve[1][1], sum of [0, 1))
+ *                  =? max(solve[2][1], sum of [0, 2))
+ *                  =? ...
+ *                  =? max(solve[last][1], sum of [0, last))
+ *                  = MIN of all result above
+ *
+ * Base: return the sum of current array if 'm == 1' or return the max of current array if
+ * 'm == size of current array'.
+ *
+ * HelperFunction (Op): prefix_sum(int i), the sum of numbers before i in the array, we
+ * can cache the result in advance to avoid repeated calculation. With the helper of
+ * prefix_sum, we are able to calculate the sum of any range conveniently.
+ *
+ * ex> sum of 2 to 4 included ==> prefix_sum(5) - prefix_sum(2)
+ *     sum of [2, 5) ==> prefix_sum(5) - prefix_sum(2)
+ *     sum of all ==> prefix_sum(nums.size())
+ *
+ * @param nums
+ * @param m
+ * @return int
+ */
+int splitArrayII(vector<int>& nums, int m) {
+    vector<int> prefix_sum(nums.size() + 1, 0);
+    // prefix_sum[0] = 0;
+    for (int i = 1; i < prefix_sum.size(); i++) {
+        prefix_sum[i] = prefix_sum[i - 1] + nums[i - 1];
+    }
+
+    vector<vector<int> > solve(nums.size(), vector<int>(nums.size(), 0));
+    // init base case:
+    for (int start = 0; start < nums.size(); start++) {
+        solve[start][1] = prefix_sum[nums.size()] - prefix_sum[start];
+    }
+
+    // deduction
+    for (int grp = 2; grp <= nums.size(); grp++) {   // choice of m, # of subgroups
+        // notice the diagonal boundary has the property of grp + start == nums.size()
+        for (int start = 0; start <= nums.size() - grp; start++) {
+            int min = INT_MAX;
+            // why 'nums.size() - start - grp + 1'
+            // notice the diagonal boundary has the property of grp + start == nums.size()
+            // so far, grp = grp - 1, start = start, so we get the relationship.
+            for (int offset = 1; offset <= nums.size() - start - grp + 1; offset++) {
+                int rangeSum = prefix_sum[start + offset] - prefix_sum[start];
+                int cur = max(solve[start + offset][grp - 1], rangeSum);
+                if (cur < min) min = cur;
+            }
+            solve[start][grp] = min;
+        }
+    }
+
+    return solve[0][m];
 }

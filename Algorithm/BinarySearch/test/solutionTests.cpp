@@ -102,7 +102,9 @@ TEST(MyTest, HelperFunctionTEST) {
 TEST(MyTest, SplitArrayTEST) {
     vector<int> nums = {2, 3, 1, 2, 4, 3};
     EXPECT_EQ(splitArray(nums, 5), 4);
+    EXPECT_EQ(splitArrayII(nums, 5), 4);
 
     vector<int> nums2 = {7, 2, 5, 10, 8};
     EXPECT_EQ(splitArray(nums2, 2), 18);
+    EXPECT_EQ(splitArrayII(nums2, 2), 18);
 }
