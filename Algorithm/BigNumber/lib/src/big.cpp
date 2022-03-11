@@ -1,6 +1,7 @@
 #include "big.hpp"
 
 #include <sstream>
+#include <unordered_map>
 
 Big::Big(string s1, string s2) {
     for (auto it = s1.rbegin(); it != s1.rend(); it++) {
@@ -12,6 +13,14 @@ Big::Big(string s1, string s2) {
 }
 
 string Big::add() {
+    return add(v1, v2);
+}
+
+string Big::add(vector<int>& v1, vector<int>& v2) {
+    return toString(addHelper(v1, v2));
+}
+
+vector<int> Big::addHelper(vector<int>& v1, vector<int>& v2) {
     // result must be at most max(v1.size, v2.size) + 1 bits
     vector<int> result(max(v1.size(), v2.size()) + 1, 0);
     int i = 0, j = 0, carry = 0;
@@ -38,8 +47,8 @@ string Big::add() {
         result.pop_back();
     }
 
-    return toString(result);
-}
+    return result;
+ }
 
 /**
  * @brief A - B:
@@ -56,6 +65,15 @@ string Big::add() {
  * @return string
  */
 string Big::sub() {
+    if (isGreaterEqual()) {
+        return subHelper(v1, v2);
+    } else {
+        string absVal = subHelper(v2, v1);
+        return absVal.insert(0, "-");   // add negative sign
+    }
+}
+
+string Big::sub(vector<int>& v1, vector<int>& v2) {
     if (isGreaterEqual()) {
         return subHelper(v1, v2);
     } else {
@@ -98,6 +116,79 @@ string Big::subHelper(vector<int>& v1, vector<int>& v2) {
     }
 
     return toString(result);
+}
+
+/**
+ * @brief Our algorithm is based on the observation that multiplication of two digits is
+ * less than 100 (cannot be a 3-digit number). We can use the same algorithm for add to
+ * implement mul operation.
+ *
+ * ex> 1 9 3 6
+ *   x     2 8
+ * -----------
+ *   1 5 4 8 8
+ *   3 8 7 2
+ * -----------
+ *   5 4 2 0 8
+ *
+ * big * big can be seen as addition of (big * digit of the second big)
+ *
+ * @return string
+ */
+string Big::mul() {
+    return mulHelper(v1, v2);
+}
+
+string Big::mul(vector<int>& v1, vector<int>& v2) {
+    return mulHelper(v1, v2);
+}
+
+string Big::mulHelper(vector<int>& v1, vector<int>& v2) {
+    // keep v2.size < v1.size to improve the calculation
+    if (v1.size() < v2.size()) {
+        return mulHelper(v2, v1);
+    }
+
+    // big * digit must have the size less than or equal to v1.size + 1, given
+    // v1.size > v2.size
+    unordered_map<int, vector<int>> intermediate;
+    vector<int> sum(1, 0);
+    // calculate v2.size intermediate result
+    for (int i = 0; i < v2.size(); i++) {
+        intermediate[i] = mulDigit(v1, v2[i]);
+        // shift bits according to bit weight
+        intermediate[i].insert(intermediate[i].begin(), i, 0);
+        // add to sum
+        vector<int> v = addHelper(sum, intermediate[i]);
+        sum.resize(v.size());
+        sum = v;
+    }
+
+    return toString(sum);
+}
+
+/**
+ * @brief Similar idea to addition
+ * 
+ * @param v 
+ * @param n 
+ * @return vector<int> 
+ */
+vector<int> Big::mulDigit(vector<int>& v, int n) {
+    if (n == 0) return {0};
+    vector<int> result;
+    int i = 0;
+    int carry = 0, t = 0;
+    while (i < v.size()) {
+        t = v[i++] * n + carry;
+        carry = t / 10;
+        result.push_back(t % 10);
+    }
+    if (carry != 0) {
+        result.push_back(carry);
+    }
+
+    return result;
 }
 
 string Big::toString(const vector<int>& v) {
