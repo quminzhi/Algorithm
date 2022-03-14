@@ -1,0 +1,9 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.default.configurationProvider": "go2sh.cmake-integration",
+    "files.associations": {
+        "*.html": "html",
+        "vector": "cpp",
+        "algorithm": "cpp"
+    }
+}
