@@ -1,5 +1,16 @@
-#include "knapsack.hpp"
+# Dynamic Programming
 
+## Knapsack Problems
+
+### 0-1 Knapsack
+
+> Given a number of items with values and weights, and the weight that a knapsack can afford, return the maximum value that we can get.
+
+This is a generic problem for dynamic programming, where each item can be chosen only one time (choose) or zero time (not choose).
+
+- 2-d implementation
+
+```c++
 /**
  * @brief This is a naive implementation of 01 knapsack problem.
  *
@@ -49,7 +60,13 @@ int ZeroOneKnapsack(vector<int> weights, vector<int> values, int total) {
     // 0-indexed: the index of the first item is 0
     return f[weights.size() - 1][total];
 }
+```
 
+- 1-d implementation
+
+Can we save memory space? yes if we only care about the solution to a specific problem. In this problem, we only care about `f[i][j]`, where `i` is the number of items we are processing and `j` is available space, but do not care about `f[i-1][j]]` or anything else. So we can use a technique called rolling array, which only stores the solution of `f[j]` on ith level.
+
+```c++
 /**
  * @brief to reduce memory space, we use rolling array to solve the problem iteratively.
  * 
@@ -59,7 +76,7 @@ int ZeroOneKnapsack(vector<int> weights, vector<int> values, int total) {
  * 2. f[j] only relies on f[j], or f[j - w[i]] if w[i] > j, meaning possible elements
  * before j.
  * 
- * Observations above ensures that we can use rolloing array to solve the problem.
+ * Observations above ensures that we can use rolling array to solve the problem.
  * 
  * @param weights 
  * @param values 
@@ -93,3 +110,4 @@ int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total) {
     // 0-indexed: the index of the first item is 0
     return f[total];
 }
+```

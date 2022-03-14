@@ -18,4 +18,5 @@ TEST(MyTests, ZeroOneKnapsackTEST) {
     vector<int> weights = {1, 2, 3, 4};
     vector<int> values = {2, 4, 4, 5};
     EXPECT_EQ(ZeroOneKnapsack(weights, values, 5), 8);
+    EXPECT_EQ(ZeroOneKnapsackII(weights, values, 5), 8);
 }

@@ -5,5 +5,6 @@
 using namespace std;
 
 int ZeroOneKnapsack(vector<int> weights, vector<int> values, int total);
+int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total);
 
 #endif
