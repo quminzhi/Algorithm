@@ -93,3 +93,102 @@ int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total) {
     // 0-indexed: the index of the first item is 0
     return f[total];
 }
+
+/**
+ * @brief each item can be selected as many times as you want.
+ * 
+ * For the implementation below, initialization part and deduction part can be incorporated
+ * into one loop.
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int CompleteKnapsack(vector<int> weights, vector<int> values, int total) {
+    vector< vector<int> > f(weights.size(), vector<int>(total, 0));
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[0][j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            int maxVal = 0;
+            for (int k = 0; k <= j / weights[i]; k++) {
+                maxVal = max(maxVal, f[i-1][j - k * weights[i]] + k * values[i]);
+            }
+            f[i][j] = maxVal;
+        }
+    }
+
+    return f[weights.size()-1][total];
+}
+
+/**
+ * @brief Simplified deduction formula:
+ * 
+ * f[i][j] = max(f[i-1][j], f[i][j-w] + v)
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int CompleteKnapsackII(vector<int> weights, vector<int> values, int total) {
+    vector< vector<int> > f(weights.size(), vector<int>(total, 0));
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[0][j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            f[i][j] = f[i-1][j];
+            if (weights[i] <= j) {
+                f[i][j] = max(f[i][j], f[i][j-weights[i]] + values[i]);
+            }
+        }
+    }
+
+    return f[weights.size()-1][total];
+}
+
+int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
+    vector<int> f(total, 0);
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction: steps to simplify
+    // // step 1: delete lhs == rhs
+    // for (int i = 1; i < weights.size(); i++) {
+    //     for (int j = total; j >= 0; j--) {
+    //         f[j] = f[j]; // can be simplified
+    //         if (weights[i] <= j) {
+    //             f[j] = max(f[j], f[j-weights[i]] + values[i]);
+    //         }
+    //     }
+    // }
+
+    // // step 2: combine if into condition of for loop
+    // for (int i = 1; i < weights.size(); i++) {
+    //     for (int j = total; j >= 0; j--) {
+    //         if (weights[i] <= j) {
+    //             f[j] = max(f[j], f[j-weights[i]] + values[i]);
+    //         }
+    //     }
+    // }
+
+    // final
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = total; j >= weights[i]; j--) {
+            f[j] = max(f[j], f[j-weights[i]] + values[i]);
+        }
+    }
+
+    return f[total];
+}

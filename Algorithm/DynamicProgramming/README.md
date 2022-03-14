@@ -1,5 +1,11 @@
 # Dynamic Programming
 
+## Logic
+
+- How to represent a problem? (state representation)
+- What's the meaning of value mapped from `f`? (property, e.g. `max`, `min` etc.)
+- How to divide the problem into sub-problems? How they contribute to the problem? (deduction formula)
+
 ## Knapsack Problems
 
 ### 0-1 Knapsack
@@ -108,6 +114,151 @@ int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total) {
     }
 
     // 0-indexed: the index of the first item is 0
+    return f[total];
+}
+```
+
+### Complete Knapsack
+
+> Following up 0-1 knapsack problem, what if each item can be selected as much as you want? return the maximum value we can get.
+
+The representation and deduction formula for complete knapsack is similar to 01 knapsack.
+
+- Define `f[i][j]`, where `i` means selecting from first `i` items and `j` means available space.
+- The deduction formula is:
+
+```text
+f[i][j] = max(
+    f[i-1][j - k * w[i]] + k * v[i], if j - k * w[i] > 0 (select ith item for k times)
+)
+```
+
+- 2-d implementation `O(N^3)`
+
+```c++
+/**
+ * @brief each item can be selected as many times as you want.
+ * 
+ * For the implementation below, initialization part and deduction part can be incorporated
+ * into one loop.
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int CompleteKnapsack(vector<int> weights, vector<int> values, int total) {
+    vector< vector<int> > f(weights.size(), vector<int>(total, 0));
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[0][j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            int maxVal = 0;
+            for (int k = 0; k <= j / weights[i]; k++) {
+                maxVal = max(maxVal, f[i-1][j - k * weights[i]] + k * values[i]);
+            }
+            f[i][j] = maxVal;
+        }
+    }
+
+    return f[weights.size()-1][total];
+}
+```
+
+- 2-d implementation `O(N^2)`
+
+Let's see two deduction from the formula
+
+```text
+f[i][j] = max(
+    f[i-1][j - k * w[i]] + k * v[i], if j - k * w[i] > 0 (select ith item for k times)
+)
+```
+
+Expand `f[i][j]` and `f[i][j - w]`, where `w` is the weight of ith item and `v` is corresponding value.
+
+```text
+f[i][j]   = max( f[i-1][j], f[i-1][j-w] + v, f[i-1][j-2w] + 2v, f[i-1][j-3w] + 3v,...)
+f[i][j-w] = max(            f[i-1][j-w],     f[i-1][j-2w] + v,  f[i-1][j-3w] + 2v,...)
+                            ^                ^                  ^
+                            a lot of repeated calculations
+```
+
+So we can derive a new deduction formula: `f[i][j] = max(f[i-1][j], f[i][j-w] + v)`, which means the maximum of first `i` items with available weight of `j` can be derived from two sub-problems instead of `k` sub-problems.
+
+- `f[i-1][j]` means ith item has been chosen 0 times (no pick).
+- `f[i][j-v] + w` means ith item has been chosen m times, and we proceed to choose ith item again.
+
+Key idea: examine the CLOSEST representation as much as possible.
+
+```c++
+/**
+ * @brief Simplified deduction formula:
+ * 
+ * f[i][j] = max(f[i-1][j], f[i][j-w] + v)
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int CompleteKnapsackII(vector<int> weights, vector<int> values, int total) {
+    vector< vector<int> > f(weights.size(), vector<int>(total, 0));
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[0][j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            f[i][j] = f[i-1][j];
+            if (weights[i] <= j) {
+                f[i][j] = max(f[i][j], f[i][j-weights[i]] + values[i]);
+            }
+        }
+    }
+
+    return f[weights.size()-1][total];
+}
+```
+
+- 1-d implementation
+
+Again, for deduction formula: `f[i][j] = max(f[i-1][j], f[i][j-w] + v)`, two observation are: 1. `f[i][j]` relies on the `i-1` level. 2. `f[i][j]` relied on `f[i][j-w]` which occurs before `f[i][j]`.
+
+```text
+rolling array: f[i-1][0], f[i-1][1], f[i-1][2], ..., f[i-1][total]
+                                     <--- j goes from end to begin
+
+               f[i-1][0], f[i-1][1], ...f[i-1][k], 
+                                          f[i][k], f[i][k+1], ..., f[i][total]
+                                               ^
+                      at i-1th level   <---   j      at ith level
+```
+
+```c++
+int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
+    vector<int> f(total, 0);
+    // initialize boundary
+    for (int j = weights[0]; j < total; j++) {
+        f[j] = j / weights[0] * values[0]; // pick as many as possible
+    }
+
+    // deduction:
+    for (int i = 1; i < weights.size(); i++) {
+        // for (int j = total; j >= 0; j--) {
+        for (int j = total; j >= weights[i]; j--) {
+            // f[j] = f[j]; // can be simplified
+            // if (weights[i] <= j) // incorporate into loop condition
+            f[j] = max(f[j], f[j-weights[i]] + values[i]);
+        }
+    }
+
     return f[total];
 }
 ```
