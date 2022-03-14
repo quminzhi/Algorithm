@@ -232,6 +232,7 @@ int CompleteKnapsackII(vector<int> weights, vector<int> values, int total) {
 Again, for deduction formula: `f[i][j] = max(f[i-1][j], f[i][j-w] + v)`, two observation are: 1. `f[i][j]` relies on the `i-1` level. 2. `f[i][j]` relied on `f[i][j-w]` which occurs before `f[i][j]`.
 
 ```text
+Case 1: scan from right to left
 rolling array: f[i-1][0], f[i-1][1], f[i-1][2], ..., f[i-1][total]
                                      <--- j goes from end to begin
 
@@ -239,7 +240,20 @@ rolling array: f[i-1][0], f[i-1][1], f[i-1][2], ..., f[i-1][total]
                                           f[i][k], f[i][k+1], ..., f[i][total]
                                                ^
                       at i-1th level   <---   j      at ith level
+
+Case 2: scan from left to right
+rolling array: f[i-1][0], f[i-1][1], f[i-1][2], ..., f[i-1][total]
+               j goes from begin to end --->
+
+                                  f[i-1][k], f[i-1][k+1], ..., f[i-1][total]
+               f[i][0], f[i][1], ...f[i][k],
+                                         ^
+                   at ith level   <---   j      at i-1th level
 ```
+
+In zero-one knapsack `f[i][j] = f[i-1][j-m*w]`, meaning it relies on the j before it on the i-1th level (**last level**). In this case we need to save the value of `f[i-1][k]`, where `k < j`. Thereby we have to scan from right to left (case 1).
+
+For complete knapsack `f[i][j] = f[i][j-w] + v`, meaning it relies on the j before it on the ith level (**same level**). We have to update the value before `j` first. Therefore, we scan from left to right.
 
 ```c++
 int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
@@ -252,7 +266,7 @@ int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
     // deduction:
     for (int i = 1; i < weights.size(); i++) {
         // for (int j = total; j >= 0; j--) {
-        for (int j = total; j >= weights[i]; j--) {
+        for (int j = weights[i]; j >= total; j++) {
             // f[j] = f[j]; // can be simplified
             // if (weights[i] <= j) // incorporate into loop condition
             f[j] = max(f[j], f[j-weights[i]] + values[i]);

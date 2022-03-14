@@ -159,14 +159,14 @@ int CompleteKnapsackII(vector<int> weights, vector<int> values, int total) {
 int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
     vector<int> f(total, 0);
     // initialize boundary
-    for (int j = weights[0]; j < total; j++) {
+    for (int j = weights[0]; j <= total; j++) {
         f[j] = j / weights[0] * values[0]; // pick as many as possible
     }
 
     // deduction: steps to simplify
     // // step 1: delete lhs == rhs
     // for (int i = 1; i < weights.size(); i++) {
-    //     for (int j = total; j >= 0; j--) {
+    //     for (int j = 0; j <= total; j++) {
     //         f[j] = f[j]; // can be simplified
     //         if (weights[i] <= j) {
     //             f[j] = max(f[j], f[j-weights[i]] + values[i]);
@@ -176,7 +176,7 @@ int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
 
     // // step 2: combine if into condition of for loop
     // for (int i = 1; i < weights.size(); i++) {
-    //     for (int j = total; j >= 0; j--) {
+    //     for (int j = 0; j <= total; j++) {
     //         if (weights[i] <= j) {
     //             f[j] = max(f[j], f[j-weights[i]] + values[i]);
     //         }
@@ -185,7 +185,7 @@ int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
 
     // final
     for (int i = 1; i < weights.size(); i++) {
-        for (int j = total; j >= weights[i]; j--) {
+        for (int j = weights[i]; j <= total; j++) {
             f[j] = max(f[j], f[j-weights[i]] + values[i]);
         }
     }
