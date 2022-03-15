@@ -276,3 +276,45 @@ int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total) {
     return f[total];
 }
 ```
+
+### Limited Knapsack
+
+> Following up complete knapsack problem, what if each item can be selected at most `limit[i]` times? return the maximum value we can get.
+
+The naive implementation of limited knapsack is similar to complete knapsack.
+
+```c++
+/**
+ * @brief The deduction formula is:
+ *
+ * f[i][j] = max(f[i-1][j - k * w[i]] + k * v[i]), where k is in [0, min(s[i], k / w[i])]
+ *
+ * @param weights
+ * @param values
+ * @param limits
+ * @param total
+ * @return int
+ */
+int LimitedKnapsack(vector<int> weights, vector<int> values, vector<int> limits,
+                    int total) {
+    vector<vector<int> > f(weights.size(), vector<int>(total, 0));
+    // boundary
+    for (int j = 0; j <= total; j++) {
+        f[0][j] = values[0] * min(limits[0], j / weights[0]);
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            int maxVal = 0;
+            int kMax = min(limits[i], j / weights[i]);
+            for (int k = 0; k <= kMax; k++) {
+                maxVal = max(maxVal, f[i - 1][j - k * weights[i]] + k * values[i]);
+            }
+            f[i][j] = maxVal;
+        }
+    }
+
+    return f[weights.size() - 1][total];
+}
+```

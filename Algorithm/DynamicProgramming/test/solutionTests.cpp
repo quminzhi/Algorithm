@@ -28,3 +28,10 @@ TEST(MyTests, CompleteKnapsackTEST) {
     EXPECT_EQ(CompleteKnapsackII(weights, values, 6), 12);
     EXPECT_EQ(CompleteKnapsackIII(weights, values, 6), 12);
 }
+
+TEST(MyTests, LimitedKnapsackTEST) {
+    vector<int> weights = {1, 2, 3, 4};
+    vector<int> values = {2, 4, 4, 5};
+    vector<int> limits = {1, 1, 2, 2};
+    EXPECT_EQ(LimitedKnapsack(weights, values, limits, 5), 8);
+}
