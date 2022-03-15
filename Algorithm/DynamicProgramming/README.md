@@ -399,6 +399,26 @@ So `s == C + 2^k - 1`, where `k` is bit length and `C` is an offset. We can get 
 
 With example of `s = 200`, we can break the ith item down into 7 new items and an offset 73. By selecting or not selecting (binary 0 or 1) new item, we can simulate the limit `s` (`limits[i]`). So ith item becomes `log(limits[i])` new items and we got roughly N * log(S) new items, and all of them are unique and can be selected only once.
 
+The idea above can be justified with a simple example:
+
+```text
+limited knapsack: 
+we have only one item with value 2 and weight 3 and this item can be selected at most 3 times. Return the maximum value when we have a knapsack of weight 5.
+
+      weight  value  limit   (knapsack = 5)
+item1   3       2      5
+
+How can this problem be transferred to 0-1 knapsack? The counterpart problem for limited knapsack is as follow,
+
+0-1 knapsack counterpart:
+       weight  value  limit    2-bit  <== log2(5)
+item1  3(3*1)  2(2*1)   1      (2^0)
+item2  6(3*2)  4(2*2)   1      (2^1)   2-bit binary has range of [0...2^2-1]
+item3   3*c     2*c     1      c=2     c = 5 - (2^k - 1), where k = 2
+
+The problem above is a 0-1 problem. Notice all choices of 3 items (in 0-1 knapsack) === limited choice of 1 item (limited knapsack) 
+```
+
 ```c++
 /**
  * @brief bit optimization (reduce time complexity to O(N * M * log(S)))
