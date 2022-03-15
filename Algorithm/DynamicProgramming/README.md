@@ -452,3 +452,113 @@ int LimitedKnapsackIII(vector<int> weights, vector<int> values, vector<int> limi
     return f[newWeights.size() - 1][total];
 }
 ```
+
+### Grouped Knapsack
+
+> Given N groups of items, we are allowed to select only one or (zero) item from a group. Give a total weight of knapsack, return the maximum value.
+
+Define `f` as `f[i][j]`, where `i` means select from first `i` **groups** and `j` means available weight.
+
+How to derive deduction formula?
+
+`f[i][j]` consists of `f[i-1][j]` (select 0 item from ith group), `f[i-1][j-w[i][0]] + v[i][0]` (select the first item from ith group), ..., `f[i-1][j-w[i][last] + v[i][last]`. Of course, `j - w[i][k] >= 0`.
+
+- 2-d implementation
+
+```c++
+/**
+ * @brief the naive implementation of group knapsack
+ * 
+ * f[i][j] = max(f[i-1][j], f[i-1][j-w[i][k]] + v[i][k]), where k is in the range of items
+ * of ith group, and `j-w[i][k]` >= 0.
+ * 
+ * @param items: vector of { groupId, weight, value }
+ * @param total 
+ * @return int 
+ */
+int GroupKnapsack(vector< vector<int> > items, int total) {
+    // aggregate by group
+    vector<int> groups(items.size(), 0);
+    for (int i = 0; i < items.size(); i++) {
+        groups[items[i][0]]++;
+    }
+    // truncate from end
+    int end = groups.size() - 1; // the index of last group
+    for (; end >= 0 && groups[end] != 0; end--) {}
+    groups.resize(end);
+    // index the index of the first item in each group with prefix
+    // the first item of ith group in items is items[prefix[i] + 0]
+    vector<int> prefix(groups.size(), 0);
+    for (int i = 1; i < groups.size(); i++) {
+        prefix[i] = groups[i-1] + prefix[i-1];
+    }
+
+    vector< vector<int> > f(groups.size(), vector<int>(total+1, 0));
+    for (int j = 0; j <= total; j++) {
+        for (int k = prefix[0]; k < prefix[0] + groups[0]; k++) {
+            if (items[k][1] <= j) {
+                f[0][j] = max(f[0][j], 0 + items[k][2]);
+            }
+        }
+    }
+
+    for (int i = 1; i < groups.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            for (int k = prefix[i]; k < prefix[i] + groups[i]; k++) {
+                f[i][j] = f[i-1][j]; // no pick
+                if (items[k][1] <= j) {
+                    f[i][j] = max(f[i][j], f[i-1][j - items[k][1]] + items[k][2]);
+                }
+            }
+        }
+    }
+
+    return f[groups.size()-1][total];
+}
+```
+
+- 1-d implementation (similar to 0-1 knapsack)
+
+```c++
+int GroupKnapsackII(vector<vector<int> > items, int total) {
+    // aggregate by group
+    vector<int> groups(items.size(), 0);
+    for (int i = 0; i < items.size(); i++) {
+        groups[items[i][0]]++;
+    }
+    // truncate from end
+    int end = groups.size() - 1;   // the index of last group
+    for (; end >= 0 && groups[end] != 0; end--) {
+    }
+    groups.resize(end);
+    // mapping: index the index of the first item in each group with prefix
+    // the first item of ith group in items is items[prefix[i] + 0]
+    vector<int> prefix(groups.size(), 0);
+    for (int i = 1; i < groups.size(); i++) {
+        prefix[i] = groups[i - 1] + prefix[i - 1];
+    }
+
+    vector<int> f(total + 1, 0);
+    for (int j = 0; j <= total; j++) {
+        for (int k = prefix[0]; k < prefix[0] + groups[0]; k++) {
+            if (items[k][1] <= j) {
+                f[j] = max(f[j], 0 + items[k][2]);
+            }
+        }
+    }
+
+    for (int i = 1; i < groups.size(); i++) {
+        for (int j = total; j >= 0; j--) {
+            // find max in ith group
+            for (int k = prefix[i]; k < prefix[i] + groups[i]; k++) {
+                f[j] = f[j];   // no pick
+                if (items[k][1] <= j) {
+                    f[j] = max(f[j], f[j - items[k][1]] + items[k][2]);
+                }
+            }
+        }
+    }
+
+    return f[total];
+}
+```

@@ -15,5 +15,7 @@ int LimitedKnapsackII(vector<int> weights, vector<int> values, vector<int> limit
                       int total);
 int LimitedKnapsackIII(vector<int> weights, vector<int> values, vector<int> limits,
                       int total);
+int GroupKnapsack(vector< vector<int> > items, int total);
+int GroupKnapsackII(vector< vector<int> > items, int total);
 
 #endif

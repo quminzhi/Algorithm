@@ -37,3 +37,14 @@ TEST(MyTests, LimitedKnapsackTEST) {
     EXPECT_EQ(LimitedKnapsackII(weights, values, limits, 5), 8);
     EXPECT_EQ(LimitedKnapsackIII(weights, values, limits, 5), 8);
 }
+
+TEST(MyTests, GroupedKnapsackTEST) {
+    vector< vector<int> > items = {
+        {0, 1, 2},
+        {0, 2, 4},
+        {1, 3, 4},
+        {2, 4, 5}
+    };
+    EXPECT_EQ(GroupKnapsack(items, 5), 8);
+    EXPECT_EQ(GroupKnapsackII(items, 5), 8);
+}
