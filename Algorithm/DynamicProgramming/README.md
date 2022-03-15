@@ -318,3 +318,137 @@ int LimitedKnapsack(vector<int> weights, vector<int> values, vector<int> limits,
     return f[weights.size() - 1][total];
 }
 ```
+
+- 1-d implementation
+
+```c++
+int LimitedKnapsackII(vector<int> weights, vector<int> values, vector<int> limits,
+                    int total) {
+    vector<int> f(total, 0);
+    // boundary
+    for (int j = 0; j <= total; j++) {
+        f[j] = values[0] * min(limits[0], j / weights[0]);
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = total; j >= 0; j--) {
+            int maxVal = 0;
+            int kMax = min(limits[i], j / weights[i]);
+            for (int k = 0; k <= kMax; k++) {
+                maxVal = max(maxVal, f[j - k * weights[i]] + k * values[i]);
+            }
+            f[j] = maxVal;
+        }
+    }
+
+    return f[total];
+}
+```
+
+Question: can we optimize `f[i][j]` with `f[i][j-w] + v` as we did in complete knapsack?
+
+```text
+f[i][j]   = max(f[i-1][j], f[i-1][j-w] + v, f[i-1][j-2w] + 2v, ..., f[i-1][j-sw] + sv)
+f[i][j-w] = max(           f[i-1][j-w],     f[i-1][j-2w] + v,  ..., f[i-1][j-sw] + (s-1)v, f[i-1][j-(s+1)w] + sv)
+```
+
+we have an additional item `f[i-1][j-(s+1)w] + sv`, which can be seen as `f[i-1][j-w - sw] + sv`. Given `f[i][j-w]` we cannot get `f[i][j]`, meaning `f[i][j] != max(f[i-1][j], f[i][j-w] + v)`.
+
+### Optimization for Limited Knapsack
+
+Notice that the time complexity of limited knapsack above is `O(N * M * S)`, where `N` is the size of items, `M` is total weight of knapsack, and `S` is the maximum number of limits (`max(limits[i])`).
+
+In this section, we will introduce a classic optimization which is called **binary bit optimization**. We will concentrate on optimizing `S` to `log(S)`.
+
+```text
+f[i][j] = max(f[i-1][j], f[i-1][j-w] + v, f[i-1][j-2w] + 2v, ..., f[i-1][j-sw] + sv)
+```
+
+Considered the formula above, do we need to enumerate all `s` elements? The answer is no. we can use binary bit to represent `[0...s]`. And each representation can be seen as a new and unique item. Then the limited knapsack problem is transferred to 0-1 knapsack problem, where the number of items is `N * log(S)` and the total weight is `M`.
+
+```text
+f[i][j] = max(f[i][j], f[i][j-w[i]] + v[i]), where i is in the range of `[0, Nlog(S)]` and j is in the range of `[0, M]`
+```
+
+To explain further, why `[0...s]` can be represented in bit and the problem becomes a 0-1 knapsack problem?
+
+- how to use bit to simulate `[0...s]`
+
+Notice that k-bit number can be used to represent numbers in the range of [0, 2^k - 1]
+
+```text
+ex> 0000 0000 (8 bits) can represents 0 ~ 2^8 - 1 (2^8 - 1 = 2^0 + 2^1 + ... + 2^7)
+
+so, with k bits we can represent [0, 2^k - 1].
+
+when 2^k - 1 < s < 2^(k+1) - 1, we can represent s with k-bits and a decimal number C.
+
+       2^k           C (C < 2^k - 1)
+|----------------|--------|
+0            2^k - 1      s
+
+ex> say s = 200, k = 7, and C = s + 1 - 2^k = 200 + 1 - 128 = 73
+
+0000 000 (7 bits) + C
+```
+
+So `s == C + 2^k - 1`, where `k` is bit length and `C` is an offset. We can get `k = floor(log(s))` and `C = s + 1 - 2^k`.
+
+- How's it connected to 0-1 knapsack?
+
+With example of `s = 200`, we can break the ith item down into 7 new items and an offset 73. By selecting or not selecting (binary 0 or 1) new item, we can simulate the limit `s` (`limits[i]`). So ith item becomes `log(limits[i])` new items and we got roughly N * log(S) new items, and all of them are unique and can be selected only once.
+
+```c++
+/**
+ * @brief bit optimization (reduce time complexity to O(N * M * log(S)))
+ *
+ * @param weights
+ * @param values
+ * @param limits
+ * @param total
+ * @return int
+ */
+int LimitedKnapsackIII(vector<int> weights, vector<int> values, vector<int> limits,
+                       int total) {
+    vector<int> newWeights;
+    vector<int> newValues;
+
+    // construct new items
+    for (int i = 0; i < weights.size(); i++) {
+        int k = 1;   // notice k is not bit but weight on that bit, 2^0
+        while (k <= limits[i]) {
+            newWeights.push_back(k * weights[i]);
+            newValues.push_back(k * values[i]);
+            // one way to calculate bit = floor(log2(limits[i]))
+            // limits[i] = 2^0 + 2^1 + 2^2 + ... + 2^(k-1) + C
+            limits[i] -= k;
+            k = k << 1;
+        }
+
+        // now limits[i] becomes C
+        if (limits[i] >= 0) {
+            newWeights.push_back(limits[i] * weights[i]);
+            newValues.push_back(limits[i] * values[i]);
+        }
+    }
+
+    // zero-one knapsack
+    vector<vector<int> > f(newWeights.size(), vector<int>(total + 1, 0));
+
+    for (int j = 0; j <= total; j++) {
+        f[0][j] = newWeights[0] <= j ? newValues[0] : 0;
+    }
+
+    for (int i = 1; i < newWeights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            f[i][j] = f[i - 1][j];
+            if (newWeights[i] <= j) {
+                f[i][j] = max(f[i][j], f[i - 1][j - newWeights[i]] + newValues[i]);
+            }
+        }
+    }
+
+    return f[newWeights.size() - 1][total];
+}
+```

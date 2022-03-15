@@ -34,4 +34,6 @@ TEST(MyTests, LimitedKnapsackTEST) {
     vector<int> values = {2, 4, 4, 5};
     vector<int> limits = {1, 1, 2, 2};
     EXPECT_EQ(LimitedKnapsack(weights, values, limits, 5), 8);
+    EXPECT_EQ(LimitedKnapsackII(weights, values, limits, 5), 8);
+    EXPECT_EQ(LimitedKnapsackIII(weights, values, limits, 5), 8);
 }

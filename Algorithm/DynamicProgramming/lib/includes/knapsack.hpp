@@ -11,5 +11,9 @@ int CompleteKnapsackII(vector<int> weights, vector<int> values, int total);
 int CompleteKnapsackIII(vector<int> weights, vector<int> values, int total);
 int LimitedKnapsack(vector<int> weights, vector<int> values, vector<int> limits,
                     int total);
+int LimitedKnapsackII(vector<int> weights, vector<int> values, vector<int> limits,
+                      int total);
+int LimitedKnapsackIII(vector<int> weights, vector<int> values, vector<int> limits,
+                      int total);
 
 #endif
