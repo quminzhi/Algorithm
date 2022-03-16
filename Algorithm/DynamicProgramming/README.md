@@ -582,3 +582,39 @@ int GroupKnapsackII(vector<vector<int> > items, int total) {
     return f[total];
 }
 ```
+
+## Linear DP
+
+### Longest Non-descending Subsequence
+
+> return the maximum length of non-descending subsequence.
+
+`f[i]` means max length of non-descending subsequence of the first ith subsequence.
+
+For ith element, maximum length of ith is maximum of all max length of the state before i, i.e. `f[i] = max(f[j] if i < j or f[j] + 1 if i >= j), where 0 <= j < i`.
+
+```c++
+/**
+ * @brief f[i] = max(f[j] if i < j or f[j] + 1 if i >= j), where 0 <= j < i
+ * 
+ * O(N^2)
+ * 
+ * @param s
+ * @return int
+ */
+int MaxLengthOfNonDescendingSubsequence(string s) {
+    vector<int> f(s.size(), 0);
+    f[0] = 1;
+    for (int i = 1; i < s.size(); i++) {
+        for (int j = 0; j < i; j++) {
+            if (s[i] < s[j]) {
+                f[i] = max(f[i], f[j]);
+            } else {
+                f[i] = max(f[i], f[j] + 1);
+            }
+        }
+    }
+
+    return f[s.size() - 1];
+}
+```

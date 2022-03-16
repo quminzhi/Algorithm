@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "solution.hpp"
 #include "knapsack.hpp"
+#include "linear.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 class TestWithContext : public ::testing::Test {
@@ -47,4 +48,9 @@ TEST(MyTests, GroupedKnapsackTEST) {
     };
     EXPECT_EQ(GroupKnapsack(items, 5), 8);
     EXPECT_EQ(GroupKnapsackII(items, 5), 8);
+}
+
+TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
+    EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abcd"), 4);
+    EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abed"), 3);
 }

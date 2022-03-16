@@ -16,10 +16,17 @@ add_library(
 )
 target_include_directories(knapsack PUBLIC "${LIB_INCLUDE_DIR}")
 
+add_library(
+    linear SHARED
+    includes/linear.hpp
+    src/linear.cpp
+)
+target_include_directories(linear PUBLIC "${LIB_INCLUDE_DIR}")
+
 # TODO: create an interface target for knapsack foo2 foo3...
 add_library(mylib INTERFACE)
 target_link_libraries(
     mylib INTERFACE
-    foo knapsack   #  foo2, foo3 ...
+    foo knapsack linear   #  foo2, foo3 ...
 )
 target_include_directories(mylib INTERFACE "${LIB_INCLUDE_DIR}")
