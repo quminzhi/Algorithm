@@ -409,3 +409,66 @@ int GroupKnapsackII(vector<vector<int> > items, int total) {
 
     return f[total];
 }
+
+/**
+ * @brief The basic idea is converting limited item to 0-1 item (bit optimization) and
+ * deduct in two cases.
+ *
+ * 1. when ith item is 0-1 item,
+ *     2-d f[i][j] = max(f[i-1][j], f[i-1][j-w[i]] + v[i]) if w[i] <= j.
+ *  or 1-d formula (scan from end): f[j] = max(f[j'], f[j'-w[i]] + v[i] if w[i] <= j').
+ *                                               ^ rolling array
+ * 2. when ith item is unlimited item,
+ *     2-d f[i][j] = max(f[i-1][j], f[i][j-w[i]] + v[i]) if w[i] <= j.
+ *  or 1-d formula (scan from begin): f[j] = max(f[j'], f[j' - w[i]] + v[i] if w[i] <=
+ * j').
+ * 
+ * ex> 
+ *    i\j 0 1 2 ... 200
+ *    0 ----  0-1  ----
+ *    1 ----  0-1  ----
+ *    2 ---- unlmt ----
+ *   ...
+ *   10 ----  0-1  ----
+ * 
+ * @param items
+ * @param total
+ * @return int
+ */
+int MixedKnapsack(vector<Item> items, int total) {
+    vector<Item> newItems;
+    for (int i = 0; i < items.size(); i++) {
+        if (items[i].kind > 0) {
+            // convert limited item to 0-1 item
+            for (int k = 1; k <= items[i].limit; k << 1) {
+                newItems.push_back(Item(-1, k * items[i].weight, k * items[i].value, 1));
+                items[i].limit -= k;
+            }
+            if (items[i].limit > 0) {
+                int offset = items[i].limit;
+                newItems.push_back(
+                    Item(-1, offset * items[i].weight, offset * items[i].value, 1));
+            }
+        } else {
+            newItems.push_back(items[i]);
+        }
+    }
+
+    vector<int> f(total + 1, 0);
+    // conditional deduction
+    for (int i = 0; i < newItems.size(); i++) {
+        if (newItems[i].kind == -1) {
+            // 0-1
+            for (int j = total; j >= newItems[i].weight; j--) {
+                f[j] = max(f[j], f[j - newItems[i].weight] + newItems[i].value);
+            }
+        } else {
+            // unlimited
+            for (int j = newItems[i].weight; j <= total; j++) {
+                f[j] = max(f[j], f[j - newItems[i].weight] + newItems[i].value);
+            }
+        }
+    }
+
+    return f[total];
+}

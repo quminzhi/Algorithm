@@ -14,8 +14,21 @@ int LimitedKnapsack(vector<int> weights, vector<int> values, vector<int> limits,
 int LimitedKnapsackII(vector<int> weights, vector<int> values, vector<int> limits,
                       int total);
 int LimitedKnapsackIII(vector<int> weights, vector<int> values, vector<int> limits,
-                      int total);
-int GroupKnapsack(vector< vector<int> > items, int total);
-int GroupKnapsackII(vector< vector<int> > items, int total);
+                       int total);
+int GroupKnapsack(vector<vector<int> > items, int total);
+int GroupKnapsackII(vector<vector<int> > items, int total);
+
+class Item {
+   public:
+   Item(int _kind, int _weight, int _value)
+        : kind(_kind), weight(_weight), value(_value), limit(INT_MAX){};
+    Item(int _kind, int _weight, int _value, int _limit)
+        : kind(_kind), weight(_weight), value(_value), limit(_limit){};
+    int kind;
+    int weight;
+    int value;
+    int limit;
+};
+int MixedKnapsack(vector<Item> items, int total);
 
 #endif

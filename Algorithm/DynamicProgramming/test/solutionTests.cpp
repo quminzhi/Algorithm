@@ -50,6 +50,17 @@ TEST(MyTests, GroupedKnapsackTEST) {
     EXPECT_EQ(GroupKnapsackII(items, 5), 8);
 }
 
+TEST(MyTests, MixedKnapsackTEST) {
+    vector<Item> items;
+    items.push_back(Item(-1, 2, 5));
+    items.push_back(Item(-1, 3, 7));
+    items.push_back(Item(0, 4, 5));
+    items.push_back(Item(0, 5, 6));
+    items.push_back(Item(1, 2, 6, 3));
+    items.push_back(Item(1, 3, 10, 5));
+    EXPECT_EQ(MixedKnapsack(items, 20), 63);
+}
+
 TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abcd"), 4);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abed"), 3);
