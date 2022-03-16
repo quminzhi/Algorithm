@@ -4,7 +4,8 @@
     "files.associations": {
         "*.html": "html",
         "vector": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "string": "cpp"
     },
     "cSpell.ignoreWords": [
         "Nlog"

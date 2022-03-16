@@ -6,5 +6,6 @@
 using namespace std;
 
 int MaxLengthOfNonDescendingSubsequence(string s);
+string MaxLengthOfNonDescendingSubsequenceII(string s);
 
 #endif
