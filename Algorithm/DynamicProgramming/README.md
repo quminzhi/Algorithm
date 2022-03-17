@@ -875,7 +875,7 @@ int MaxLengthOfNonDescendingSubsequence(string s) {
 }
 ```
 
-Code with backtracking:
+- Code with backtracking:
 
 ```c++
 /**
@@ -910,3 +910,64 @@ string MaxLengthOfNonDescendingSubsequenceII(string s) {
     return result;
 }
 ```
+
+- Optimization (Greedy Algorithm)
+
+Let's see the problem from the perspective of length. `f[i]` is defined as the minimum of the last number of longest non-descending sequence with length `i`.
+
+Why is it defined like that? One observation is the best choice for current number `nums[i]` to concatenate the longest sequence before it has two properties:
+
+- length of longest sequence is as long as possible
+- the last number of the sequence should be as small as possible if there are multiple sequences with the same length. In other words, we can dump all sequence with the same length but the last number being greater than the minimum one. This explains why `f` is a mapping from `len` to `min(last number)`
+
+```text
+len  1  1  2  2  3
+ex>  2  1  3  2  4  7  6  8  9
+        solved      ^   unsolved
+                   ptr
+then f[0] = 0
+     f[1] = min(2, 1) = 1 (len == 1)
+     f[2] = min(3, 2) = 2 (len == 2)
+     f[3] = min(4)    = 4 (len == 3)
+     ...
+```
+
+One important property of `f[i]` is it is non-descending. It can be proved with contradiction. Say if `f[i+1] < f[i]`, it means we can find a subsequence in `f[i+1]` **with the length of `i`**, and **the last number** of this subsequence is less than or equal to `f[i+1]`, which means **less than** `f[i]`. This is a contradiction to our definition, which tells us `f[i]` should be the minimum number of the last number in all sequence with length `i`.
+
+Therefore, our algorithm is:
+
+- find the first number less than or equal to `nums[i]` from the end, say `f[m]`. It means it is the best choice for `nums[i]` to concatenate. (binary search: log(N))
+- update `f[m+1]` with `nums[i]`, since `nums[i] < f[m+1]` (if not, `f[m+1]` will be the best choice to concatenate).
+
+```c++
+/**
+ * @brief f[i] is the minimum last number of the sequence with the same length
+ * 
+ * @param s 
+ * @return int 
+ */
+int MaxLengthOfNonDescendingSubsequenceIII(string s) {
+    vector<int> f(s.size() + 1, INT_MAX);   // the last number of subsequence with length i
+    f[0] = 0;
+
+    int len = 0;   // track solved range
+    for (int i = 0; i < s.size(); i++) {
+        // binary search the last one less than or equal to s[i]
+        int left = 0, right = len;
+        while (left < right) {
+            int mid = left + ((right - left) >> 1) + 1;
+            if (f[mid] <= s[i]) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        len = max(len, left + 1);
+        f[left + 1] = s[i];
+    }
+
+    return len;
+}
+```
+

@@ -72,9 +72,14 @@ TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abcd"), 4);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abed"), 3);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abyzdef"), 5);
+    
 
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceII("abcd"), "abcd");
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceII("abed"), "abd");
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceII("abyzdef"), "abdef");
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceII("abedfghxyz"), "abdfghxyz");
+
+    EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceIII("abcd"), 4);
+    EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceIII("abed"), 3);
+    EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceIII("abyzdef"), 5);
 }

@@ -1,11 +1,12 @@
 #include "linear.hpp"
+
 #include <iostream>
 
 /**
  * @brief f[i] = max(f[j] if i < j or f[j] + 1 if i >= j), where 0 <= j < i
- * 
+ *
  * O(N^2)
- * 
+ *
  * @param s
  * @return int
  */
@@ -25,7 +26,7 @@ int MaxLengthOfNonDescendingSubsequence(string s) {
 
 /**
  * @brief track max subsequence
- * 
+ *
  * @param s
  * @return int
  */
@@ -53,4 +54,34 @@ string MaxLengthOfNonDescendingSubsequenceII(string s) {
     reverse(result.begin(), result.end());
 
     return result;
+}
+
+/**
+ * @brief f[i] is the minimum last number of the sequence with the same length
+ *
+ * @param s
+ * @return int
+ */
+int MaxLengthOfNonDescendingSubsequenceIII(string s) {
+    vector<int> f(s.size() + 1, INT_MAX);   // the last number of subsequence with length i
+    f[0] = 0;
+
+    int len = 0;   // track solved range
+    for (int i = 0; i < s.size(); i++) {
+        // binary search the last one less than or equal to s[i]
+        int left = 0, right = len;
+        while (left < right) {
+            int mid = left + ((right - left) >> 1) + 1;
+            if (f[mid] <= s[i]) {
+                left = mid;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        len = max(len, left + 1);
+        f[left + 1] = s[i];
+    }
+
+    return len;
 }
