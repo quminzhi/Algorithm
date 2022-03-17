@@ -664,6 +664,122 @@ int MixedKnapsack(vector<Item> items, int total) {
 }
 ```
 
+### Knapsack with Tracking
+
+Here we will track and return the optimal choice. Take 0-1 knapsack as an example.
+
+
+
+### Counting Optimal Plan
+
+We will count the number of all optimal choices.
+
+First we have to figure out the difference and correlation between two problems.
+
+- 0-1 knapsack requires the total of chosen items must less than or equal to given 'total'.
+- 0-1 knapsack requires the total of chosen items must be exactly given 'total'.
+
+Definition of `f` for two problems has totally different meaning.
+
+- In the first case, `f[i][j]` means selecting from first `i` items and the total weight of chosen items should be less than or equal to `j`.
+- In the other, `f[i][j]` means selecting from first `i` items and the total weight of chosen items should be exactly `j`.
+
+But These two problems have the same deduction formula:
+
+```text
+f[i][j] = max(f[i-1][j], f[i-1][j-w] + v if w <= j)
+or
+f[j] = max(f[j], f[j-w] + v if w <= j) with a rolling array scanning from end to begin
+```
+
+The ONLY difference goes down to the initialization although there is only subtle difference.
+
+```c++
+// case 1: <= j
+// initialize the boundary, when i == 0
+    for (int j = 0; j <= total; j++) {
+        f[j] = weights[0] <= j ? values[0] : 0;
+    }
+
+// case 2: == j
+// initialize the boundary, when i == 0
+    for (int j = weights[0]; j <= total; j++) {
+        f[j] = -INT_MAX; // can not be chosen
+    }
+    f[0] = 0;
+    f[weights[0]] = values[0];
+```
+
+We use a trick in case 2 where all `f[j]` have been set to `-INT_MAX`, which means they cannot be the answer for `f[j]`. There are only two answers for `f[j]` when `i == 0`, `f[0] = 0` and `f[weights[0]] = values[0]` which meets our definition.
+
+One thing worth being underscored is **the optimal value is not necessarily** `f[total]`, it could be `f[total - n]`, where `0 <= n <= total`.
+
+Say if we want to find the max value for the second case:
+
+```c++
+int maxVal = 0;
+for (int j = 0; j <= total; j++) {
+    maxVal = max(maxVal, f[j]);
+}
+```
+
+Now go back to count the optimal plan.
+
+```c++
+/**
+ * @brief f[j] and g[j] means the total weight must be 'j', rather than '<= j' as we did
+ * before.
+ * 
+ * f[j] means optimal plan of choosing best value from first ith items and total weight
+ * of chosen items MUST be equal to 'j'.
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int TotalNumberOfZeroOneKnapsack(vector<int> weights, vector<int> values,
+                                        int total) {
+    vector<int> f(total + 1, 0);
+    vector<int> g(total + 1, 0); // record number of optimal plans given j
+    
+    // initialize the boundary, when i == 0
+    for (int j = weights[0]; j <= total; j++) {
+        f[j] = -INT_MAX; // can not be chosen
+    }
+    f[0] = 0; g[0] = 0; // not choose
+    f[weights[0]] = values[0]; g[weights[0]] = 1; // choose
+
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = total; j >= weights[i]; j--) {
+            // cannot overwriting since we have to record number of plans
+            int t = max(f[j], f[j - weights[i]] + values[i]);
+            int sum = 0;
+            // total plans comes from two possible states
+            if (t == f[j]) sum += f[j];
+            if (t == f[j - weights[i]] + values[i]) sum += f[j - weights[i]];
+            f[j] = t;
+            g[j] = sum;
+        }
+    }
+
+    // find optimal result
+    int maxVal = 0;
+    for (int j = 0; j <= total; j++) {
+        maxVal = max(maxVal, f[j]);
+    }
+    int sum = 0;
+    // count all paths for optimal result
+    for (int j = 0; j <= total; j++) {
+        if (f[j] == maxVal) {
+            sum += g[j];
+        }
+    }
+
+    return sum;
+}
+```
+
 ## Linear DP
 
 ### Longest Non-descending Subsequence

@@ -50,6 +50,14 @@ int ZeroOneKnapsack(vector<int> weights, vector<int> values, int total) {
         }
     }
 
+    for (int i = 0; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            cout << f[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+
     // 0-indexed: the index of the first item is 0
     return f[weights.size() - 1][total];
 }
@@ -96,6 +104,65 @@ int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total) {
 
     // 0-indexed: the index of the first item is 0
     return f[total];
+}
+
+vector<int> ZeroOneKnapsackWithTracking(vector<int> weights, vector<int> values,
+                                        int total) {
+
+    return {};
+}
+
+/**
+ * @brief f[j] and g[j] means the total weight must be 'j', rather than '<= j' as we did
+ * before.
+ * 
+ * f[j] means optimal plan of choosing best value from first ith items and total weight
+ * of chosen items MUST be equal to 'j'.
+ * 
+ * @param weights 
+ * @param values 
+ * @param total 
+ * @return int 
+ */
+int TotalNumberOfZeroOneKnapsack(vector<int> weights, vector<int> values,
+                                        int total) {
+    vector<int> f(total + 1, 0);
+    vector<int> g(total + 1, 0); // record number of optimal plans given j
+    
+    // initialize the boundary, when i == 0
+    for (int j = weights[0]; j <= total; j++) {
+        f[j] = -INT_MAX; // can not be chosen
+    }
+    f[0] = 0; g[0] = 0; // not choose
+    f[weights[0]] = values[0]; g[weights[0]] = 1; // choose
+
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = total; j >= weights[i]; j--) {
+            // cannot overwriting since we have to record number of plans
+            int t = max(f[j], f[j - weights[i]] + values[i]);
+            int sum = 0;
+            // total plans comes from two possible states
+            if (t == f[j]) sum += f[j];
+            if (t == f[j - weights[i]] + values[i]) sum += f[j - weights[i]];
+            f[j] = t;
+            g[j] = sum;
+        }
+    }
+
+    // find optimal result
+    int maxVal = 0;
+    for (int j = 0; j <= total; j++) {
+        maxVal = max(maxVal, f[j]);
+    }
+    int sum = 0;
+    // count all paths for optimal result
+    for (int j = 0; j <= total; j++) {
+        if (f[j] == maxVal) {
+            sum += g[j];
+        }
+    }
+
+    return sum;
 }
 
 /**
@@ -422,15 +489,15 @@ int GroupKnapsackII(vector<vector<int> > items, int total) {
  *     2-d f[i][j] = max(f[i-1][j], f[i][j-w[i]] + v[i]) if w[i] <= j.
  *  or 1-d formula (scan from begin): f[j] = max(f[j'], f[j' - w[i]] + v[i] if w[i] <=
  * j').
- * 
- * ex> 
+ *
+ * ex>
  *    i\j 0 1 2 ... 200
  *    0 ----  0-1  ----
  *    1 ----  0-1  ----
  *    2 ---- unlmt ----
  *   ...
  *   10 ----  0-1  ----
- * 
+ *
  * @param items
  * @param total
  * @return int
