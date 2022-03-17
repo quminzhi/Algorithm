@@ -971,3 +971,74 @@ int MaxLengthOfNonDescendingSubsequenceIII(string s) {
 }
 ```
 
+### Longest Common Subsequence
+
+> return the longest common subsequence of two strings.
+
+Define `f[i][j]` as the maximum length of longest common subsequences of `sl[1...i]` and `sr[1...j]` (1-indexed).
+
+How to solve `f[i][j]`?
+
+- if `sl[i] == sr[j]`, then `f[i][j] = f[i-1][j-1] + 1`.
+- if `sl[i] != sr[j]`, there are three cases:
+    - `sl[i]` may contribute to `f[i-1][j-1]` when `i-1` move 1 step forward. If so, `f[i][j-1] = f[i-1][j-1] + 1` and `f[i][j-1] = f[i-1][j-1]` otherwise. But we do not care about if `sl[i]` contributes to `f[i][j-1]`, it will be handled when calculating `f[i][j-1]`. So we can safely say here `f[i][j] = f[i][j-1]`.
+    - same to `sr[j]`, `f[i][j] = f[i-1]f[j]`.
+    - also `f[i][j] = f[i-1][j-1]` assuming that `sl[i]` and `sr[j]` have no contribution to `f[i-1][j-1]`.
+
+The relationship among them could be diagramed as follows:
+
+```text
+    f[i-1][j-1]: (longest common sequence of sl[1...i-1] and sr[1...j-1])
+                  |                |               |
+               +0 or +1         +0 or +1           |
+     sl[i]        |                |       sr[j]   |
+              f[i][j-1]        f[i-1][j]           | +1  sl[i] == sr[j]
+                  |----------------|               |
+                          |                        |
+max(f[i][j-1], f[i-1][j]) |                        |
+                          |------------------------| 
+                       f[i][j]
+```
+
+As you can see, `f[i][j]` can be greater than `f[i-1][j-1]` by 1 at most. One thing to note is `sl[i]` and `sr[j]` must have no contribution to `f[i][j-1]` or `f[i-1][j]` when `sl[i] == sr[j]` where these two character together serve as a common character for two subsequences.
+
+```text
+ex>   sl = "adbc"  sr = "abec"
+
+Output of f:
+    0 1 1 1 
+    0 1 1 1 
+    0 1 2 2 
+    0 1 2 3
+
+Note: the difference of f[i][j], f[i-1][j], f[i][j-1], f[i-1][j-1] is at most 1!
+```
+
+```c++
+/**
+ * @brief f[i][j] = max(f[i-1][j], f[i][j-1], f[i-1][j-1] if sl[i] == sr[j])
+ *
+ * @param sl
+ * @param sr
+ * @return int
+ */
+int LongestCommonSubsequence(string sl, string sr) {
+    vector<vector<int> > f(sl.size() + 1, vector<int>(sr.size() + 1, 0));
+
+    // without initializing boundary (1-indexed)
+    for (int i = 1; i <= sl.size(); i++) {
+        for (int j = 1; j <= sr.size(); j++) {
+            f[i][j] = max(f[i-1][j], f[i][j-1]);
+            if (sl[i] == sr[j]) {
+                f[i][j] = max(f[i][j], f[i-1][j-1] + 1);
+            }
+        }
+    }
+
+    return f[sl.size()][sr.size()];
+}
+```
+
+Tricks:
+
+- 1-indexed is better in most cases in dynamic programming since we can save our mind from solving boundary case.

@@ -63,7 +63,8 @@ string MaxLengthOfNonDescendingSubsequenceII(string s) {
  * @return int
  */
 int MaxLengthOfNonDescendingSubsequenceIII(string s) {
-    vector<int> f(s.size() + 1, INT_MAX);   // the last number of subsequence with length i
+    vector<int> f(s.size() + 1,
+                  INT_MAX);   // the last number of subsequence with length i
     f[0] = 0;
 
     int len = 0;   // track solved range
@@ -84,4 +85,27 @@ int MaxLengthOfNonDescendingSubsequenceIII(string s) {
     }
 
     return len;
+}
+
+/**
+ * @brief f[i][j] = max(f[i-1][j], f[i][j-1], f[i-1][j-1] if sl[i] == sr[j])
+ *
+ * @param sl
+ * @param sr
+ * @return int
+ */
+int LongestCommonSubsequence(string sl, string sr) {
+    vector<vector<int> > f(sl.size() + 1, vector<int>(sr.size() + 1, 0));
+
+    // without initializing boundary (1-indexed)
+    for (int i = 1; i <= sl.size(); i++) {
+        for (int j = 1; j <= sr.size(); j++) {
+            f[i][j] = max(f[i-1][j], f[i][j-1]);
+            if (sl[i] == sr[j]) {
+                f[i][j] = max(f[i][j], f[i-1][j-1] + 1);
+            }
+        }
+    }
+
+    return f[sl.size()][sr.size()];
 }

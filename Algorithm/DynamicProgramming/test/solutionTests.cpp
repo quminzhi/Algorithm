@@ -83,3 +83,8 @@ TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceIII("abed"), 3);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequenceIII("abyzdef"), 5);
 }
+
+TEST(LinearDPTests, LongestCommonSubsequenceTEST) {
+    EXPECT_EQ(LongestCommonSubsequence("abc", "abc"), 3);
+    EXPECT_EQ(LongestCommonSubsequence("abdc", "aebc"), 3);
+} 
