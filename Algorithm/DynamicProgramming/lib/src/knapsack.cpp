@@ -50,14 +50,6 @@ int ZeroOneKnapsack(vector<int> weights, vector<int> values, int total) {
         }
     }
 
-    for (int i = 0; i < weights.size(); i++) {
-        for (int j = 0; j <= total; j++) {
-            cout << f[i][j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-
     // 0-indexed: the index of the first item is 0
     return f[weights.size() - 1][total];
 }
@@ -106,35 +98,73 @@ int ZeroOneKnapsackII(vector<int> weights, vector<int> values, int total) {
     return f[total];
 }
 
+/**
+ * @brief track the path of the optimal plan
+ *
+ * @param weights
+ * @param values
+ * @param total
+ * @return vector<int>
+ */
 vector<int> ZeroOneKnapsackWithTracking(vector<int> weights, vector<int> values,
                                         int total) {
+    vector<vector<int> > f(weights.size(), vector<int>(total+1, 0));
+    
+    // init boundary
+    for (int j = weights[0]; j <= total; j++) {
+        f[0][j] = values[0];
+    }
 
-    return {};
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            f[i][j] = f[i-1][j];
+            if (weights[i] <= j) {
+                f[i][j] = max(f[i][j], f[i-1][j - weights[i]] + values[i]);
+            }
+        }
+    }
+
+    // backtrack
+    vector<int> chosen;
+    int j = total;
+    for (int i = weights.size() - 1; i > 0; i--) {
+        if (f[i][j] == f[i-1][j - weights[i]] + values[i]) {
+            chosen.push_back(i);
+            j = j - weights[i];
+        }
+    }
+    if (f[0][j] != 0) chosen.push_back(0); // boundary
+
+    reverse(chosen.begin(), chosen.end());
+
+    return chosen;
 }
 
 /**
  * @brief f[j] and g[j] means the total weight must be 'j', rather than '<= j' as we did
  * before.
- * 
+ *
  * f[j] means optimal plan of choosing best value from first ith items and total weight
  * of chosen items MUST be equal to 'j'.
- * 
- * @param weights 
- * @param values 
- * @param total 
- * @return int 
+ *
+ * @param weights
+ * @param values
+ * @param total
+ * @return int
  */
-int TotalNumberOfZeroOneKnapsack(vector<int> weights, vector<int> values,
-                                        int total) {
+int TotalNumberOfZeroOneKnapsack(vector<int> weights, vector<int> values, int total) {
     vector<int> f(total + 1, 0);
-    vector<int> g(total + 1, 0); // record number of optimal plans given j
-    
+    vector<int> g(total + 1, 0);   // record number of optimal plans given j
+
     // initialize the boundary, when i == 0
     for (int j = weights[0]; j <= total; j++) {
-        f[j] = -INT_MAX; // can not be chosen
+        f[j] = -INT_MAX;   // can not be chosen
     }
-    f[0] = 0; g[0] = 0; // not choose
-    f[weights[0]] = values[0]; g[weights[0]] = 1; // choose
+    f[0] = 0;
+    g[0] = 0;   // not choose
+    f[weights[0]] = values[0];
+    g[weights[0]] = 1;   // choose
 
     for (int i = 1; i < weights.size(); i++) {
         for (int j = total; j >= weights[i]; j--) {

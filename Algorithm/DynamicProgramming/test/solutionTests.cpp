@@ -61,6 +61,13 @@ TEST(MyTests, MixedKnapsackTEST) {
     EXPECT_EQ(MixedKnapsack(items, 20), 63);
 }
 
+TEST(MyTests, TrackPathTEST) {
+    vector<int> weights = {1, 2, 3, 4};
+    vector<int> values = {2, 4, 4, 5};
+    vector<int> result = {1, 2};
+    EXPECT_EQ(ZeroOneKnapsackWithTracking(weights, values, 5), result);
+}
+
 TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abcd"), 4);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abed"), 3);

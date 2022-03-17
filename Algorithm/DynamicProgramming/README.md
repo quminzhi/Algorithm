@@ -668,7 +668,68 @@ int MixedKnapsack(vector<Item> items, int total) {
 
 Here we will track and return the optimal choice. Take 0-1 knapsack as an example.
 
+The basic idea is to back track from `f[i][j]`. Notice that we cannot use 1-d implementation which dumps (overwrites) info of `f[0...i-1][j]`. So we will track the path in 2-d implementation.
 
+Imagine starting from `f[i][j]`, what's the path that ends with `f[i][j]` and what it means? There are two paths to `f[i][j]`:
+
+- `f[i-1][j]` => `f[i][j]`, do not select ith item.
+- `f[i-1][j - w] + v` => `f[i][j]`, select ith item.
+
+```c++
+if (f[i][j] == f[i-1][j]) {
+    // nothing to do
+} else {
+    // f[i][j] == f[i-1][j-w] + v
+    chosen.push_back(i);
+}
+```
+
+Notice `chosen` is in reverse order and we need reverse it for the output.
+
+```c++
+/**
+ * @brief track the path of the optimal plan
+ *
+ * @param weights
+ * @param values
+ * @param total
+ * @return vector<int>
+ */
+vector<int> ZeroOneKnapsackWithTracking(vector<int> weights, vector<int> values,
+                                        int total) {
+    vector<vector<int> > f(weights.size(), vector<int>(total+1, 0));
+    
+    // init boundary
+    for (int j = weights[0]; j <= total; j++) {
+        f[0][j] = values[0];
+    }
+
+    // deduction
+    for (int i = 1; i < weights.size(); i++) {
+        for (int j = 0; j <= total; j++) {
+            f[i][j] = f[i-1][j];
+            if (weights[i] <= j) {
+                f[i][j] = max(f[i][j], f[i-1][j - weights[i]] + values[i]);
+            }
+        }
+    }
+
+    // backtrack
+    vector<int> chosen;
+    int j = total;
+    for (int i = weights.size() - 1; i > 0; i--) {
+        if (f[i][j] == f[i-1][j - weights[i]] + values[i]) {
+            chosen.push_back(i);
+            j = j - weights[i];
+        }
+    }
+    if (f[0][j] != 0) chosen.push_back(0); // boundary
+
+    reverse(chosen.begin(), chosen.end());
+
+    return chosen;
+}
+```
 
 ### Counting Optimal Plan
 
