@@ -88,3 +88,12 @@ TEST(LinearDPTests, LongestCommonSubsequenceTEST) {
     EXPECT_EQ(LongestCommonSubsequence("abc", "abc"), 3);
     EXPECT_EQ(LongestCommonSubsequence("abdc", "aebc"), 3);
 } 
+
+TEST(LinearDPTests, MinEditDistanceTEST) {
+    EXPECT_EQ(MinEditDistance("abdc", "aec"), 2);
+}
+
+TEST(RangeDPTests, MergeStonesTEST) {
+    vector<int> stones = {1, 3, 5, 2};
+    EXPECT_EQ(MergeStones(stones), 22);
+}

@@ -1042,3 +1042,116 @@ int LongestCommonSubsequence(string sl, string sr) {
 Tricks:
 
 - 1-indexed is better in most cases in dynamic programming since we can save our mind from solving boundary case.
+
+### Edit Distance
+
+> Given two strings, and three kinds of operations: `delete`, `add`, and `replace`. Return the minimum number of operations converting `sl` to `sr`.
+
+The definition is similar to that of longest common subsequence. We define `f[i][j]` as the minimum number of operations that converts `sl[1...i]` to sr`[1...j]`.
+
+`f[i][j]` can be divided into three sub problems:
+
+- `delete` operation: delete `sl[i]`, `f[i][j] = f[i-1]f[j] + 1` where `f[i-1][j]` means the minimum number of operations that converts `sl[1...i-1]` to `sr[1...j]`. Given that `sl[1...1-i]` and `sr[1...j]` have matched, we are going to delete `sl[i]`.
+- `add` operation: add `sl[i]`, `f[i][j] = f[i]f[j-1] + 1` where `f[i][j-1]` means the minimum number of operations that converts `sl[1...i]` to `sr[1...j-1]`. Similarly, given that `sl[1...i]` and `sr[1...j-1]` have matched, we need to add `sl[i]` (new-added `sl[i]` should be `sr[j]`) to match `sl[1...i]` and `sr[1...j]`.
+- `replace` operation: comes from `f[i-1][j-1]` where  `sl[1...i-1]` and `sr[1...j-1]` are already matched.
+    - when `sl[i] == sr[j]`, nothing to do. `f[i][j] == f[i-1][j-1]`.
+    - when `sl[i] != sr[j]`, we need to replace `sl[i]` with `sr[j]` to match, where `f[i][j] = f[i-1][j-1]`.
+
+```c++
+/**
+ * @brief f[i][j] means the minimum number of operations that converts sl[1...i] to 
+ * sr[1...j].
+ * 
+ * f[i][j] = f[i-1][j] + 1 (del);
+ * f[i][j] = f[i][j-1] + 1 (add);
+ * f[i][j] = f[i-1][j-1] + 1 if sl[i] != sr[j]
+ *      or = f[i-1][j-1]     if sl[i] == sr[j]
+ * 
+ * @param sl 
+ * @param sr 
+ * @return int 
+ */
+int MinEditDistance(string sl, string sr) {
+    vector< vector<int> > f(sl.size() + 1, vector<int>(sr.size() + 1, 0));
+    
+    // 1-indexed: initialize boundary
+    for (int i = 0; i <= sl.size(); i++) {
+        f[i][0] = i; // del
+    }
+    for (int j = 0; j <= sr.size(); j++) {
+        f[0][j] = j; // del
+    }
+
+    // deduction
+    for (int i = 1; i <= sl.size(); i++) {
+        for (int j = 1; j <= sr.size(); j++) {
+            f[i][j] = f[i-1][j] + 1;
+            f[i][j] = min(f[i][j], f[i][j-1] + 1);
+            if (sl[i] != sr[j]) {
+                f[i][j] = min(f[i][j], f[i-1][j-1] + 1);
+            } else {
+                f[i][j] = min(f[i][j], f[i-1][j-1]);
+            }
+        }
+    }
+
+    return f[sl.size()][sr.size()];
+}
+```
+
+### Merging Stones
+
+> Given a piles of stones, each of them has a weight. We need to merge them into one pile. We are only allowed to merge two adjacent piles each time and the cost is weight sum of two piles to be merged. Return the minimum cost to merge stones.
+
+- Priority Queue
+
+The first solution is by priority queue (min heap). The time complexity is O(3N*log(N)) (for each merge, we need pop two elements and push sum of them, each pop and push incurs the update of heap O(log(N))).
+
+But the constraint of 'adjacent' make it hard to solve with priority queue.
+
+- Dynamic Programming
+
+`f[i][j]` is defined as the minimum cost of merging `stones[i...j]`. `f[i][j]` can be divided into `f[i][j] = min(f[i][k] + f[k+1][j] + cost of merging, where k is in the range of [i, j]`). The cost of merging can be solved with `prefix`, which is `prefix[j+1] - prefix[i]`. Note sum of `a[i]` to `a[j]` is `prefix[j+1] - prefix[i]`.
+
+```c++
+/**
+ * @brief f[i][j] is the minimum cost of combine stones[i...j].
+ *
+ * f[i][j] = min(f[i][k] + f[k+1][j] + prefix[j+1] - prefix[i]),
+ * Note prefix is 0-indexed.
+ *
+ * @param stones
+ * @return int
+ */
+int MergeStones(vector<int> stones) {
+    vector<int> prefix(stones.size() + 1, 0);
+    for (int i = 1; i <= prefix.size(); i++) {
+        prefix[i] = prefix[i - 1] + stones[i - 1];
+    }
+
+    vector<vector<int> > f(stones.size(), vector<int>(stones.size(), INT_MAX));
+    // initialize boundary: len == 1
+    for (int i = 0; i < stones.size(); i++) {
+        f[i][i] = 0;
+    }
+
+    // deduction, from shortest length to longer
+    for (int len = 2; len <= stones.size(); len++) {
+        // enumerate all ranges with length os len, [i, i + len - 1]
+        for (int i = 0; i + len - 1 < stones.size(); i++) {
+            int j = i + len - 1;
+            f[i][j] = INT_MAX;
+            for (int k = i; k < j; k++) {
+                // enumerate division
+                f[i][j] = min(f[i][j], f[i][k] + f[k + 1][j] + prefix[j+1] - prefix[i]);
+            }
+        }
+    }
+
+    return f[0][stones.size() - 1];
+}
+```
+
+Tricks:
+
+- Range deduction

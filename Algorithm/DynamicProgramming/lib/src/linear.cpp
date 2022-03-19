@@ -1,6 +1,7 @@
 #include "linear.hpp"
 
 #include <iostream>
+#include <queue>
 
 /**
  * @brief f[i] = max(f[j] if i < j or f[j] + 1 if i >= j), where 0 <= j < i
@@ -100,12 +101,89 @@ int LongestCommonSubsequence(string sl, string sr) {
     // without initializing boundary (1-indexed)
     for (int i = 1; i <= sl.size(); i++) {
         for (int j = 1; j <= sr.size(); j++) {
-            f[i][j] = max(f[i-1][j], f[i][j-1]);
+            f[i][j] = max(f[i - 1][j], f[i][j - 1]);
             if (sl[i] == sr[j]) {
-                f[i][j] = max(f[i][j], f[i-1][j-1] + 1);
+                f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
             }
         }
     }
 
     return f[sl.size()][sr.size()];
+}
+
+/**
+ * @brief f[i][j] means the minimum number of operations that converts sl[1...i] to
+ * sr[1...j].
+ *
+ * f[i][j] = f[i-1][j] + 1 (del);
+ * f[i][j] = f[i][j-1] + 1 (add);
+ * f[i][j] = f[i-1][j-1] + 1 if sl[i] != sr[j]
+ *      or = f[i-1][j-1]     if sl[i] == sr[j]
+ *
+ * @param sl
+ * @param sr
+ * @return int
+ */
+int MinEditDistance(string sl, string sr) {
+    vector<vector<int> > f(sl.size() + 1, vector<int>(sr.size() + 1, 0));
+
+    // 1-indexed:
+    for (int i = 0; i <= sl.size(); i++) {
+        f[i][0] = i;   // del
+    }
+    for (int j = 0; j <= sr.size(); j++) {
+        f[0][j] = j;   // del
+    }
+
+    // deduction
+    for (int i = 1; i <= sl.size(); i++) {
+        for (int j = 1; j <= sr.size(); j++) {
+            f[i][j] = f[i - 1][j] + 1;
+            f[i][j] = min(f[i][j], f[i][j - 1] + 1);
+            if (sl[i] != sr[j]) {
+                f[i][j] = min(f[i][j], f[i - 1][j - 1] + 1);
+            } else {
+                f[i][j] = min(f[i][j], f[i - 1][j - 1]);
+            }
+        }
+    }
+
+    return f[sl.size()][sr.size()];
+}
+
+/**
+ * @brief f[i][j] is the minimum cost of combine stones[i...j].
+ *
+ * f[i][j] = min(f[i][k] + f[k+1][j] + prefix[j+1] - prefix[i]),
+ * Note prefix is 0-indexed.
+ *
+ * @param stones
+ * @return int
+ */
+int MergeStones(vector<int> stones) {
+    vector<int> prefix(stones.size() + 1, 0);
+    for (int i = 1; i <= prefix.size(); i++) {
+        prefix[i] = prefix[i - 1] + stones[i - 1];
+    }
+
+    vector<vector<int> > f(stones.size(), vector<int>(stones.size(), INT_MAX));
+    // initialize boundary: len == 1
+    for (int i = 0; i < stones.size(); i++) {
+        f[i][i] = 0;
+    }
+
+    // deduction, from shortest length to longer
+    for (int len = 2; len <= stones.size(); len++) {
+        // enumerate all ranges with length os len, [i, i + len - 1]
+        for (int i = 0; i + len - 1 < stones.size(); i++) {
+            int j = i + len - 1;
+            f[i][j] = INT_MAX;
+            for (int k = i; k < j; k++) {
+                // enumerate division
+                f[i][j] = min(f[i][j], f[i][k] + f[k + 1][j] + prefix[j+1] - prefix[i]);
+            }
+        }
+    }
+
+    return f[0][stones.size() - 1];
 }
