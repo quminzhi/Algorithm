@@ -12,5 +12,7 @@ int MaxLengthOfNonDescendingSubsequenceIII(string s);
 int LongestCommonSubsequence(string sl, string sr);
 int MinEditDistance(string sl, string sr);
 int MergeStones(vector<int> stones);
+int IntegerDivision(int n);
+int IntegerDivisionII(int n);
 
 #endif

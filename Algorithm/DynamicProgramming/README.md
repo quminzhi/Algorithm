@@ -1136,7 +1136,7 @@ int MergeStones(vector<int> stones) {
     }
 
     // deduction, from shortest length to longer
-    for (int len = 2; len <= stones.size(); len++) {
+     for (int len = 2; len <= stones.size(); len++) {
         // enumerate all ranges with length os len, [i, i + len - 1]
         for (int i = 0; i + len - 1 < stones.size(); i++) {
             int j = i + len - 1;
@@ -1155,3 +1155,71 @@ int MergeStones(vector<int> stones) {
 Tricks:
 
 - Range deduction
+
+### Integer Division
+
+> Given an integer `N`, return the number of divisions. `N = A1 + A2 + ... + An`, where `A1 >= A2 >= ... >= An`.
+>
+> Say, `N` = 5, we have 7 ways to divide it:
+>
+> - 5 = 5
+> - 5 = 4 + 1
+> - 5 = 3 + 1 + 1
+> - 5 = 2 + 1 + 1 + 1
+> - 5 = 1 + 1 + 1 + 1 + 1
+> - 5 = 3 + 2
+> - 5 = 2 + 2 + 1
+
+The basic idea is that it can be solved as we did in complete knapsacks.
+
+Define `f[i][j]` as the total number of choosing from first `i` integers, and the total number is `j`.
+
+- `f[i][j] = sum(f[i-1][j], f[i-1][j - a[i]], f[i-2][j - 2*a[i]], ..., f[i-k][j - k*a[i]])`, where `a[1] = 1, a[2] = 2, ..., a[k] = k`. Note `a[i] == i`, so it can be simplified as `f[i][j] = sum(f[i-1][j], f[i-1][j - i], f[i-2][j - 2*i], ..., f[i-k][j - k*i])`
+
+The time complexity is O(N^2 * logN). Why we have `logN`? For k of each loop, `k = N / a[i]`. `N / 1 + N / 2 + N / 3 + ... + N / N = N * (1 + 1/2 + 1/3 + ... + 1/N) = theta(log)`, where `1 + 1/2 + 1/3 + ... + 1/N` is Harmonic series `H(N)` and `H(N) >= 1 + logN / 2`
+
+Also, we can optimize deduction formula as we did in complete knapsacks.
+
+- `f[i][j] = sum(f[i-1][j], f[i][j - i])`.
+
+```c++
+/**
+ * @brief return the number of divisions
+ * f[i][j] = sum(f[i-1][j], f[i][j - i])
+ * @param n 
+ * @return int 
+ */
+int IntegerDivision(int n) {
+    vector< vector<int> > f(n+1, vector<int>(n+1, 0)); // 1-indexed
+    for (int i = 0; i <= n; i++) {
+        f[i][0] = 1;
+    }
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            f[i][j] = f[i-1][j];
+            if (i <= j) {
+                f[i][j] += f[i][j-i];
+            }
+        }
+    }
+
+    return f[n][n];
+}
+```
+
+- 1-d implementation
+
+```c++
+int IntegerDivisionII(int n) {
+    vector<int> f(n+1, 0);
+    f[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int j = i; j <= n; j++) {
+            f[j] = f[j] + f[j-i];
+        }
+    }
+
+    return f[n];
+}
+```

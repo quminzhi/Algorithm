@@ -187,3 +187,39 @@ int MergeStones(vector<int> stones) {
 
     return f[0][stones.size() - 1];
 }
+
+/**
+ * @brief return the number of divisions
+ * f[i][j] = sum(f[i-1][j], f[i][j - i])
+ * @param n 
+ * @return int 
+ */
+int IntegerDivision(int n) {
+    vector< vector<int> > f(n+1, vector<int>(n+1, 0)); // 1-indexed
+    for (int i = 0; i <= n; i++) {
+        f[i][0] = 1;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            f[i][j] = f[i-1][j];
+            if (i <= j) {
+                f[i][j] += f[i][j-i];
+            }
+        }
+    }
+
+    return f[n][n];
+}
+
+int IntegerDivisionII(int n) {
+    vector<int> f(n+1, 0);
+    f[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int j = i; j <= n; j++) {
+            f[j] = f[j] + f[j-i];
+        }
+    }
+
+    return f[n];
+}

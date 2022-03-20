@@ -97,3 +97,8 @@ TEST(RangeDPTests, MergeStonesTEST) {
     vector<int> stones = {1, 3, 5, 2};
     EXPECT_EQ(MergeStones(stones), 22);
 }
+
+TEST(MyTests, NumberDivisionTEST) {
+    EXPECT_EQ(IntegerDivision(5), 7);
+    EXPECT_EQ(IntegerDivisionII(5), 7);
+}
