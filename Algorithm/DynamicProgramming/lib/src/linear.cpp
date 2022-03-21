@@ -223,3 +223,32 @@ int IntegerDivisionII(int n) {
 
     return f[n];
 }
+
+/**
+ * @brief f[i][j] = f[i-1][j-1] + f[i-j][j]
+ * 
+ * @param n 
+ * @return int 
+ */
+int IntegerDivisionIII(int n) {
+    vector< vector<int> > f(n+1, vector<int>(n+1, 0));
+
+    // boundary: n has only one plan whose length is 1
+    for (int i = 1; i <= n; i++) {
+        f[i][1] = 1;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        // j cannot be greater than i, since if we all choose 1, the max len is n
+        for (int j = 2; j <= i; j++) {
+            f[i][j] = f[i-1][j-1] + f[i-j][j];
+        }
+    }
+
+    int sum = 0;
+    for (int j = 1; j <= n; j++) {
+        sum += f[n][j];
+    }
+
+    return sum;
+}

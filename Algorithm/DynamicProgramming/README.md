@@ -1223,3 +1223,21 @@ int IntegerDivisionII(int n) {
     return f[n];
 }
 ```
+
+Let's think of the problem from the division perspective. Define `f[i][j]` as all the division plans that have j numbers in it and sum of j numbers is i.
+
+Then set `f[i][j]` can be divided into two subsets:
+
+- The plans that have 1 in them. ex> `plan = [1, ..., k]` and `len(plan) = j`.
+- The plans whose minimum is greater than 1. ex> `plan = [2, ..., k]` and `len(plan) = j`.
+
+The question is how two subsets are related to `f[i][j]`?
+
+- For the plans with 1 in them. We can subtract 1 from them and we got `f[i][j] (with 1 in each plan) = f[i-1][j-1]`. (the length of each plan is decreased by 1 and total as well).
+- For the plans without 1 in them. We will subtract 1 from all numbers of each plan (the length of each plan will not change, but the total will be smaller). Then we got `f[i-j][j]`.
+
+Therefore, we got `f[i][j] = f[i-1][j-1] + f[i-j][j]`.
+
+```c++
+
+```

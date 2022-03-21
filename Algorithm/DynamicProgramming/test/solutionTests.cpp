@@ -101,4 +101,5 @@ TEST(RangeDPTests, MergeStonesTEST) {
 TEST(MyTests, NumberDivisionTEST) {
     EXPECT_EQ(IntegerDivision(5), 7);
     EXPECT_EQ(IntegerDivisionII(5), 7);
+    EXPECT_EQ(IntegerDivisionIII(5), 7);
 }

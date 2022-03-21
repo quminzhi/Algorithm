@@ -14,5 +14,6 @@ int MinEditDistance(string sl, string sr);
 int MergeStones(vector<int> stones);
 int IntegerDivision(int n);
 int IntegerDivisionII(int n);
+int IntegerDivisionIII(int n);
 
 #endif
