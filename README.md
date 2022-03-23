@@ -6,4 +6,4 @@ If you find some bugs in my code, please let me know. Thank you very much.
 
 Minzhi Qu
 quminzhi@gmail.com
-Seattle, Washington
+Seattle or Tacoma, Washington
