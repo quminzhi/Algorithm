@@ -1389,17 +1389,40 @@ int BlockFilling(int n, int m) {
 
 ### Shortest Hamilton Distance
 
-> Given a non-directed graph, calculate the shortest Hamilton distance from 0 to vertex n-1.
+> Given a non-directed graph, calculate the shortest Hamilton distance from 0 to vertex n-1. Hamilton path requires the path covers all vertexes in the graph and each vertex can only be visited one time.
 
 Different from another classic problem, known as shortest path from an origin, which can be solved with Dijkstra's algorithm. But this problem is a non-directed graph rather than directed.
 
 Define `f[i][j]` is the minimum path from origin (0) to vertex `j` and go through the vertexes in `i`, which is a binary state. Say we have 4 vertex, then `i` is a 4-bit binary number to describe covered vertexes **including the last vertex, destination**.
 
-Deduction: what we care about is what's the last vertex to `j`. From the perspective of `j`, where I come from. Say that point is `k`, then according to the definition of Hamilton distance, `f[i][j] = f[i'][k] + cost[k][j]`, where the state `i'` has two cases:
+A hamilton problem can be represented with `f[i][j]`. for example,
 
-- k is in the state `i`, then we have to remove it from `i` and `f[i'][k]` becomes `f[i-k][k]`. - Otherwise, `f[i'][k]` becomes `f[i+k][k]`, where `+` and `-` means insert and delete on bit state.
+```text
+vertexes: 0,  1,  2,  3,  4
 
-That is if `k` bit is 1, it will be set to 0 and vice versa. This can be achieved with `XOR` operation.
+f[11111, 1]: means the shortest hamilton path from 0 to 1.
+f[11111, 2]: means the shortest hamilton path from 0 to 2.
+...
+f[11111, 4]: means the shortest hamilton path from 0 to 4, which is our problem.
+
+Also, we can use f[i][j] to represent sub problems:
+f[00001, 0]: means the shortest hamilton path from 0 to 0.
+      ^ zero vertex bit
+f[00011, 1]: means the shortest hamilton path from 0 to 1 in the sub graph (0, 1)
+...
+f[00101, 2]: means the shortest hamilton path from 0 to 2 in the sub graph (0, 2)
+f[11001, 4]: means the shortest hamilton path from 0 to 4 in the sub graph (0, 3, 4)
+```
+
+So, a valid state should cover the start point and end point as shown above. `f[10001, 2]` is an invalid state since it represents the shortest hamilton path from 0 to 2 in the sub graph (0, 4), which is impossible.
+
+Deduction: say our problem is `f[11111, 4]`. Which sub problem contributes the solution to `f[11111, 4]`? If 2 and 3 are directly connected with 4, then `f[11111, 4]` is the minimum of
+
+- `f[01111, 2] + w[2, 4]`, shortest Hamilton path from 0 to 2 in sub graph (0, 1, 2, 3) (4 must be excluded!)
+- `f[01111, 3] + w[3, 4]`, shortest Hamilton path from 0 to 3 in sub graph (0, 1, 2, 3) (4 must be excluded!)
+
+Deduction: what we care about is what's the vertexes directly connected to `j`. Say that point is `k`, then according to the definition of Hamilton distance, `f[i][j] = f[i'][k] + cost[k][j]` and `k` must be in the state and `j` cannot be in the state.
+
 
 ```c++
 /**
@@ -1422,18 +1445,13 @@ int ShortestHamiltonPath(vector<vector<int> > graph) {
     f[1][0] = graph[0][0];   // reach vertex 0 starting from vertex 0
 
     // deduction
-    int start_mask = 0x01;
+    int start_mask = 0x1;
     for (int state = 1; state < max_state; state++) {
         if (state & start_mask) {   // state must include start point
             for (int j = 0; j < graph.size(); j++) {
-                // if j is in the path, we need remove it from the path
-                // since 0 -> 1 -> 2 -> (3), the calculation of f[i][2] should not include
-                // 3 when vertex 3 is our destination, if it includes: 0 --> 1 --> 3 -->
-                // (2) => 0 --> 1 --> 3 --> 2 --> (3)
                 if (state >> j & 1) {
                     for (int k = 0; k < graph.size(); k++) {
-                        if ((state - (1 << j)) >> k &
-                            1) {   // after removing j, k should be included in the path
+                        if ((state - (1 << j)) >> k & 1) {
                             f[state][j] =
                                 min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
                         }

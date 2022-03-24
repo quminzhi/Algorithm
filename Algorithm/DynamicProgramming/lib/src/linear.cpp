@@ -353,18 +353,14 @@ int ShortestHamiltonPath(vector<vector<int> > graph) {
     f[1][0] = graph[0][0];   // reach vertex 0 starting from vertex 0
 
     // deduction
-    int start_mask = 0x01;
+    int start_mask = 0x1;
     for (int state = 1; state < max_state; state++) {
         if (state & start_mask) {   // state must include start point
             for (int j = 0; j < graph.size(); j++) {
-                // if j is in the path, we need remove it from the path
-                // since 0 -> 1 -> 2 -> (3), the calculation of f[i][2] should not include
-                // 3 when vertex 3 is our destination, if it includes: 0 --> 1 --> 3 -->
-                // (2) => 0 --> 1 --> 3 --> 2 --> (3)
-                if (state >> j & 1) {
+                if (state >> j & 1) {   // a valid state should include j
                     for (int k = 0; k < graph.size(); k++) {
-                        if ((state - (1 << j)) >> k &
-                            1) {   // after removing j, k should be included in the path
+                        if ((state - (1 << j)) >> k & 1) {
+                            // find all possible k directely connected to the j
                             f[state][j] =
                                 min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
                         }
