@@ -16,4 +16,6 @@ int IntegerDivision(int n);
 int IntegerDivisionII(int n);
 int IntegerDivisionIII(int n);
 
+int BlockFilling(int n, int m);
+
 #endif

@@ -103,3 +103,15 @@ TEST(MyTests, NumberDivisionTEST) {
     EXPECT_EQ(IntegerDivisionII(5), 7);
     EXPECT_EQ(IntegerDivisionIII(5), 7);
 }
+
+TEST(MyTest, BlockFillingTEST) {
+    EXPECT_EQ(BlockFilling(1, 2), 1);
+    EXPECT_EQ(BlockFilling(2, 1), 1);
+    EXPECT_EQ(BlockFilling(1, 3), 0);
+    EXPECT_EQ(BlockFilling(1, 4), 1);
+    EXPECT_EQ(BlockFilling(2, 2), 2);
+    EXPECT_EQ(BlockFilling(2, 3), 3);
+    EXPECT_EQ(BlockFilling(2, 4), 5);
+    EXPECT_EQ(BlockFilling(2, 11), 144);
+    EXPECT_EQ(BlockFilling(4, 11), 51205);
+}

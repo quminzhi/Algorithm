@@ -1239,5 +1239,146 @@ The question is how two subsets are related to `f[i][j]`?
 Therefore, we got `f[i][j] = f[i-1][j-1] + f[i-j][j]`.
 
 ```c++
+/**
+ * @brief f[i][j] = f[i-1][j-1] + f[i-j][j]
+ * 
+ * @param n 
+ * @return int 
+ */
+int IntegerDivisionIII(int n) {
+    vector< vector<int> > f(n+1, vector<int>(n+1, 0));
 
+    // boundary: n has only one plan whose length is 1
+    for (int i = 1; i <= n; i++) {
+        f[i][1] = 1;
+    }
+
+    for (int i = 1; i <= n; i++) {
+        // j cannot be greater than i, since if we all choose 1, the max len is n
+        for (int j = 2; j <= i; j++) {
+            f[i][j] = f[i-1][j-1] + f[i-j][j];
+        }
+    }
+
+    int sum = 0;
+    for (int j = 1; j <= n; j++) {
+        sum += f[n][j];
+    }
+
+    return sum;
+}
+```
+
+### State Compression
+
+> Given an `N*M` matrix and return how many different ways to fill out the matrix with `1*2` and `2*1` blocks.
+
+This is a classic problem of dynamic programming. The start point to work it out is to figure out the relationship between two adjacent sub problems.
+
+Since there are two kinds of blocks, so we are able to consider the placement of one kind and fill out the rest place with the other ones.
+
+Say we just consider `1*2` blocks. Define `f[i][j]` to be the number of ways to fill out first `i` columns of the matrix and the state of `i-1`th column is `j`.
+
+**State** here is a binary number used to indicate the status of `i`th column. If there is a block go through from `i-1` to `i` (or say i-1 has been placed a 1*2 block), then that bit will be set to 1.
+
+```text
+               (i)         (j)
+row\col   1  2  3  4  5
+       1  ?  ----           1
+       2  ?                 0
+       3  ?  ----           1
+       4  ?                 0
+       5  ?                 0
+when i == 3, i-1 == 2, the status j is 10100
+```
+
+Then what's the relationship between `i` and `i-1`.
+
+```text
+                (i-1) (i)       (k1) (k2)
+row\col   1  2    3    4    5
+       1  ?  ------   (x)        1    0
+       2  ?       ------         0    1
+       3  ?  ------              0    0
+       4  ?                      0    0
+       5  ?                      0    0
+```
+
+We use k to enumerate all possible ways of putting `1*2` blocks on `i`th column. As shown in the diagram above, `k = 100000` is a bad choice, since on the first row `i-1` has placed a block there for some `f[i-1][j]`. However `k = 01000` seems a feasible placement. So, we can check if current placement is feasible by evaluating `j & k == 0` (the bit on both side cannot be 1 simultaneously).
+
+There is another constrain in this problem. Since all the rest cells will be placed with `2*1` blocks. After placing with `k`, the length of consecutive blank cells must be even. That is `j | k` cannot have consecutive 0s with odd size.
+
+```c++
+/**
+ * @brief return the number of possible plans to fill out the matrix
+ *
+ * f[i][j] is the number of ways to fill out first i columns of the matrix and the state
+ * of i-1th column is j.
+ *
+ * 1. Enumerate all states and check if it is legal by checking if it has consecutive 0s
+ * with odd size, noting that the maximum number of state is 2^n-1 ((1 << n) - 1), say we
+ * have 2 rows, the state will be [00, 01, 11].
+ * 
+ * f[i][j] = sum(f[i-1][k]) where transition from k to j is valid.
+ * 
+ * @param n: row number of matrix
+ * @param m: col number of matrix
+ * @return int
+ */
+int BlockFilling(int n, int m) {
+    const int max_state = 1 << n;
+    vector<vector<long long> > f(m + 1, vector<long long>(max_state, 0));
+    vector<bool> isValidState(max_state, true);
+    vector<vector<bool> > isValidTrans(max_state, vector<bool>(max_state, false));
+
+    // preprocessing states
+    // 1. find all valid states, meaning no consecutive 0s with odd size.
+    for (int state = 0; state < max_state; state++) {
+        int cnt0 = 0;
+        for (int mask = 0x01; mask < max_state; mask = mask << 1) {
+            if ((mask & state) == mask) {
+                // current bit is 1
+                if (cnt0 & 1) {
+                    // if length is odd
+                    isValidState[state] = false;
+                    break;
+                }
+            } else {
+                // current bit is 0
+                cnt0++;
+            }
+        }
+        // for states ending with 0, process the last sequence of 0s
+        if (cnt0 & 1) {
+            isValidState[state] = false;
+        }
+    }
+
+    // 2. find all valid transition. (k & j == 0)
+    for (int dst = 0; dst < max_state; dst++) { // state of ith col
+        for (int src = 0; src < max_state; src++) { // state of i-1th col
+            if ((src & dst) == 0 && isValidState[src | dst]) {
+                // src & dst == 0 means it cannot be 1 on the same bit of two binary numbers
+                // src | dst explains the state of i-1 after inserting i'th plan (dst)
+                isValidTrans[src][dst] = true;
+            }
+        }
+    }
+
+    f[0][0] = 1; // state of i-1 is 0x00000000
+    // deduction
+    for (int i = 1; i <= m; i++) {
+        // j enumerates possible states of i-1
+        for (int j = 0; j < max_state; j++) {
+            // k enumerates possible states of i-2
+            for (int k = 0; k < max_state; k++) {
+                if (isValidTrans[k][j]) {
+                    f[i][j] += f[i-1][k];
+                }
+            }
+        }
+    }
+
+    return f[m][0];
+}
 ```
