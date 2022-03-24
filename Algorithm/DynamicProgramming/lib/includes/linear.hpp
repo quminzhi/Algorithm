@@ -17,5 +17,6 @@ int IntegerDivisionII(int n);
 int IntegerDivisionIII(int n);
 
 int BlockFilling(int n, int m);
+int ShortestHamiltonPath(vector<vector<int> > graph);
 
 #endif

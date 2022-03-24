@@ -5,7 +5,8 @@
         "*.html": "html",
         "vector": "cpp",
         "algorithm": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "ostream": "cpp"
     },
     "cSpell.ignoreWords": [
         "Nlog"

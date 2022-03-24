@@ -115,3 +115,15 @@ TEST(MyTest, BlockFillingTEST) {
     EXPECT_EQ(BlockFilling(2, 11), 144);
     EXPECT_EQ(BlockFilling(4, 11), 51205);
 }
+
+TEST(MyTest, ShortestHamiltonPathTEST) {
+    vector< vector<int> > graph = {
+        {0, 2, 4, 5, 1},
+        {2, 0, 6, 5, 3},
+        {4, 6, 0, 8, 3},
+        {5, 5, 8, 0, 5},
+        {1, 3, 3, 5, 0}
+    };
+
+    EXPECT_EQ(ShortestHamiltonPath(graph), 18);
+}

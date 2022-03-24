@@ -1279,29 +1279,29 @@ Since there are two kinds of blocks, so we are able to consider the placement of
 
 Say we just consider `1*2` blocks. Define `f[i][j]` to be the number of ways to fill out first `i` columns of the matrix and the state of `i-1`th column is `j`.
 
-**State** here is a binary number used to indicate the status of `i`th column. If there is a block go through from `i-1` to `i` (or say i-1 has been placed a 1*2 block), then that bit will be set to 1.
+**State** here is a binary number used to indicate the status of `i`th column. If there is a block go through from `i-1` to `i` (or bit is used to indicate if that location of i-1 col is placed a 1*2 block), then that bit will be set to 1.
 
 ```text
                (i)         (j)
-row\col   1  2  3  4  5
-       1  ?  ----           1
-       2  ?                 0
-       3  ?  ----           1
+row\col   0  1  2  3  4
+       0  ?  ----           1
+       1  ?                 0
+       2  ?  ----           1
+       3  ?                 0
        4  ?                 0
-       5  ?                 0
-when i == 3, i-1 == 2, the status j is 10100
+when i == 2, i-1 == 1, the status j is 10100
 ```
 
 Then what's the relationship between `i` and `i-1`.
 
 ```text
                 (i-1) (i)       (k1) (k2)
-row\col   1  2    3    4    5
-       1  ?  ------   (x)        1    0
-       2  ?       ------         0    1
-       3  ?  ------              0    0
+row\col   0  1    2    3    4
+       0  ?  ------   (x)        1    0
+       1  ?       ------         0    1
+       2  ?  ------              0    0
+       3  ?                      0    0
        4  ?                      0    0
-       5  ?                      0    0
 ```
 
 We use k to enumerate all possible ways of putting `1*2` blocks on `i`th column. As shown in the diagram above, `k = 100000` is a bad choice, since on the first row `i-1` has placed a block there for some `f[i-1][j]`. However `k = 01000` seems a feasible placement. So, we can check if current placement is feasible by evaluating `j & k == 0` (the bit on both side cannot be 1 simultaneously).
@@ -1365,7 +1365,10 @@ int BlockFilling(int n, int m) {
         }
     }
 
-    f[0][0] = 1; // state of i-1 is 0x00000000
+    // means the first-1 (imagined) column cannot be placed 1*2 block. From the perspective
+    // of the 1st col, there is no 1*2 block end on the first column (which is the starting
+    // state).
+    f[0][0] = 1; // state of 0-1 is 0x0000
     // deduction
     for (int i = 1; i <= m; i++) {
         // j enumerates possible states of i-1
@@ -1379,6 +1382,74 @@ int BlockFilling(int n, int m) {
         }
     }
 
+    // which means the last column cannot be placed 1*2 block
     return f[m][0];
 }
 ```
+
+### Shortest Hamilton Distance
+
+> Given a non-directed graph, calculate the shortest Hamilton distance from 0 to vertex n-1.
+
+Different from another classic problem, known as shortest path from an origin, which can be solved with Dijkstra's algorithm. But this problem is a non-directed graph rather than directed.
+
+Define `f[i][j]` is the minimum path from origin (0) to vertex `j` and go through the vertexes in `i`, which is a binary state. Say we have 4 vertex, then `i` is a 4-bit binary number to describe covered vertexes **including the last vertex, destination**.
+
+Deduction: what we care about is what's the last vertex to `j`. From the perspective of `j`, where I come from. Say that point is `k`, then according to the definition of Hamilton distance, `f[i][j] = f[i'][k] + cost[k][j]`, where the state `i'` has two cases:
+
+- k is in the state `i`, then we have to remove it from `i` and `f[i'][k]` becomes `f[i-k][k]`. - Otherwise, `f[i'][k]` becomes `f[i+k][k]`, where `+` and `-` means insert and delete on bit state.
+
+That is if `k` bit is 1, it will be set to 0 and vice versa. This can be achieved with `XOR` operation.
+
+```c++
+/**
+ * @brief return the shortest path from vertex 0 to the last vertex
+ *
+ * f[i][j] = f[i'][k] + cost[k][j], f[i'][k] == f[i-k][k] if k is in i or f[i+k][k] if k
+ * is not in i.
+ *
+ * i is a binary number representing state and j is the number of the last vertex.
+ *
+ * @param graph
+ * @return vector<int>
+ */
+int ShortestHamiltonPath(vector<vector<int> > graph) {
+    // [0, 2^size - 1], [0, 11...11] (a set of size-bit binary numbers)
+    int max_state = 1 << graph.size();
+    vector<vector<int> > f(max_state, vector<int>(graph.size(), 1e5));   // 0-based
+
+    // initialization
+    f[1][0] = graph[0][0];   // reach vertex 0 starting from vertex 0
+
+    // deduction
+    int start_mask = 0x01;
+    for (int state = 1; state < max_state; state++) {
+        if (state & start_mask) {   // state must include start point
+            for (int j = 0; j < graph.size(); j++) {
+                // if j is in the path, we need remove it from the path
+                // since 0 -> 1 -> 2 -> (3), the calculation of f[i][2] should not include
+                // 3 when vertex 3 is our destination, if it includes: 0 --> 1 --> 3 -->
+                // (2) => 0 --> 1 --> 3 --> 2 --> (3)
+                if (state >> j & 1) {
+                    for (int k = 0; k < graph.size(); k++) {
+                        if ((state - (1 << j)) >> k &
+                            1) {   // after removing j, k should be included in the path
+                            f[state][j] =
+                                min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // f[1111111][last vertex]
+    return f[max_state - 1][graph.size() - 1];
+}
+```
+
+Tricks:
+
+- Check if ith bit is 1: `state >> i & 1` or `state & ith mask == ith mask`.
+- Given ith bit is 1, set it to be 0: `state - i << 1` or `state ^ i << 1`, the latter is more general since `state & i << 1` can be used to reverse ith bit.
+- everything XOR(`^`) `0000` is itself and everything XOR itself is `0000`. It can be used to match characters.

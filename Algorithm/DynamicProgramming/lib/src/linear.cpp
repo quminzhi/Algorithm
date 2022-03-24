@@ -263,9 +263,9 @@ int IntegerDivisionIII(int n) {
  * 1. Enumerate all states and check if it is legal by checking if it has consecutive 0s
  * with odd size, noting that the maximum number of state is 2^n-1 ((1 << n) - 1), say we
  * have 2 rows, the state will be [00, 01, 11].
- * 
+ *
  * f[i][j] = sum(f[i-1][k]) where transition from k to j is valid.
- * 
+ *
  * @param n: row number of matrix
  * @param m: col number of matrix
  * @return int
@@ -300,17 +300,21 @@ int BlockFilling(int n, int m) {
     }
 
     // 2. find all valid transition. (k & j == 0)
-    for (int dst = 0; dst < max_state; dst++) { // state of ith col
-        for (int src = 0; src < max_state; src++) { // state of i-1th col
+    for (int dst = 0; dst < max_state; dst++) {       // state of ith col
+        for (int src = 0; src < max_state; src++) {   // state of i-1th col
             if ((src & dst) == 0 && isValidState[src | dst]) {
-                // src & dst == 0 means it cannot be 1 on the same bit of two binary numbers
-                // src | dst explains the state of i-1 after inserting i'th plan (dst)
+                // src & dst == 0 means it cannot be 1 on the same bit of two binary
+                // numbers src | dst explains the state of i-1 after inserting i'th plan
+                // (dst)
                 isValidTrans[src][dst] = true;
             }
         }
     }
 
-    f[0][0] = 1; // state of i-1 is 0x00000000
+    // means the first-1 (imagined) column cannot be placed 1*2 block. From the
+    // perspective of the 1st col, there is no 1*2 block end on the first column (which is
+    // the starting state).
+    f[0][0] = 1;   // state of 0-1 is 0x0000
     // deduction
     for (int i = 1; i <= m; i++) {
         // j enumerates possible states of i-1
@@ -318,11 +322,58 @@ int BlockFilling(int n, int m) {
             // k enumerates possible states of i-2
             for (int k = 0; k < max_state; k++) {
                 if (isValidTrans[k][j]) {
-                    f[i][j] += f[i-1][k];
+                    // i-1 col with state j and i-2 col with state k
+                    f[i][j] += f[i - 1][k];
                 }
             }
         }
     }
 
+    // 0-indexed
     return f[m][0];
+}
+
+/**
+ * @brief return the shortest path from vertex 0 to the last vertex
+ *
+ * f[i][j] = f[i'][k] + cost[k][j], f[i'][k] == f[i-k][k] if k is in i or f[i+k][k] if k
+ * is not in i.
+ *
+ * i is a binary number representing state and j is the number of the last vertex.
+ *
+ * @param graph
+ * @return vector<int>
+ */
+int ShortestHamiltonPath(vector<vector<int> > graph) {
+    // [0, 2^size - 1], [0, 11...11] (a set of size-bit binary numbers)
+    int max_state = 1 << graph.size();
+    vector<vector<int> > f(max_state, vector<int>(graph.size(), 1e5));   // 0-based
+
+    // initialization
+    f[1][0] = graph[0][0];   // reach vertex 0 starting from vertex 0
+
+    // deduction
+    int start_mask = 0x01;
+    for (int state = 1; state < max_state; state++) {
+        if (state & start_mask) {   // state must include start point
+            for (int j = 0; j < graph.size(); j++) {
+                // if j is in the path, we need remove it from the path
+                // since 0 -> 1 -> 2 -> (3), the calculation of f[i][2] should not include
+                // 3 when vertex 3 is our destination, if it includes: 0 --> 1 --> 3 -->
+                // (2) => 0 --> 1 --> 3 --> 2 --> (3)
+                if (state >> j & 1) {
+                    for (int k = 0; k < graph.size(); k++) {
+                        if ((state - (1 << j)) >> k &
+                            1) {   // after removing j, k should be included in the path
+                            f[state][j] =
+                                min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // f[1111111][last vertex]
+    return f[max_state - 1][graph.size() - 1];
 }
