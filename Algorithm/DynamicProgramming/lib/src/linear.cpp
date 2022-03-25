@@ -415,3 +415,43 @@ int PartyWithoutLeader(vector<int> exp, vector<vector<int> > rel) {
 
     return max(f[root][0], f[root][1]);
 }
+
+int dfs_skating(vector<vector<int> >& f, vector<vector<int> >& h, int x, int y) {
+    static int dir_x[4] = {-1, +1, 0, 0};
+    static int dir_y[4] = {0, 0, -1, +1};
+
+    // if f[x][y] is calculated, return result
+    if (f[x][y] != -1) return f[x][y];
+
+    f[x][y] = 1; // path has length of at least 1 (start point)
+    for (int i = 0; i < 4; i++) {
+        int nx = x + dir_x[i];
+        int ny = y + dir_y[i];
+        if (nx >= 0 && nx < h.size() && ny >= 0 && ny < h[0].size() && h[x][y] > h[nx][ny]) {
+            f[x][y] = max(f[x][y], dfs_skating(f, h, nx, ny) + 1);
+        }
+    }
+
+    return f[x][y];
+}
+
+/**
+ * @brief return the maximum length of paths starting from (i, j)
+ * Define `f[i, j]` as the maximum length of paths starting from (i, j).
+ * 
+ * f[i, j] == 1 + max(f[i-1, j], f[i, j-1], f[i+1, j], f[i, j+1])
+ * 
+ * @param h 
+ * @return int 
+ */
+int Skating(vector<vector<int> > h) {
+    vector<vector<int> > f(h.size(), vector<int>(h[0].size(), -1));
+    int res = 0;
+    for (int i = 0; i < h.size(); i++) {
+        for (int j = 0; j < h[0].size(); j++) {
+            res = max(res, dfs_skating(f, h, i, j));
+        }
+    }
+
+    return res;
+}

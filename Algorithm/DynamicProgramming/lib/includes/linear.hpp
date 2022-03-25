@@ -33,5 +33,6 @@ class TreeNode {
 };
 
 int PartyWithoutLeader(vector<int> exp, vector<vector<int> > rel);
+int Skating(vector<vector<int> > h);
 
 #endif
