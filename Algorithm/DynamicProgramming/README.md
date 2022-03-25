@@ -1156,6 +1156,8 @@ Tricks:
 
 - Range deduction
 
+## Count Dynamic Programming
+
 ### Integer Division
 
 > Given an integer `N`, return the number of divisions. `N = A1 + A2 + ... + An`, where `A1 >= A2 >= ... >= An`.
@@ -1269,7 +1271,9 @@ int IntegerDivisionIII(int n) {
 }
 ```
 
-### State Compression
+## State Dynamic Programming
+
+### Filling Matrix
 
 > Given an `N*M` matrix and return how many different ways to fill out the matrix with `1*2` and `2*1` blocks.
 
@@ -1471,3 +1475,76 @@ Tricks:
 - Check if ith bit is 1: `state >> i & 1` or `state & ith mask == ith mask`.
 - Given ith bit is 1, set it to be 0: `state - i << 1` or `state ^ i << 1`, the latter is more general since `state & i << 1` can be used to reverse ith bit.
 - everything XOR(`^`) `0000` is itself and everything XOR itself is `0000`. It can be used to match characters.
+
+## Tree-like Dynamic Programming
+
+> Assuming there are N workers in a company, they have different occupation. There job hierarchy can be represented with a tree. The parent worker is the direct leader of its children. Say we have a party and each worker has an expectation value for the party. But when a worker and his direct leader come to party at the same time, the worker will be unhappy. So we need to avoid that thing to happen. Return the maximum expectation of the tree if we will select only the part of workers to join the party.
+
+This is a dynamic programming problem with tree-like updating logic.
+
+Since the co-existence of worker and his direct leader should be avoided, we should take into consideration if the current node is selected (our second parameter). Define `f[u, 0]` as the maximum expectation of selecting from `u`'s subtree and do not select `u` (indicated by 0). Similarly, define `f[u, 1]` as the maximum expectation of selecting from `u`'s subtree and select `u`.
+
+So, the deduction is
+
+- `f[u, 0] = sum of max(f[si, 0], f[si, 1])`, where `si` is `u`'s direct children. If `u` is not selected, its children can be selected or not.
+- `f[u, 1] = sum of f[si, 0]`, since `u` has been selected.
+
+The definition of `TreeNode`:
+
+```c++
+class TreeNode {
+   public:
+    TreeNode() : id(0), parent(-1) {};
+    TreeNode(int _id) : id(_id), parent(-1) {};
+
+    int id;
+    int parent;
+    vector<int> children;
+};
+```
+
+Tree-like dp:
+
+```c++
+void dfs(vector<vector<int> >& f, vector<TreeNode>& tree, vector<int>& exp, int u) {
+    f[u][1] = exp[u];
+    // solve children
+    for (int i = 0; i < tree[u].children.size(); i++) {
+        int child = tree[u].children[i];
+        dfs(f, tree, exp, child);   // tree-like dp
+        f[u][0] += max(f[child][0], f[child][1]);
+        f[u][1] += f[child][0];
+    }
+}
+
+/**
+ * @brief return the maximum expectation of selection
+ * 
+ * Because it is a hierarchy tree, there must be n-1 rel (edges) when there are n workers (nodes)
+ * 
+ * @param exp: expectation of each worker
+ * @param rel: relationship between two workers, worker -> leader
+ * @return int 
+ */
+int PartyWithoutLeader(vector<int> exp, vector<vector<int> > rel) {
+    // initialize tree
+    vector<TreeNode> tree(exp.size());
+    for (int i = 0; i < exp.size(); i++) {
+        tree[i].id = i;
+    }
+    // build up relationship
+    for (int i = 0; i < rel.size(); i++) {
+        tree[rel[i][0]].parent = rel[i][1];
+        tree[rel[i][1]].children.push_back(rel[i][0]);
+    }
+
+    vector<vector<int> > f(exp.size(), vector<int>(2, 0));
+    // find root node, notice root is not necessarily on index 0.
+    int root = 0;
+    for (; root < tree.size() && tree[root].parent != -1; root++) {}
+
+    dfs(f, tree, exp, root);
+
+    return max(f[root][0], f[root][1]);
+}
+```

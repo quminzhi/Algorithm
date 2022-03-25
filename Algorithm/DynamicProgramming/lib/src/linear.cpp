@@ -373,3 +373,45 @@ int ShortestHamiltonPath(vector<vector<int> > graph) {
     // f[1111111][last vertex]
     return f[max_state - 1][graph.size() - 1];
 }
+
+void dfs(vector<vector<int> >& f, vector<TreeNode>& tree, vector<int>& exp, int u) {
+    f[u][1] = exp[u];
+    // solve children
+    for (int i = 0; i < tree[u].children.size(); i++) {
+        int child = tree[u].children[i];
+        dfs(f, tree, exp, child);   // tree-like dp
+        f[u][0] += max(f[child][0], f[child][1]);
+        f[u][1] += f[child][0];
+    }
+}
+
+/**
+ * @brief return the maximum expectation of selection
+ * 
+ * Because it is a hierarchy tree, there must be n-1 rel (edges) when there are n workers (nodes)
+ * 
+ * @param exp: expectation of each worker
+ * @param rel: relationship between two workers, worker -> leader
+ * @return int 
+ */
+int PartyWithoutLeader(vector<int> exp, vector<vector<int> > rel) {
+    // initialize tree
+    vector<TreeNode> tree(exp.size());
+    for (int i = 0; i < exp.size(); i++) {
+        tree[i].id = i;
+    }
+    // build up relationship
+    for (int i = 0; i < rel.size(); i++) {
+        tree[rel[i][0]].parent = rel[i][1];
+        tree[rel[i][1]].children.push_back(rel[i][0]);
+    }
+
+    vector<vector<int> > f(exp.size(), vector<int>(2, 0));
+    // find root node, notice root is not necessarily on index 0.
+    int root = 0;
+    for (; root < tree.size() && tree[root].parent != -1; root++) {}
+
+    dfs(f, tree, exp, root);
+
+    return max(f[root][0], f[root][1]);
+}

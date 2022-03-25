@@ -127,3 +127,12 @@ TEST(MyTest, ShortestHamiltonPathTEST) {
 
     EXPECT_EQ(ShortestHamiltonPath(graph), 18);
 }
+
+TEST(MyTest, PartyWithoutLeaderTEST) {
+    vector<int> exps = {1, 1, 1, 1, 1, 1, 1};
+    vector<vector<int> > rels = {
+        {0, 2}, {1, 2}, {5, 3},
+        {6, 3}, {3, 4}, {2, 4}
+    };
+    EXPECT_EQ(PartyWithoutLeader(exps, rels), 5);
+}

@@ -19,4 +19,19 @@ int IntegerDivisionIII(int n);
 int BlockFilling(int n, int m);
 int ShortestHamiltonPath(vector<vector<int> > graph);
 
+/**
+ * @brief index by int not pointer
+ */
+class TreeNode {
+   public:
+    TreeNode() : id(0), parent(-1) {};
+    TreeNode(int _id) : id(_id), parent(-1) {};
+
+    int id;
+    int parent;
+    vector<int> children;
+};
+
+int PartyWithoutLeader(vector<int> exp, vector<vector<int> > rel);
+
 #endif
