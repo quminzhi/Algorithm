@@ -113,3 +113,48 @@ int deleteAndEarn(vector<int>& nums) {
 
     return f[maxVal];
 }
+
+/**
+ * @brief recursively solve the problems with memorization.
+ *
+ * @param nums
+ * @param multiplies
+ * @param i: ith step.
+ * @param result
+ */
+int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
+                       vector<vector<int> >& f, int begin, int i) {
+    if (f[begin][i] != -1e4) {
+        return f[begin][i];
+    }
+    
+    int end = nums.size() - 1 - (i - begin);
+    if (i == multipliers.size() - 1) {
+        // check if it is the maximum score
+        return max(nums[begin] * multipliers[i], nums[end] * multipliers[i]);
+    }
+
+    int maxVal = max(
+        maximumScoreHelper(nums, multipliers, f, begin + 1, i + 1) +
+            nums[begin] * multipliers[i],
+        maximumScoreHelper(nums, multipliers, f, begin, i + 1) + nums[end] * multipliers[i]);
+    return maxVal;
+}
+
+/**
+ * @brief the max score we can get.
+ *
+ * define memory as f[i][j]: i is begin of nums, and j means jth step of multipliers.
+ *
+ * the end can be calculated by nums.size() - 1 - (j - i), where 'j - i' is # of selecting
+ * the end 'i' is # of selecting the begin.
+ *
+ * @param nums
+ * @param multipliers
+ * @return int
+ */
+int maximumScore(vector<int>& nums, vector<int>& multipliers) {
+    vector<vector<int> > f(multipliers.size(), vector<int>(multipliers.size(), -1e4));
+    int result = maximumScoreHelper(nums, multipliers, f, 0, 0);
+    return result;
+}
