@@ -127,17 +127,17 @@ int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
     if (f[begin][i] != -1e4) {
         return f[begin][i];
     }
-    
+
     int end = nums.size() - 1 - (i - begin);
     if (i == multipliers.size() - 1) {
         // check if it is the maximum score
         return max(nums[begin] * multipliers[i], nums[end] * multipliers[i]);
     }
 
-    int maxVal = max(
-        maximumScoreHelper(nums, multipliers, f, begin + 1, i + 1) +
-            nums[begin] * multipliers[i],
-        maximumScoreHelper(nums, multipliers, f, begin, i + 1) + nums[end] * multipliers[i]);
+    int maxVal = max(maximumScoreHelper(nums, multipliers, f, begin + 1, i + 1) +
+                         nums[begin] * multipliers[i],
+                     maximumScoreHelper(nums, multipliers, f, begin, i + 1) +
+                         nums[end] * multipliers[i]);
     return maxVal;
 }
 

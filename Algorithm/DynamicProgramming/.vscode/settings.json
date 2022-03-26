@@ -6,7 +6,8 @@
         "vector": "cpp",
         "algorithm": "cpp",
         "string": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "iosfwd": "cpp"
     },
     "cSpell.ignoreWords": [
         "Nlog"

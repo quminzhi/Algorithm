@@ -1830,4 +1830,3 @@ int maximumScore(vector<int>& nums, vector<int>& multipliers) {
     return result;
 }
 ```
-

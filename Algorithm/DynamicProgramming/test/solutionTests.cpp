@@ -144,6 +144,6 @@ TEST(MyTest, DeleteAndEarnTEST) {
 
 TEST(MyTest, MaximumScoreTEST) {
     vector<int> nums1 = {1, 2, 3};
-    vector<int> multi1 = {3, 2 ,1};
+    vector<int> multi1 = {3, 2, 1};
     EXPECT_EQ(maximumScore(nums1, multi1), 14);
 }
