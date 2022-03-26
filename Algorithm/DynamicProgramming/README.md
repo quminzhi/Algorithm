@@ -1602,3 +1602,164 @@ int Skating(vector<vector<int> > h) {
     return res;
 }
 ```
+
+## Related Problems
+
+### House Robber
+
+> You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+>
+> Given an integer array `nums` representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.
+
+Define `f[i]` as:
+
+- problem sets: select from first i houses.
+- property: maximum value.
+
+Deduction: we have two choices on `i`th house, robbing or not.
+
+- `f[i] = f[i-2] + w[i]`, if robbing `i`th house.
+- `f[i] = f[i-1]`, if not robbing `i`th house.
+
+So, `f[i] = max(f[i-2] + w[i], f[i-1])`.
+
+```c++
+int rob(vector<int>& nums) {
+    if (nums.size() == 0) return 0;
+    if (nums.size() == 1) return nums[0];
+    if (nums.size() == 2) return max(nums[0], nums[1]);
+    vector<int> f(nums.size(), 0);
+    // base case
+    f[0] = nums[0];
+    f[1] = max(nums[0], nums[1]);
+    // deduction
+    for (int i = 2; i < nums.size(); i++) {
+        f[i] = max(f[i - 1], f[i - 2] + nums[i]);
+    }
+
+    return f[nums.size() - 1];
+}
+```
+
+### Min Cost Climbing Stairs
+
+> You are given an integer array cost where `cost[i]` is the cost of ith step on a staircase. Once you pay the cost, you can either climb one or two steps.
+>
+> You can either start from the step with index 0, or the step with index 1.
+>
+> Return the minimum cost to reach the top of the floor.
+
+Define `f[i]` as:
+
+- problem sets: all paths from step 0 to step i.
+- property: the minimum cost.
+
+Deduction:
+
+- 1 step to `i`th step: `f[i] = f[i-1] + cost[i-1]`.
+- 2 steps to `i`th step: `f[i] = f[i-2] + cost[i-2]`.
+
+So, `f[i] = min(f[i-1] + cost[i-1], f[i-2] + cost[i-2])`.
+
+```c++
+int minCostClimbingStairs(vector<int>& cost) {
+    if (cost.size() < 2) return 0;
+    int top_idx = cost.size() + 1;
+    vector<int> f(top_idx, 1e4);
+    
+    // base case: either start from 0th or 1th step
+    f[0] = 0;
+    f[1] = 0;
+    // deduction
+    for (int i = 2; i < top_idx; i++) {
+        f[i] = min(f[i - 1] + cost[i - 1], f[i - 2] + cost[i - 2]);
+    }
+
+    return f[top_idx - 1];
+}
+```
+
+### N-th Tribonacci Number
+
+> The Tribonacci sequence Tn is defined as follows:
+>
+> - `T0 = 0, T1 = 1, T2 = 1`, and `Tn+3 = Tn + Tn+1 + Tn+2` for `n` >= 0.
+>
+> Given `n`, return the value of `Tn`.
+
+Define `f[i] = f[i-3] + f[i-2] + f[i-1]`.
+
+```c++
+int tribonacci(int n) {
+    if (n == 0) return 0;
+    if (n < 3) return 1;
+    int max_n = 37;
+    vector<int> f(max_n + 1, 0);
+    f[1] = 1;
+    f[2] = 1;
+    for (int i = 3; i <= n; i++) {
+        f[i] = f[i - 3] + f[i - 2] + f[i - 1];
+    }
+
+    return f[n];
+}
+```
+
+### Delete and Earn
+
+> You are given an integer array `nums`. You want to maximize the number of points you get by performing the following operation any number of times:
+>
+> - Pick any `nums[i]` and delete it to earn `nums[i]` points. Afterwards, you must delete every element equal to `nums[i] - 1` and every element equal to `nums[i] + 1`.
+>
+> Return the maximum number of points you can earn by applying the above operation some number of times.
+
+One observation is that if one number is selected, all its replicates should be selected to achieve maximum interest. We can convert the input into a form that easy to use `{num : time of occurrence}`.
+
+Define `f[i]` as:
+
+- problem sets: all kinds of operations on first `i` numbers, i.e. ranging from [0...i].
+- property: maximum points earned.
+
+Deduction:
+
+- select `i`th number: `f[i] = f[i-2] + earns[i]`.
+- do not select `i`th number: `f[i] = f[i-1]`.
+
+So, `f[i] = max(f[i-2] + earns[i], f[i-1]`.
+
+```c++
+int deleteAndEarn(vector<int>& nums) {
+    vector<int> earned(1e4 + 10, 0);   // maximum of nums[i] <= 10^4
+    sort(nums.begin(), nums.end());
+    int num = nums[0], cnt = 1;
+    int maxVal = num;
+    for (int i = 1; i < nums.size(); i++) {
+        if (nums[i] != num) {
+            earned[num] = num * cnt;
+            num = nums[i];
+            cnt = 1;
+            // update max value
+            if (nums[i] > maxVal) {
+                maxVal = nums[i];
+            }
+        } else {
+            cnt++;
+        }
+    }
+    // add the last one
+    earned[num] = num * cnt;
+    if (num > maxVal) {
+        maxVal = num;
+    }
+
+    // dp
+    vector<int> f(earned.size(), 0);
+    f[0] = earned[0];
+    f[1] = max(earned[0], earned[1]);   // we can choose either 0 or 1
+    for (int i = 2; i <= maxVal; i++) {
+        f[i] = max(f[i - 1], f[i - 2] + earned[i]);
+    }
+
+    return f[maxVal];
+}
+```
