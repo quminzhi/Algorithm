@@ -9,5 +9,7 @@ int minCostClimbingStairs(vector<int>& cost);
 int tribonacci(int n);
 int deleteAndEarn(vector<int>& nums);
 int maximumScore(vector<int>& nums, vector<int>& multipliers);
+int maximalSquare(vector<vector<char> >& matrix);
+int minDifficulty(vector<int>& jobDifficulty, int d);
 
 #endif

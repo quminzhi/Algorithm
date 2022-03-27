@@ -1830,3 +1830,130 @@ int maximumScore(vector<int>& nums, vector<int>& multipliers) {
     return result;
 }
 ```
+
+### Minimal Square
+
+> Given an `m x n` binary matrix filled with 0's and 1's, find the largest square containing only 1's and return its area.
+
+Define `f[i, j]` as the side length of the maximum square **whose bottom right corner** is the cell with index (i,j) in the original matrix. In other word, there is a square with length of `f[i, j]` whose bottom right corner is (i, j).
+
+for example,
+
+```text
++---+
+| 1 |
++---+ (i, j)  <--- the bottom right corner of this square
+
+so f[i, j] = 1 (max side length)
+
++---+
+| 0 |
++---+ (i, j)  <--- f[i, j] = 0, no 1's square with bottom right corner of (i, j)
+
+To form a square with side length of 2, it requires (i-1, j), (i, j-1), and (i-1, j-1) all have at least 1 square ends with them.
+
++---+---+
+| 1 | 1 |
+|---|---|
+| 1 | 2 |
++---+---+ (i, j)
+
+similarly, imagine there is a square with side length of 2 on each cell, we can form a square with side length of 3 ending with (i, j)
+
++---+---+
+| 2 | 2 |
+|---|---|
+| 2 | 3 |
++---+---+ (i, j)
+```
+
+So, we got deduction formula:
+
+`f[i, j] = min(f[i-1][j], f[i][j-1], f[i-1][j-1]) + 1`, if `matrix[i, j] = 1`. `f[i, j] = 0` otherwise.
+
+```c++
+int maximalSquare(vector<vector<char> >& matrix) {
+    vector< vector<int> > f(matrix.size() + 1, vector<int>(matrix[0].size() + 1, 0)); // 1-based
+
+    int maxLen = 0;
+    for (int i = 1; i <= matrix.size(); i++) {
+        for (int j = 1; j <= matrix[0].size(); j++) {
+            if (matrix[i-1][j-1] == '1') {
+                f[i][j] = min(f[i][j-1], f[i-1][j]);
+                f[i][j] = min(f[i][j], f[i-1][j-1]);
+                f[i][j] += 1;
+                maxLen = max(maxLen, f[i][j]);
+            }
+        }
+    }
+
+    return maxLen * maxLen;
+}
+```
+
+### Minimum Difficulty of a Job Schedule
+
+> You want to schedule a list of jobs in `d` days. Jobs are dependent (i.e To work on the ith job, you have to finish all the jobs `j` where `0 <= j < i`).
+>
+> You have to finish at least one task every day. The difficulty of a job schedule is the sum of difficulties of each day of the `d` days. The difficulty of a day is the maximum difficulty of a job done on that day.
+>
+> You are given an integer array `jobDifficulty` and an integer `d`. The difficulty of the ith job is `jobDifficulty[i]`.
+>
+> Return the minimum difficulty of a job schedule. If you cannot find a schedule for the jobs return -1.
+
+This is a classic grouping problem. Define `f[i, j]` as: (how to describe the assigned jobs for ith day?)
+
+- problem sets: all arrangements up to `i`th day and the last scheduled job is `j`. `i` indicates the first `i` days and `j` the last index of scheduled jobs.
+- property: minimum difficulty.
+
+Deduction:
+
+- `f[i, j] = f[i-1, j-k] + jobDifficulty of ith day`. Since it is required that each day has at least 1 scheduled job, `k` is in range `j-k >= i-1` ==> `1 < k <= j - i + 1`.
+- `jobDifficulty of ith day = max(jobDifficulty[j-k+1...j])`.
+
+```c++
+/**
+ * @brief return the minimum difficulty of job scheduling
+ *
+ * `f[i, j] = f[i-1, j-k] + jobDifficulty of ith day`, j >= i  is must
+ *
+ * how to obtain max of a specific range? track along the process
+ * how to obtain sum of a specific range? prefix.
+ *
+ * @param jobDifficulty
+ * @param d
+ * @return int
+ */
+int minDifficulty(vector<int>& jobDifficulty, int d) {
+    if (jobDifficulty.size() < d) return -1;
+    if (jobDifficulty.size() == d) {
+        int sum = 0;
+        for (int i = 0; i < jobDifficulty.size(); i++) {
+            sum += jobDifficulty[i];
+        }
+        return sum;
+    }
+
+    vector<vector<int> > f(d, vector<int>(jobDifficulty.size(), 1e6));
+
+    // initialize when i = 0
+    int hardest = 0; // track hardest job from [j-k+1 to j]
+    for (int j = 0; j < jobDifficulty.size(); j++) {
+        hardest = max(hardest, jobDifficulty[j]);
+        f[0][j] = hardest;
+    }
+
+    for (int i = 1; i < d; i++) {
+        for (int j = i; j < jobDifficulty.size(); j++) {
+            // select last k job for ith day
+            hardest = 0;
+            for (int k = 1; k <= j - i + 1; k++) {
+                hardest = max(hardest, jobDifficulty[j - k + 1]);
+                f[i][j] = min(f[i][j], hardest + f[i - 1][j - k]);
+            }
+        }
+    }
+
+    return f[d - 1][jobDifficulty.size() - 1];
+}
+```

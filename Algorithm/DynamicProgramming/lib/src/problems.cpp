@@ -158,3 +158,73 @@ int maximumScore(vector<int>& nums, vector<int>& multipliers) {
     int result = maximumScoreHelper(nums, multipliers, f, 0, 0);
     return result;
 }
+
+/**
+ * @brief return the area of maximal square
+ *
+ * @param matrix
+ * @return int
+ */
+int maximalSquare(vector<vector<char> >& matrix) {
+    vector<vector<int> > f(matrix.size() + 1,
+                           vector<int>(matrix[0].size() + 1, 0));   // 1-based
+
+    int maxLen = 0;
+    for (int i = 1; i <= matrix.size(); i++) {
+        for (int j = 1; j <= matrix[0].size(); j++) {
+            if (matrix[i - 1][j - 1] == '1') {
+                f[i][j] = min(f[i][j - 1], f[i - 1][j]);
+                f[i][j] = min(f[i][j], f[i - 1][j - 1]);
+                f[i][j] += 1;
+                maxLen = max(maxLen, f[i][j]);
+            }
+        }
+    }
+
+    return maxLen * maxLen;
+}
+
+/**
+ * @brief return the minimum difficulty of job scheduling
+ *
+ * `f[i, j] = f[i-1, j-k] + jobDifficulty of ith day`, j >= i  is must
+ *
+ * how to obtain max of a specific range? track along the process
+ * how to obtain sum of a specific range? prefix.
+ *
+ * @param jobDifficulty
+ * @param d
+ * @return int
+ */
+int minDifficulty(vector<int>& jobDifficulty, int d) {
+    if (jobDifficulty.size() < d) return -1;
+    if (jobDifficulty.size() == d) {
+        int sum = 0;
+        for (int i = 0; i < jobDifficulty.size(); i++) {
+            sum += jobDifficulty[i];
+        }
+        return sum;
+    }
+
+    vector<vector<int> > f(d, vector<int>(jobDifficulty.size(), 1e6));
+
+    // initialize when i = 0
+    int hardest = 0; // track hardest job from [j-k+1 to j]
+    for (int j = 0; j < jobDifficulty.size(); j++) {
+        hardest = max(hardest, jobDifficulty[j]);
+        f[0][j] = hardest;
+    }
+
+    for (int i = 1; i < d; i++) {
+        for (int j = i; j < jobDifficulty.size(); j++) {
+            // select last k job for ith day
+            hardest = 0;
+            for (int k = 1; k <= j - i + 1; k++) {
+                hardest = max(hardest, jobDifficulty[j - k + 1]);
+                f[i][j] = min(f[i][j], hardest + f[i - 1][j - k]);
+            }
+        }
+    }
+
+    return f[d - 1][jobDifficulty.size() - 1];
+}

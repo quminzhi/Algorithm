@@ -147,3 +147,16 @@ TEST(MyTest, MaximumScoreTEST) {
     vector<int> multi1 = {3, 2, 1};
     EXPECT_EQ(maximumScore(nums1, multi1), 14);
 }
+
+TEST(MyTest, MaxSquareTEST) {
+    vector<vector<char> > matrix = {{'1', '0', '1', '0', '0'},
+                                    {'1', '0', '1', '1', '1'},
+                                    {'1', '1', '1', '1', '1'},
+                                    {'1', '0', '0', '1', '0'}};
+    EXPECT_EQ(maximalSquare(matrix), 4);
+}
+
+TEST(MyTest, JobDifficultyTEST) {
+    vector<int> jobDifficulty = { 7, 1, 7, 1, 7, 1 };
+    EXPECT_EQ(minDifficulty(jobDifficulty, 3), 15);
+}
