@@ -157,6 +157,26 @@ TEST(MyTest, MaxSquareTEST) {
 }
 
 TEST(MyTest, JobDifficultyTEST) {
-    vector<int> jobDifficulty = { 7, 1, 7, 1, 7, 1 };
+    vector<int> jobDifficulty = {7, 1, 7, 1, 7, 1};
     EXPECT_EQ(minDifficulty(jobDifficulty, 3), 15);
+}
+
+TEST(MyTest, CoinChangeTEST) {
+    vector<int> coins = {1, 2, 5};
+    EXPECT_EQ(coinChange(coins, 11), 3);
+}
+
+TEST(MyTest, WordBreakTEST) {
+    vector<string> dict = {"leet", "code"};
+    // EXPECT_TRUE(wordBreak("leetcode", dict));
+
+    vector<string> dict2 = {"dog", "s", "gs"};
+    EXPECT_TRUE(wordBreak("dogs", dict2));
+
+    vector<string> dict3 = {"a",      "aa",      "aaa",      "aaaa",      "aaaaa",
+                            "aaaaaa", "aaaaaaa", "aaaaaaaa", "aaaaaaaaa", "aaaaaaaaaa"};
+    EXPECT_TRUE(!wordBreak(
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
+        dict3));
 }

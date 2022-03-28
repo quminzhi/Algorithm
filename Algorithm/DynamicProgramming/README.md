@@ -1957,3 +1957,132 @@ int minDifficulty(vector<int>& jobDifficulty, int d) {
     return f[d - 1][jobDifficulty.size() - 1];
 }
 ```
+
+### Coin Change
+
+> You are given an integer array `coins` representing coins of different denominations and an integer amount representing a total amount of money.
+>
+> Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+>
+> You may assume that you have an infinite number of each kind of coin.
+
+This is a unlimited knapsack problem. Define `f[i][j]` as follows:
+
+- problem sets: all combinations of selection from first `i` coins and total amount is `j`.
+- property: the fewest number of coins.
+
+Deduction:
+
+- continue to select ith coin: `f[i][j] = f[i][j-coins[i]] + 1`.
+- do not select ith coin: `f[i][j] = f[i-1][j]`.
+
+So, we got `f[i][j] = min(f[i][j-coins[i]], f[i-1][j]) + 1`.
+
+```c++
+/**
+ * @brief f[i][j] = min(f[i-1][j], f[i][j-coins[i]] + 1)
+ *
+ * @param coins
+ * @param amount
+ * @return int
+ */
+int coinChange(vector<int>& coins, int amount) {
+    vector<vector<int> > f(coins.size(), vector<int>(amount + 1, 1e5));
+    for (int j = 1; j <= amount; j++) {
+        if (j % coins[0] == 0) {
+            f[0][j] = j / coins[0];
+        }
+    }
+    for (int i = 0; i < coins.size(); i++) {
+        f[i][0] = 0;
+    }
+
+    for (int i = 1; i < coins.size(); i++) {
+        for (int j = 0; j <= amount; j++) {
+            f[i][j] = f[i-1][j]; // no choose from ith
+            if (j >= coins[i]) {
+                f[i][j] = min(f[i][j], f[i][j - coins[i]] + 1); // choose
+            }
+        }
+    }
+
+    int res = f[coins.size()-1][amount] == 1e5 ? -1 : f[coins.size()-1][amount];
+    return res;
+}
+```
+
+or 1-d implementation with rolling array:
+
+```c++
+int coinChange(vector<int>& coins, int amount) {
+    vector<int> f(amount + 1, 1e5);
+    f[0] = 0;
+
+    for (int i = 0; i < coins.size(); i++) {
+        for (int j = coins[i]; j <= amount; j++) {
+            f[j] = min(f[j], f[j - coins[i]] + 1); // choose
+        }
+    }
+
+    int res = f[amount] == 1e5 ? -1 : f[amount];
+    return res;
+}
+```
+
+### Word Break
+
+> Given a string `s` and a dictionary of strings `wordDict`, return true if `s` can be segmented into a space-separated sequence of one or more dictionary words.
+>
+> Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+```text
+Input:  s = "applepenapple", wordDict = ["apple","pen"]
+Answer: true
+```
+
+Define `f[i]` as:
+
+- problem sets: all divisions of first `i` characters in the string `s`.
+- property: true if word break successfully.
+
+Deduction:
+
+- select kth word from `workDict` as ith choice.
+
+`f[i] = f[i-len(wordDict[k])]` if `wordDict[k]` matches last `len(wordDict[k])` characters of `s`. `f[i] = false`, if all matches failed on ith match.
+
+```c++
+/**
+ * @brief check if there is a word breakdown for s
+ *
+ * @param s
+ * @param wordDict
+ * @return true
+ * @return false
+ */
+bool wordBreak(string s, vector<string>& wordDict) {
+    vector<bool> f(s.size(), false);
+
+    for (int i = 0; i < s.size(); i++) {
+        for (int j = 0; j < wordDict.size(); j++) {
+            // conds:
+            // 1. f[i](s[0..i]) has not found correct breakdown.
+            // 2. s[0..i] with length of i + 1 has at least size of word[j].
+            // 3. word[j] matches last k characters (s[k - word[i].size + 1..i]).
+            if (!f[i] && i + 1 >= wordDict[j].size() &&
+                // s[k..i]: i - k + 1 = word[i].size => k = i - word[i].size + 1
+                s.substr(i - wordDict[j].size() + 1, wordDict[j].size()) == wordDict[j]) {
+                // if (i - wordDict[j].size() >= 0) { // unsigned int overflow
+                if (i - wordDict[j].size() + 1 > 0) {
+                    // k > 0
+                    f[i] = f[i - wordDict[j].size()];
+                } else {
+                    f[i] = true;
+                }
+            }
+        }
+    }
+
+    return f[s.size() - 1];
+}
+```

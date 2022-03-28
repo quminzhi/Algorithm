@@ -10,7 +10,10 @@
         "iosfwd": "cpp"
     },
     "cSpell.ignoreWords": [
-        "Nlog"
+        "Nlog",
+        "applepenapple",
+        "conds",
+        "substr"
     ],
     "cSpell.words": [
         "Tribonacci"

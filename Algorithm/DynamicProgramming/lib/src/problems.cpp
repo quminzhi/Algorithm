@@ -209,7 +209,7 @@ int minDifficulty(vector<int>& jobDifficulty, int d) {
     vector<vector<int> > f(d, vector<int>(jobDifficulty.size(), 1e6));
 
     // initialize when i = 0
-    int hardest = 0; // track hardest job from [j-k+1 to j]
+    int hardest = 0;   // track hardest job from [j-k+1 to j]
     for (int j = 0; j < jobDifficulty.size(); j++) {
         hardest = max(hardest, jobDifficulty[j]);
         f[0][j] = hardest;
@@ -227,4 +227,94 @@ int minDifficulty(vector<int>& jobDifficulty, int d) {
     }
 
     return f[d - 1][jobDifficulty.size() - 1];
+}
+
+/**
+ * @brief f[i][j] = min(f[i-1][j], f[i][j-coins[i]] + 1)
+ *
+ * @param coins
+ * @param amount
+ * @return int
+ */
+int coinChange(vector<int>& coins, int amount) {
+    vector<int> f(amount + 1, 1e5);
+    f[0] = 0;
+
+    for (int i = 0; i < coins.size(); i++) {
+        for (int j = coins[i]; j <= amount; j++) {
+            f[j] = min(f[j], f[j - coins[i]] + 1);   // choose
+        }
+    }
+
+    int res = f[amount] == 1e5 ? -1 : f[amount];
+    return res;
+}
+
+bool wordBreakHelper(const string& s, const vector<string>& wordDict, vector<bool>& memo,
+                     int start) {
+    if (start >= s.size()) {
+        return true;
+    }
+
+    if (memo[start] == true) {
+        return true;
+    }
+
+    // try all possible words
+    for (int i = 0; i < wordDict.size(); i++) {
+        if (s.size() - start >= wordDict[i].size() &&
+            s.substr(start, wordDict[i].size()) == wordDict[i] &&
+            wordBreakHelper(s, wordDict, memo, start + wordDict[i].size())) {
+            memo[start] = true;
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief recursion + memo
+ *
+ * @param s
+ * @param wordDict
+ * @return true
+ * @return false
+ */
+bool wordBreakWithMemo(string s, vector<string>& wordDict) {
+    vector<bool> memo(s.size(), false);
+    return wordBreakHelper(s, wordDict, memo, 0);
+}
+
+/**
+ * @brief check if there is a word breakdown for s
+ *
+ * @param s
+ * @param wordDict
+ * @return true
+ * @return false
+ */
+bool wordBreak(string s, vector<string>& wordDict) {
+    vector<bool> f(s.size(), false);
+
+    for (int i = 0; i < s.size(); i++) {
+        for (int j = 0; j < wordDict.size(); j++) {
+            // cond:
+            // 1. f[i](s[0..i]) has not found correct breakdown.
+            // 2. s[0..i] with length of i + 1 has at least size of word[j].
+            // 3. word[j] matches last k characters (s[k - word[i].size + 1..i]).
+            if (!f[i] && i + 1 >= wordDict[j].size() &&
+                // s[k..i]: i - k + 1 = word[i].size => k = i - word[i].size + 1
+                s.substr(i - wordDict[j].size() + 1, wordDict[j].size()) == wordDict[j]) {
+                // if (i - wordDict[j].size() >= 0) { // unsigned int overflow
+                if (i - wordDict[j].size() + 1 > 0) {
+                    // k > 0
+                    f[i] = f[i - wordDict[j].size()];
+                } else {
+                    f[i] = true;
+                }
+            }
+        }
+    }
+
+    return f[s.size() - 1];
 }
