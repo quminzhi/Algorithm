@@ -180,3 +180,11 @@ TEST(MyTest, WordBreakTEST) {
         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab",
         dict3));
 }
+
+TEST(MyTest, lengthOfLISTEST) {
+    vector<int> nums = {10, 9, 2, 5, 3, 7, 101, 18};
+    EXPECT_EQ(lengthOfLIS(nums), 4);
+
+    vector<int> nums1 = {4, 10, 4, 3, 8, 9};
+    EXPECT_EQ(lengthOfLIS(nums1), 3);
+}

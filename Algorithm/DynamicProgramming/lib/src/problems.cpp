@@ -318,3 +318,28 @@ bool wordBreak(string s, vector<string>& wordDict) {
 
     return f[s.size() - 1];
 }
+
+/**
+ * @brief f[i] = max( f[i-j] or f[i-j] + 1 if nums[i-j] == nums[i], where 0 < j < i
+ *
+ * @param nums
+ * @return int
+ */
+int lengthOfLIS(vector<int>& nums) {
+    vector<int> f(nums.size(), 1);
+    
+    for (int i = 0; i < nums.size(); i++) {
+        for (int j = 1; j <= i; j++) {
+            if (nums[i] > nums[i - j]) {
+                f[i] = max(f[i], f[i - j] + 1);
+            }
+        }
+    }
+
+    int res = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        res = max(res, f[i]);
+    }
+
+    return res;
+}

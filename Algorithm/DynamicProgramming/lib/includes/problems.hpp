@@ -14,5 +14,6 @@ int minDifficulty(vector<int>& jobDifficulty, int d);
 int coinChange(vector<int>& coins, int amount);
 bool wordBreakWithMemo(string s, vector<string>& wordDict);
 bool wordBreak(string s, vector<string>& wordDict);
+int lengthOfLIS(vector<int>& nums);
 
 #endif
