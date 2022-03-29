@@ -2128,3 +2128,69 @@ int lengthOfLIS(vector<int>& nums) {
     return res;
 }
 ```
+
+### Best Time to Buy and Sell Stock IV
+
+> You are given an integer array prices where `prices[i]` is the price of a given stock on the ith day, and an integer `k`.
+>
+> Find the maximum profit you can achieve. You may complete **at most** k transactions.
+>
+> Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+>
+> One transaction includes buy and sell once.
+
+Top-Bottom method: Define `f[i][j][k]` as:
+
+- problem sets: on ith day, we have at most j transactions and we are holding a stock now (k == 1) or not holding (k == 0).
+- property: max profit we can get.
+
+Deduction:
+
+- On ith day, if we are holding a stock:
+    - if we sold on ith day, we got `price[i]`. `f[i][j][1] = f[i+1][j-1][0] + price[i]`.
+    - if we do not sold on ith day. `f[i][j][1] = f[i+1][j][1]`.
+    - we cannot buy on ith day.
+- On ith day, if we are not holding a stock:
+    - if we buy on ith day, we got `-price[i]`. `f[i][j][0] = f[i+1][j][1] - price[i]`.
+    - if we do not buy on ith day. `f[i][j][0] = f[i+1][j][0]`.
+
+```c++
+int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
+                    const vector<int>& prices, int i, int j, int k) {
+    if (i >= prices.size()) return 0;
+    if (j <= 0) return 0;
+
+    if (visited[i][j][k]) {
+        return f[i][j][k];
+    } else {
+        visited[i][j][k] = true;
+        if (k == 0) {
+            // if we are not holding a stock: buy or not buy
+            f[i][j][k] = max(maxProfitHelper(f, visited, prices, i + 1, j, 1) - prices[i],
+                             maxProfitHelper(f, visited, prices, i + 1, j, 0));
+        } else {
+            // holding
+            f[i][j][k] =
+                max(maxProfitHelper(f, visited, prices, i + 1, j - 1, 0) + prices[i],
+                    maxProfitHelper(f, visited, prices, i + 1, j, 1));
+        }
+        return f[i][j][k];
+    }
+}
+
+/**
+ * @brief return the best profit
+ *
+ * @param k
+ * @param prices
+ * @return int
+ */
+int maxProfit(int k, vector<int>& prices) {
+    vector<vector<vector<int>>> f(prices.size(),
+                                  vector<vector<int>>(k + 1, vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(
+        prices.size(), vector<vector<bool>>(k + 1, vector<bool>(2, false)));
+
+    return maxProfitHelper(f, visited, prices, 0, k, 0);
+}
+```

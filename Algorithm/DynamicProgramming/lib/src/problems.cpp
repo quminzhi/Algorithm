@@ -123,7 +123,7 @@ int deleteAndEarn(vector<int>& nums) {
  * @param result
  */
 int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
-                       vector<vector<int> >& f, int begin, int i) {
+                       vector<vector<int>>& f, int begin, int i) {
     if (f[begin][i] != -1e4) {
         return f[begin][i];
     }
@@ -154,7 +154,7 @@ int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
  * @return int
  */
 int maximumScore(vector<int>& nums, vector<int>& multipliers) {
-    vector<vector<int> > f(multipliers.size(), vector<int>(multipliers.size(), -1e4));
+    vector<vector<int>> f(multipliers.size(), vector<int>(multipliers.size(), -1e4));
     int result = maximumScoreHelper(nums, multipliers, f, 0, 0);
     return result;
 }
@@ -165,9 +165,9 @@ int maximumScore(vector<int>& nums, vector<int>& multipliers) {
  * @param matrix
  * @return int
  */
-int maximalSquare(vector<vector<char> >& matrix) {
-    vector<vector<int> > f(matrix.size() + 1,
-                           vector<int>(matrix[0].size() + 1, 0));   // 1-based
+int maximalSquare(vector<vector<char>>& matrix) {
+    vector<vector<int>> f(matrix.size() + 1,
+                          vector<int>(matrix[0].size() + 1, 0));   // 1-based
 
     int maxLen = 0;
     for (int i = 1; i <= matrix.size(); i++) {
@@ -206,7 +206,7 @@ int minDifficulty(vector<int>& jobDifficulty, int d) {
         return sum;
     }
 
-    vector<vector<int> > f(d, vector<int>(jobDifficulty.size(), 1e6));
+    vector<vector<int>> f(d, vector<int>(jobDifficulty.size(), 1e6));
 
     // initialize when i = 0
     int hardest = 0;   // track hardest job from [j-k+1 to j]
@@ -327,7 +327,7 @@ bool wordBreak(string s, vector<string>& wordDict) {
  */
 int lengthOfLIS(vector<int>& nums) {
     vector<int> f(nums.size(), 1);
-    
+
     for (int i = 0; i < nums.size(); i++) {
         for (int j = 1; j <= i; j++) {
             if (nums[i] > nums[i - j]) {
@@ -342,4 +342,43 @@ int lengthOfLIS(vector<int>& nums) {
     }
 
     return res;
+}
+
+int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
+                    const vector<int>& prices, int i, int j, int k) {
+    if (i >= prices.size()) return 0;
+    if (j <= 0) return 0;
+
+    if (visited[i][j][k]) {
+        return f[i][j][k];
+    } else {
+        visited[i][j][k] = true;
+        if (k == 0) {
+            // if we are not holding a stock: buy or not buy
+            f[i][j][k] = max(maxProfitHelper(f, visited, prices, i + 1, j, 1) - prices[i],
+                             maxProfitHelper(f, visited, prices, i + 1, j, 0));
+        } else {
+            // holding
+            f[i][j][k] =
+                max(maxProfitHelper(f, visited, prices, i + 1, j - 1, 0) + prices[i],
+                    maxProfitHelper(f, visited, prices, i + 1, j, 1));
+        }
+        return f[i][j][k];
+    }
+}
+
+/**
+ * @brief return the best profit
+ *
+ * @param k
+ * @param prices
+ * @return int
+ */
+int maxProfit(int k, vector<int>& prices) {
+    vector<vector<vector<int>>> f(prices.size(),
+                                  vector<vector<int>>(k + 1, vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(
+        prices.size(), vector<vector<bool>>(k + 1, vector<bool>(2, false)));
+
+    return maxProfitHelper(f, visited, prices, 0, k, 0);
 }
