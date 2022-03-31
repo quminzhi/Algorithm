@@ -24,3 +24,14 @@ TEST(MyTests, BitCounterCases) {
     EXPECT_EQ(BitCounter(255), 8);
     EXPECT_EQ(BitCounter(256), 1);
 }
+
+TEST(MyTests, BitCounterIICases) {
+    EXPECT_EQ(BitCounterII(0), 0);
+    EXPECT_EQ(BitCounterII(1), 1);
+    EXPECT_EQ(BitCounterII(5), 2);
+    EXPECT_EQ(BitCounterII(7), 3);
+    EXPECT_EQ(BitCounterII(15), 4);
+    EXPECT_EQ(BitCounterII(16), 1);
+    EXPECT_EQ(BitCounterII(255), 8);
+    EXPECT_EQ(BitCounterII(256), 1);
+}

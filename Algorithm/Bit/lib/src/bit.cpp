@@ -30,3 +30,19 @@ int BitCounter(int num) {
 
     return num;
 }
+
+/**
+ * @brief with x & (x - 1)
+ * 
+ * @param num 
+ * @return int 
+ */
+int BitCounterII(int num) {
+    int cnt = 0;
+    while (num != 0) {
+        num &= (num - 1);
+        cnt++;
+    }
+
+    return cnt;
+}

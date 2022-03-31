@@ -96,3 +96,36 @@ int BitCounter(int num) {
     return num;
 }
 ```
+
+## Eliminate Least Bit 1
+
+> Say we have an binary number `0b1110 0100` and we want to eliminate the least bit 1 (which is on 3rd bit from LSB to HSB).
+
+One useful operation to do that is `x & (x - 1)`.
+
+The function of `x - 1` is to set the least bit 1 to 0 and all following 0s to 1 due to borrowing 1 bit from 1's bit, and keep other bits unchanged.
+
+```text
+ex>  0b1110 0100
+  -1 0b1110 0011
+             ^
+       least bit 1
+   &
+  ---------------
+     0b1110 0000
+```
+
+With the trick above, we can calculate 1's bit in a binary number by eliminating least bit 1 repeatedly.
+
+```c++
+int BitCounterII(int num) {
+    int cnt = 0;
+    while (num != 0) {
+        num &= (num - 1);
+        cnt++;
+    }
+
+    return cnt;
+}
+```
+

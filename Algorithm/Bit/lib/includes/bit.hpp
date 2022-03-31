@@ -6,5 +6,6 @@
 using namespace std;
 
 int BitCounter(int num);
+int BitCounterII(int num);
 
 #endif
