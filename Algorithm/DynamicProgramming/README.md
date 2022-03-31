@@ -2194,3 +2194,77 @@ int maxProfit(int k, vector<int>& prices) {
     return maxProfitHelper(f, visited, prices, 0, k, 0);
 }
 ```
+
+### Best Time to Buy and Sell Stock with Cooldown
+
+> You are given an array prices where `prices[i]` is the price of a given stock on the ith day.
+>
+> Find the maximum profit you can achieve. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:
+>
+> - After you sell your stock, you cannot buy stock on the next day (i.e., cooldown one day).
+>
+> Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+This problem is similar to the one above other than constrains. In the last problem, the constrain is limitation of number of transaction while in this problem it becomes cooldown day.
+
+It can be solved in a similar way. Define `f[i][j][k]` as `i` means we are processing ith day, `j` indicates the day when the stock is sold out last time, and `k` is a binary number with 1 representing holding a stock and 0 not.
+
+On ith day, there are three cases:
+
+- if `i == j+1`, only thing we can do is doing nothing, `f[i][j][k] = f[i+1][j][k]`
+- if `k == 0` (not holding a stock) and `i != j+1` (not in cooldown day), I can choose to buy on ith day or not.
+    - if buying one, `f[i][j][k] = f[i+1][j][1] - prices[i]`
+    - if not, `f[i][j][k] = f[i+1][j][k]`
+- if `k == 1` (holding a stock),
+    - if selling the stock, `f[i][j][k] = f[i+1][i][0] + prices[i]`
+    - if not, ``f[i][j][k] = f[i+1][j][k]`
+
+```c++
+int maxProfitHelperII(vector<vector<vector<int>>>& f,
+                      vector<vector<vector<bool>>>& visited, const vector<int>& prices,
+                      int i, int j, int k) {
+    if (i >= prices.size()) {
+        return 0;
+    }
+
+    if (visited[i][j][k]) {
+        return f[i][j][k];
+    }
+
+    if (k == 1) {
+        f[i][j][k] = max(maxProfitHelperII(f, visited, prices, i + 1, i, 0) +
+                             prices[i],   // sell and update selling day
+                         maxProfitHelperII(f, visited, prices, i + 1, j, k));
+    } else {
+        // check if this is cooldown day if i want to buy a stock
+        if (j != 0 &&
+            i == j + 1) {   // if j has been updated (at least 1 trans completed)
+            f[i][j][k] = maxProfitHelperII(f, visited, prices, i + 1, j, k);
+        } else {
+            f[i][j][k] = max(
+                maxProfitHelperII(f, visited, prices, i + 1, j, 1) - prices[i],   // buy
+                maxProfitHelperII(f, visited, prices, i + 1, j, k));
+        }
+    }
+
+    visited[i][j][k] = true;
+    return f[i][j][k];
+}
+
+/**
+ * @brief different constrains compared to the last problem
+ *
+ * @param prices
+ * @return int
+ */
+int maxProfit(vector<int>& prices) {
+    vector<vector<vector<int>>> f(prices.size(),
+                                  vector<vector<int>>(prices.size(), vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(
+        prices.size(), vector<vector<bool>>(prices.size(), vector<bool>(2, false)));
+
+    int ret = maxProfitHelperII(f, visited, prices, 0, 0, 0);
+
+    return ret;
+}
+```

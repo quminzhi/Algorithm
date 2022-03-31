@@ -188,3 +188,8 @@ TEST(MyTest, lengthOfLISTEST) {
     vector<int> nums1 = {4, 10, 4, 3, 8, 9};
     EXPECT_EQ(lengthOfLIS(nums1), 3);
 }
+
+TEST(MyTest, maxProfitTEST) {
+    vector<int> prices = {1,2,3,0,2};
+    EXPECT_EQ(maxProfit(prices), 3);
+}

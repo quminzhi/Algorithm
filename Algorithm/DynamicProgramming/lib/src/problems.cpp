@@ -382,3 +382,51 @@ int maxProfit(int k, vector<int>& prices) {
 
     return maxProfitHelper(f, visited, prices, 0, k, 0);
 }
+
+int maxProfitHelperII(vector<vector<vector<int>>>& f,
+                      vector<vector<vector<bool>>>& visited, const vector<int>& prices,
+                      int i, int j, int k) {
+    if (i >= prices.size()) {
+        return 0;
+    }
+
+    if (visited[i][j][k]) {
+        return f[i][j][k];
+    }
+
+    if (k == 1) {
+        f[i][j][k] = max(maxProfitHelperII(f, visited, prices, i + 1, i, 0) +
+                             prices[i],   // sell and update selling day
+                         maxProfitHelperII(f, visited, prices, i + 1, j, k));
+    } else {
+        // check if this is cooldown day if i want to buy a stock
+        if (j != 0 &&
+            i == j + 1) {   // if j has been updated (at least 1 trans completed)
+            f[i][j][k] = maxProfitHelperII(f, visited, prices, i + 1, j, k);
+        } else {
+            f[i][j][k] = max(
+                maxProfitHelperII(f, visited, prices, i + 1, j, 1) - prices[i],   // buy
+                maxProfitHelperII(f, visited, prices, i + 1, j, k));
+        }
+    }
+
+    visited[i][j][k] = true;
+    return f[i][j][k];
+}
+
+/**
+ * @brief different constrains compared to the last problem
+ *
+ * @param prices
+ * @return int
+ */
+int maxProfit(vector<int>& prices) {
+    vector<vector<vector<int>>> f(prices.size(),
+                                  vector<vector<int>>(prices.size(), vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(
+        prices.size(), vector<vector<bool>>(prices.size(), vector<bool>(2, false)));
+
+    int ret = maxProfitHelperII(f, visited, prices, 0, 0, 0);
+
+    return ret;
+}
