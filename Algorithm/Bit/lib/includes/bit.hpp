@@ -1,6 +1,10 @@
 #ifndef BIT_HPP
 #define BIT_HPP
 
-// write your library here
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int BitCounter(int num);
 
 #endif

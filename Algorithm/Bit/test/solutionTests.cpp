@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "solution.hpp"
+#include "bit.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 class TestWithContext : public ::testing::Test {
@@ -13,6 +14,13 @@ TEST_F(TestWithContext, TestWithContextDemo1) {
     EXPECT_TRUE(true);
 }
 
-TEST(MyTests, SampleTestCases) {
-    EXPECT_TRUE(true);
+TEST(MyTests, BitCounterCases) {
+    EXPECT_EQ(BitCounter(0), 0);
+    EXPECT_EQ(BitCounter(1), 1);
+    EXPECT_EQ(BitCounter(5), 2);
+    EXPECT_EQ(BitCounter(7), 3);
+    EXPECT_EQ(BitCounter(15), 4);
+    EXPECT_EQ(BitCounter(16), 1);
+    EXPECT_EQ(BitCounter(255), 8);
+    EXPECT_EQ(BitCounter(256), 1);
 }
