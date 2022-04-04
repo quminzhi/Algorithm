@@ -25,8 +25,11 @@ class TreeNode2 {
     TreeNode2* right;
 };
 int rob(TreeNode2* root);
+
 int minCostClimbingStairsII(vector<int>& cost);
 int minCostClimbingStairsIII(vector<int>& cost);
 int minCostClimbingStairsIV(vector<int>& cost);
+
+int numWays(int n, int k);
 
 #endif

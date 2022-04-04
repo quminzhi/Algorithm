@@ -532,3 +532,25 @@ int minCostClimbingStairsIV(vector<int>& cost) {
 
     return top;
 }
+
+/**
+ * @brief counting
+ * 
+ * f[i] = (k - 1) * f[i-1] + 1 * (k - 1) * f[i-2]
+ * 
+ * @param n 
+ * @param k 
+ * @return int 
+ */
+int numWays(int n, int k) {
+    int N_MAX = 52;
+    int f[N_MAX];
+    memset(f, 0, sizeof(f[0]) * N_MAX);
+    
+    f[0] = k; f[1] = k * k;
+    for (int i = 2; i < n; i++) {
+        f[i] = (k - 1) * f[i-1] + (k - 1) * f[i-2];
+    }
+
+    return f[n-1];  // 0-indexed
+}

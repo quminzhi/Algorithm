@@ -2346,3 +2346,42 @@ int minCostClimbingStairsIV(vector<int>& cost) {
     return top;
 }
 ```
+
+### Paint Fence
+
+> You are painting a fence of `n` posts with `k` different colors. You must paint the posts following these rules:
+>
+> - Every post must be painted exactly one color.
+> - There CANNOT be three or more consecutive posts with the same color.
+>
+> Given the two integers n and k, return the number of ways you can paint the fence.
+
+Define `f[i]` as
+
+- problem sets: all paints first `i` posts with k colors.
+- property: count.
+
+Deduction: on `i`th fence,
+
+- painting the color different from `i-1`th post. Then we have `(k - 1) * f[i-1]` plans.
+- painting the color same as `i-1`th post WHEN painting `i-1`th post with different color than `i-2`th post. How many ways do we have? Painting `i`th post with the same color with `i-1`th, there is only one choice. And painting different colors for `i-1`th post from `i-2`th post, there are `k - 1` choices for `i-1`th post and `f[i-2]` choices for `i-2`th post.
+
+So, `f[i] = (k - 1) * f[i-1] + 1 * (k - 1) * f[i-2]`.
+
+with base case `f[0] = k`, `f[1] = k * k`.
+
+```c++
+int numWays(int n, int k) {
+    int N_MAX = 52;
+    int f[N_MAX];
+    memset(f, 0, sizeof(f[0]) * N_MAX);
+    
+    f[0] = k; f[1] = k * k;
+    for (int i = 2; i < n; i++) {
+        f[i] = (k - 1) * f[i-1] + (k - 1) * f[i-2];
+    }
+
+    return f[n-1];  // 0-indexed
+}
+```
+
