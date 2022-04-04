@@ -524,7 +524,7 @@ int minCostClimbingStairsIV(vector<int>& cost) {
     int onestep = 0;
     int top;
     for (int i = 2; i <= cost.size(); i++) {
-        top = min(twosteps + cost[i-2], onestep + cost[i-1]);
+        top = min(twosteps + cost[i - 2], onestep + cost[i - 1]);
         // update
         twosteps = onestep;
         onestep = top;
@@ -535,22 +535,81 @@ int minCostClimbingStairsIV(vector<int>& cost) {
 
 /**
  * @brief counting
- * 
+ *
  * f[i] = (k - 1) * f[i-1] + 1 * (k - 1) * f[i-2]
- * 
- * @param n 
- * @param k 
- * @return int 
+ *
+ * @param n
+ * @param k
+ * @return int
  */
 int numWays(int n, int k) {
     int N_MAX = 52;
     int f[N_MAX];
     memset(f, 0, sizeof(f[0]) * N_MAX);
-    
-    f[0] = k; f[1] = k * k;
+
+    f[0] = k;
+    f[1] = k * k;
     for (int i = 2; i < n; i++) {
-        f[i] = (k - 1) * f[i-1] + (k - 1) * f[i-2];
+        f[i] = (k - 1) * f[i - 1] + (k - 1) * f[i - 2];
     }
 
-    return f[n-1];  // 0-indexed
+    return f[n - 1];   // 0-indexed
+}
+
+/**
+ * @brief f[i][j] = f[i-1][j] + f[i][j - coins[i]]
+ *
+ * base case: select from 0th coin, f[0][j] = j % coins[0] == 0 ? 1 : 0
+ *
+ * @param amount
+ * @param coins
+ * @return int
+ */
+int changeII(int amount, vector<int>& coins) {
+    vector<vector<int>> f(coins.size(), vector<int>(amount + 1, 0));
+
+    // base: don't choose is 1 choice when amount == 0
+    for (int i = 0; i < coins.size(); i++) {
+        f[i][0] = 1;
+    }
+
+    // preprocess 0th row for 0-index coins
+    for (int j = 1; j <= amount; j++) {
+        if (j % coins[0] == 0) {
+            f[0][j] = 1;
+        }
+    }
+
+    for (int i = 1; i < coins.size(); i++) {
+        for (int j = 0; j <= amount; j++) {
+            f[i][j] = f[i - 1][j];
+            if (coins[i] <= j) {
+                f[i][j] += f[i][j - coins[i]];
+            }
+        }
+    }
+
+    return f[coins.size() - 1][amount];
+}
+
+/**
+ * @brief f[i][j] = f[i-1][j] + f[i][j - coins[i]]
+ *
+ * @param amount
+ * @param coins
+ * @return int
+ */
+int changeIII(int amount, vector<int>& coins) {
+    vector<int> f(amount + 1, 0);
+
+    // base: don't choose is 1 choice when amount == 0
+    f[0] = 1;
+
+    for (int i = 0; i < coins.size(); i++) {
+        for (int j = coins[i]; j <= amount; j++) {
+            f[j] += f[j - coins[i]];
+        }
+    }
+
+    return f[amount];
 }

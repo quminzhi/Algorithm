@@ -31,5 +31,7 @@ int minCostClimbingStairsIII(vector<int>& cost);
 int minCostClimbingStairsIV(vector<int>& cost);
 
 int numWays(int n, int k);
+int changeII(int amount, vector<int>& coins);
+int changeIII(int amount, vector<int>& coins);
 
 #endif

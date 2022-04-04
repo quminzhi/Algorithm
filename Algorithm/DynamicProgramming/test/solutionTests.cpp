@@ -193,3 +193,9 @@ TEST(MyTest, maxProfitTEST) {
     vector<int> prices = {1,2,3,0,2};
     EXPECT_EQ(maxProfit(prices), 3);
 }
+
+TEST(MyTest, changeIITEST) {
+    vector<int> coins = {1, 2, 5};
+    EXPECT_EQ(changeII(5, coins), 4);
+    EXPECT_EQ(changeIII(5, coins), 4);
+}
