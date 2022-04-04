@@ -2268,3 +2268,81 @@ int maxProfit(vector<int>& prices) {
     return ret;
 }
 ```
+
+### Min Cost Climbing Stairs II
+
+> You are given an integer array cost where `cost[i]` is the cost of ith step on a staircase. Once you pay the cost, you can either climb one or two steps.
+>
+> You can either start from the step with index 0, or the step with index 1.
+>
+> Return the minimum cost to reach the top of the floor.
+
+- Top to bottom:
+
+```c++
+int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<int>& cost,
+                                int start) {
+    if (start >= cost.size()) {
+        return 0;
+    }
+
+    if (visited[start]) {
+        return f[start];
+    }
+
+    f[start] =
+        cost[start] + min(minCostClimbingStairsHelper(f, visited, cost, start + 1),
+                          minCostClimbingStairsHelper(f, visited, cost, start + 2));
+
+    return f[start];
+}
+
+/**
+ * @brief return the minimum cost of climbing stairs, recursion plus memo
+ *
+ * @param cost
+ * @return int
+ */
+int minCostClimbingStairsII(vector<int>& cost) {
+    vector<int> f(cost.size(), 1e5);
+    vector<bool> visited(cost.size(), false);
+    return min(minCostClimbingStairsHelper(f, visited, cost, 0),
+               minCostClimbingStairsHelper(f, visited, cost, 1));
+}
+```
+
+- Bottom to top
+
+Define `f[i]` as minimum cost from 0 to `i` (where `i` is the top index). And the deduction is `f[i] = min(f[i-1] + cost[i-1], f[i-2] + cost[i-2])`.
+
+```c++
+int minCostClimbingStairsIII(vector<int>& cost) {
+    vector<int> f(cost.size() + 1, 1e5);
+    f[0] = f[1] = 0;
+    for (int i = 2; i <= cost.size(); i++) {
+        f[i] = min(f[i - 1] + cost[i - 1], f[i - 2] + cost[i - 2]);
+    }
+
+    return f[cost.size()];
+}
+```
+
+- State Compression
+
+Note that `f[i]` only relies on `f[i-1]` and `f[i-2]`, and we are only concerned about the result (`f[top]`) rather than intermediate calculations. So we can save array space with some variables.
+
+```c++
+int minCostClimbingStairsIV(vector<int>& cost) {
+    int twosteps = 0;
+    int onestep = 0;
+    int top;
+    for (int i = 2; i <= cost.size(); i++) {
+        top = min(twosteps + cost[i-2], onestep + cost[i-1]);
+        // update iteratively for the next top
+        twosteps = onestep;
+        onestep = top;
+    }
+
+    return top;
+}
+```

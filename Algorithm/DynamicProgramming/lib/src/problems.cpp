@@ -1,6 +1,7 @@
 #include "problems.hpp"
 
 #include <iostream>
+#include <unordered_map>
 
 /**
  * @brief return the maximum value we can rob from a sequence of houses.
@@ -429,4 +430,105 @@ int maxProfit(vector<int>& prices) {
     int ret = maxProfitHelperII(f, visited, prices, 0, 0, 0);
 
     return ret;
+}
+
+int robHelper(TreeNode2* root, bool available) {
+    if (root == nullptr) {
+        return 0;
+    }
+
+    if (available) {
+        return max(robHelper(root->left, !available) +
+                       robHelper(root->right, !available) + root->val,
+                   robHelper(root->left, available) + robHelper(root->right, available));
+    }
+
+    if (!available) {
+        return robHelper(root->left, !available) + robHelper(root->right, !available);
+    }
+
+    return 0;
+}
+
+/**
+ * @brief define f[i, j ,k]
+ *
+ * @param root
+ * @return int
+ */
+int rob(TreeNode2* root) { return max(robHelper(root, true), robHelper(root, false)); }
+
+int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<int>& cost,
+                                int start) {
+    if (start >= cost.size()) {
+        return 0;
+    }
+
+    if (visited[start]) {
+        return f[start];
+    }
+
+    f[start] =
+        cost[start] + min(minCostClimbingStairsHelper(f, visited, cost, start + 1),
+                          minCostClimbingStairsHelper(f, visited, cost, start + 2));
+
+    return f[start];
+}
+
+/**
+ * @brief return the minimum cost of climbing stairs, recursion plus memo
+ *
+ * @param cost
+ * @return int
+ */
+int minCostClimbingStairsII(vector<int>& cost) {
+    vector<int> f(cost.size(), 1e5);
+    vector<bool> visited(cost.size(), false);
+    return min(minCostClimbingStairsHelper(f, visited, cost, 0),
+               minCostClimbingStairsHelper(f, visited, cost, 1));
+}
+
+/**
+ * @brief dynamic programming from bottom to top
+ *
+ * Define f[i] as minCost from 0 to i (where i is the top).
+ *
+ * f[i] = min(f[i-1] + cost[i-1], f[i-2] + cost[i-2])
+ *
+ * @param cost
+ * @return int
+ */
+int minCostClimbingStairsIII(vector<int>& cost) {
+    vector<int> f(cost.size() + 1, 1e5);
+    f[0] = f[1] = 0;
+    for (int i = 2; i <= cost.size(); i++) {
+        f[i] = min(f[i - 1] + cost[i - 1], f[i - 2] + cost[i - 2]);
+    }
+
+    return f[cost.size()];
+}
+
+/**
+ * @brief state compression: note that f[i] only relies on f[i-1] and f[i-2], and we are
+ * only concerned about the result (f[top]) rather than intermediate calculations. So we
+ * can save array space with some variables.
+ *
+ * we can use only three variables (twosteps, onestep, top) to solve the problem
+ * iteratively.
+ *
+ * @param cost
+ * @return int
+ */
+int minCostClimbingStairsIV(vector<int>& cost) {
+    int twosteps = 0;
+    int onestep = 0;
+    int top;
+    for (int i = 2; i <= cost.size(); i++) {
+        top = min(twosteps + cost[i-2], onestep + cost[i-1]);
+        // update
+        twosteps = onestep;
+        onestep = top;
+    }
+
+    return top;
 }

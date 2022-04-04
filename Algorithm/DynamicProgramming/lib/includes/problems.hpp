@@ -18,4 +18,15 @@ int lengthOfLIS(vector<int>& nums);
 int maxProfit(int k, vector<int>& prices);
 int maxProfit(vector<int>& prices);
 
+class TreeNode2 {
+   public:
+    int val;
+    TreeNode2* left;
+    TreeNode2* right;
+};
+int rob(TreeNode2* root);
+int minCostClimbingStairsII(vector<int>& cost);
+int minCostClimbingStairsIII(vector<int>& cost);
+int minCostClimbingStairsIV(vector<int>& cost);
+
 #endif
