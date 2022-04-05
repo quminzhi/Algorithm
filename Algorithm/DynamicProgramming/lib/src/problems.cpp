@@ -613,3 +613,40 @@ int changeIII(int amount, vector<int>& coins) {
 
     return f[amount];
 }
+
+/**
+ * @brief f[i] = f[i-1] + f[i-2] if ch[i-1]ch[i] is a valid text to be decoded.
+ *
+ * @param s
+ * @return int
+ */
+int numDecodings(string s) {
+    unordered_map<string, char> key;
+    for (int i = 1; i <= 26; i++) {
+        key[to_string(i)] = 'A' + i - 1;
+    }
+
+    vector<int> f(s.size(), 0);
+    f[0] = s[0] == '0' ? 0 : 1;    // decode on its own
+
+    for (int i = 1; i < s.size(); i++) {
+        if (s[i] != '0') {
+            // when s[i] != '0', it can decode on its own
+            f[i] += f[i - 1];
+        }
+        string comb = s.substr(i - 1, 2);
+        if (key.find(comb) != key.end()) {
+            if (i - 2 >= 0) {
+                f[i] += f[i - 2];
+            } else {
+                f[i] += 1;
+            }
+        }
+        
+        if (s[i] == '0' && key.find(comb) == key.end()) {   // bad 0
+            return 0;
+        }
+    }
+
+    return f[s.size() - 1];
+}

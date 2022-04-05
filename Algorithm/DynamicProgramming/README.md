@@ -2402,8 +2402,8 @@ Define `f[i][j]` as:
 
 Deduction: On ith coin
 
-- continue to choose `i`th coin. `f[i][j] = f[i][j-coins[i]]`.
-- choose from first `i-1` coins. `f[i][j] = f[i-1][j]`.
+- continue to choose `i`th coin. `f[i][j] = 1 * f[i][j-coins[i]]`.
+- choose from first `i-1` coins. `f[i][j] = 1 * f[i-1][j]`.
 
 So, we get `f[i][j] = f[i][j-coins[i]] + f[i-1][j]`.
 
@@ -2457,3 +2457,63 @@ int changeIII(int amount, vector<int>& coins) {
 }
 ```
 
+### Decode Ways
+
+> A message containing letters from `A-Z` can be encoded into numbers using the following mapping:
+>
+> 'A' -> "1", 'B' -> "2", ..., 'Z' -> "26"
+>
+> To decode an encoded message, all the digits must be grouped then mapped back into letters using the reverse of the mapping above (there may be multiple ways). For example, "11106" can be mapped into:
+>
+> - "AAJF" with the grouping (1 1 10 6)
+> - "KJF" with the grouping (11 10 6)
+>
+> Note that the grouping (1 11 06) is invalid because "06" cannot be mapped into 'F' since "6" is different from "06".
+>
+> Given a string s containing only digits, return the number of ways to decode it.
+>
+> The test cases are generated so that the answer fits in a 32-bit integer.
+
+Define `f[i]` as:
+
+- problem set: all ways of decode first i digits in the given string.
+- property: count.
+
+Deduction:
+
+- on ith digit, it can be decoded in one digit on its own, or combined with `i-1`th digit and decoded together if it is valid. `f[i] = 1 * f[i-1]` or `f[i] = 1 * f[i-2]` if `ch[i-1]ch[i]` is a valid text to be decoded.
+
+So, `f[i] = f[i-1] + f[i-2]` if `ch[i-1]ch[i]` is a valid text to be decoded.
+
+```c++
+unordered_map<string, char> key;
+    for (int i = 1; i <= 26; i++) {
+        key[to_string(i)] = 'A' + i - 1;
+    }
+
+    vector<int> f(s.size(), 0);
+    f[0] = s[0] == '0' ? 0 : 1;    // decode on its own
+
+    for (int i = 1; i < s.size(); i++) {
+        if (s[i] != '0') {
+            // when s[i] != '0', it can decode on its own
+            f[i] += f[i - 1];
+        }
+        string comb = s.substr(i - 1, 2);
+        if (key.find(comb) != key.end()) {
+            if (i - 2 >= 0) {
+                f[i] += f[i - 2];
+            } else {
+                f[i] += 1;
+            }
+        }
+        
+        if (s[i] == '0' && key.find(comb) == key.end()) {   // bad 0
+            return 0;
+        }
+    }
+
+    return f[s.size() - 1];
+```
+
+The code above can be optimized with three variables to calculate result iteratively, given that `f[i]` only relies on `f[i-1]` and `f[i-2]` and we do not need to save intermediate calculation.

@@ -199,3 +199,11 @@ TEST(MyTest, changeIITEST) {
     EXPECT_EQ(changeII(5, coins), 4);
     EXPECT_EQ(changeIII(5, coins), 4);
 }
+
+TEST(MyTest, numDecodingTEST) {
+    EXPECT_EQ(numDecodings("226"), 3);
+    EXPECT_EQ(numDecodings("06"), 0);
+    EXPECT_EQ(numDecodings("10"), 1);
+    EXPECT_EQ(numDecodings("0"), 0);
+    EXPECT_EQ(numDecodings("2101"), 1);
+}
