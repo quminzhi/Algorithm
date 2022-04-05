@@ -81,6 +81,9 @@
         "__bits": "cpp"
     },
     "cSpell.ignoreWords": [
-        "nullptr"
+        "cout",
+        "endl",
+        "nullptr",
+        "vals"
     ]
 }

@@ -14,19 +14,18 @@ class SinglyLinkedList {
     void Insert(int val, int idx);    // idx refers to the ith node in a linked list
     void InsertAbs(int val, int i);   // i here refers to the index of array
     int HeadDelete();
-    int DeleteAbs(int val, int i);   // do not care about freeing space
+    int DeleteAbs(int i);   // do not care about freeing space
 
     int Top();
     int Size();
     bool IsEmpty();
+    void Traverse();
 
+    static const int INIT_SIZE = 100;
     int head;
     int size;
-    int val[INIT_SIZE];
+    int vals[INIT_SIZE];
     int next[INIT_SIZE];   // index by an array index not a pointer
-
-   private:
-    int INIT_SIZE = 100;
-}
+};
 
 #endif
