@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "solution.hpp"
 #include "list.hpp"
+#include "sq.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 class TestWithContext : public ::testing::Test {
@@ -19,9 +20,15 @@ TEST(MyTests, SinglyLinkedListTestCases) {
     list.HeadInsert(1);
     list.HeadInsert(2);
     list.HeadInsert(3);
-    list.Traverse();
+    // list.Traverse();
     list.InsertAbs(5, 2);
-    list.Traverse();
+    // list.Traverse();
     list.DeleteAbs(1);
-    list.Traverse();
+    // list.Traverse();
+}
+
+TEST(MyTests, MonotonicStackTEST) {
+    vector<int> nums = {3, 4, 2, 5, 7};
+    vector<int> res = {-1, 3, -1, 2, 5};
+    EXPECT_EQ(closestIndex(nums), res);
 }

@@ -167,12 +167,12 @@ To sum up: following are some common operations: note that `k`th here is not the
 
 ### Stack
 
-Define `s[]` as a stack, and `top` is top index of stack. Range of `s` is [0, top).
+Define `s[]` as a stack, and `top` is top index of stack. Range of `s` is [0, top].
 
-- init: `top = 0;`.
-- push: `s[top++] = val;`.
+- init: `top = -1;`.
+- push: `s[++top] = val;`.
 - pop: `top--;`.
-- empty: `top == 0;` (exclusive).
+- empty: `top < 0;` (exclusive).
 
 ### Queue
 
@@ -182,3 +182,97 @@ Define `q[]` as a queue, and `front` and `tail` is front index and tail index of
 - push: `q[++tail] = val;`.
 - pop: `front++;`.
 - empty: `front > tail` (refer to init).
+
+### Monotonic Stack
+
+A monotonic stack is a stack whose elements are monotonically increasing or decreasing.
+
+We will introduce it with a simple problem:
+
+> Given an array `a[]`, return the closest index whose value is less than `a[i]`. If such index does not exist, return -1.
+>
+> ex:
+> a[]   =  3,  4,  2,  5,  7
+> res[] = -1,  3, -1,  2,  5
+
+Analysis: say, given `a[2] >= a[3]`, and we are going to find the closest index `a[i]` whose value is less than `a[i]`, `a[2]` must NOT be the answer. So if `a[2] >= a[3]` when dealing with `a[3]`, we can pop `a[2]` from the stack.
+
+So, all candidates are reserved in the stack and arranged in ascending order. In this way, we can get a monotonic stack (ascending).
+
+```c++
+vector<int> closestIndex(vector<int>& nums) {
+    // init a stack
+    int N_MAX = 5000;
+    vector<int> s(N_MAX, 0);
+    int top = -1;
+
+    vector<int> res;
+    for (int i = 0; i < nums.size(); i++) {
+        while (top >= 0 && s[top] >= nums[i]) {
+            top--;
+        }
+        if (top >= 0) {
+            res.push_back(s[top]);
+        } else {
+            res.push_back(-1);
+        }
+        s[++top] = nums[i];
+    }
+
+    return res;
+}
+```
+
+### Monotonic Queue
+
+A monotonic Queue is a data structure the elements from the front to the end is strictly either increasing or decreasing.
+
+> You are given an array of integers nums, there is a sliding window of size k which is moving from the very left of the array to the very right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+>
+> Return the max sliding window.
+
+The basic idea is to use a queue to represent sliding window. We need to go from 0 to `n` and each time we iterate all elements in the queue to get maximum number. The time complexity goes to be `O(nk)`.
+
+To optimize it, let's analyze the elements in the queue and see if we can do something on that.
+
+```text
+ex>  1  3  -1  -3  5  4  6  7  (k = 3)
+                   ^     ^
+                front    end
+
+One observation on given window is:
+    1. 6 comes after 4 and 5.
+    2. 6 is greater than 4 or 5.
+So, if 6 will live longer than 4 and 5 and if it exists, neither 4 nor 5 could be the answer. Thereby, we can dump 4 and 5 out of our queue.
+```
+
+In this way, our queue is going to be a monotonic queue (non-ascending). Since it is non-ascending, the maximum is `q[front]`.
+
+To check boundary, we push index rather than val of `nums` in `q`.
+
+```c++
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+    int N_MAX = 1e5 + 10;
+    int q[N_MAX], front = 0, tail = -1;   // index not val, [front, tail]
+    vector<int> res;
+
+    // slide window [i - k + 1, i]
+    for (int i = 0; i < nums.size(); i++) {
+        // insert: find the place for nums[i]
+        while (front <= tail && nums[q[tail]] <= nums[i] ) {
+            tail--;
+        }
+        q[++tail] = i;
+        // check if front is out of the sliding window
+        if (q[front] < i - k + 1) {
+            front++;
+        }
+        if (i - k + 1 >= 0) {
+            // if slide window completes
+            res.push_back(nums[q[front]]);
+        }
+    }
+
+    return res;
+}
+```
