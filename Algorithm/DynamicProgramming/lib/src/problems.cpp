@@ -690,3 +690,37 @@ int maxSubArrayII(vector<int>& nums) {
 
     return maxSum;
 }
+
+/**
+ * @brief f[i] = max(prices[i] - prices[i-1], f[i-1] - prices[i-1] + prices[i])
+ *
+ * @param prices
+ * @return int
+ */
+int maxProfitI(vector<int>& prices) {
+    vector<int> f(prices.size(), 0);
+    f[0] = 0;
+    for (int i = 1; i < prices.size(); i++) {
+        f[i] = max(prices[i] - prices[i - 1], f[i - 1] - prices[i - 1] + prices[i]);
+    }
+
+    int maxVal = -1e5;
+    for (int i = 0; i < prices.size(); i++) {
+        maxVal = max(maxVal, f[i]);
+    }
+
+    return maxVal;
+}
+
+int maxProfitII(vector<int>& prices) {
+    int pre = 0;
+    int cur = 0;
+    int maxVal = pre;   // assuming f[0] is the maximum
+    for (int i = 1; i < prices.size(); i++) {
+        cur = max(prices[i] - prices[i - 1], pre - prices[i - 1] + prices[i]);
+        maxVal = max(maxVal, cur);
+        pre = cur;
+    }
+
+    return maxVal;
+}

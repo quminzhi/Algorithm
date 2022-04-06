@@ -38,4 +38,7 @@ int maxSubArray(vector<int>& nums);
 int maxSubArrayII(vector<int>& nums);
 
 
+int maxProfitI(vector<int>& prices);
+int maxProfitII(vector<int>& prices);
+
 #endif

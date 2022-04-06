@@ -2576,3 +2576,48 @@ int maxSubArrayII(vector<int>& nums) {
 >
 > Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
 
+Define `f[i]` as:
+
+- problem sets: all transactions happen in the first i days and sell stock on ith day.
+- property: maximum profit.
+
+Deduction:
+
+- The maximum profit when selling on ith day is the maximum profit when selling on `i-1`th day - `prices[i-1]` + `prices[i]`, or buying stock on `i-1`th day and selling on `i`th day, i.e. `f[i] = max(prices[i] - prices[i-1], f[i-1] - prices[i-1] + prices[i])`.
+
+```c++
+int maxProfitI(vector<int>& prices) {
+    vector<int> f(prices.size(), 0);
+    f[0] = 0;
+    for (int i = 1; i < prices.size(); i++) {
+        f[i] = max(prices[i] - prices[i-1], f[i-1] - prices[i-1] + prices[i]);
+    }
+
+    int maxVal = -1e5;
+    for (int i = 0; i < prices.size(); i++) {
+        maxVal = max(maxVal, f[i]);
+    }
+
+    return maxVal;
+}
+```
+
+- state compression
+
+With the same idea as the problem above, we can use three variables to solve the problem iteratively.
+
+```c++
+int maxProfitII(vector<int>& prices) {
+    int pre = 0;
+    int cur = 0;
+    int maxVal = pre;   // assuming f[0] is the maximum
+    for (int i = 1; i < prices.size(); i++) {
+        cur = max(prices[i] - prices[i - 1], pre - prices[i - 1] + prices[i]);
+        maxVal = max(maxVal, cur);
+        pre = cur;
+    }
+
+    return maxVal;
+}
+```
+
