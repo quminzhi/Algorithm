@@ -32,3 +32,10 @@ TEST(MyTests, MonotonicStackTEST) {
     vector<int> res = {-1, 3, -1, 2, 5};
     EXPECT_EQ(closestIndex(nums), res);
 }
+
+TEST(MyTest, KMP_TEST) {
+    string s = "abababbbabbababa";
+    string pattern = "aba";
+    vector<int> res = {0, 2, 11, 13};
+    EXPECT_EQ(kmp(s, pattern), res);
+}

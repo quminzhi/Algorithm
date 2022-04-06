@@ -37,7 +37,7 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
     // slide window [i - k + 1, i]
     for (int i = 0; i < nums.size(); i++) {
         // insert: find the place for nums[i]
-        while (front <= tail && nums[q[tail]] <= nums[i] ) {
+        while (front <= tail && nums[q[tail]] <= nums[i]) {
             tail--;
         }
         q[++tail] = i;
@@ -48,6 +48,59 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
         if (i - k + 1 >= 0) {
             // if slide window completes
             res.push_back(nums[q[front]]);
+        }
+    }
+
+    return res;
+}
+
+/**
+ * @brief
+ *
+ *       s = oooo1111xoooooooooo
+ *                   ^
+ *                   i: points to the first char that match failed in s string.
+ * pattern =     1111xoooo        (len = 9)
+ *                  ^
+ *                  j: points to the last char that matches in pattern string.
+ *                     also the size of matching chars
+ *
+ * @param s
+ * @param pattern
+ * @return vector<int>
+ */
+vector<int> kmp(string s, string pattern) {
+    // transform to 1-based string
+    string ss = string("0") + s;
+    string pp = string("0") + pattern;
+
+    // build next
+    vector<int> ne(pp.size(), 0);
+    // the first char pp[1] cannot have common prefix and postfix since our definition.
+    // note that j is also the len of matching string.
+    for (int i = 2, j = 0; i <= pattern.size(); i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        // update ne[j]
+        ne[i] = j;
+    }
+
+    vector<int> res;
+    // match
+    for (int i = 1, j = 0; i <= s.size(); i++) {
+        while (j > 0 && ss[i] != pp[j + 1]) {
+            j = ne[j];   // move forward
+        }
+        if (ss[i] == pp[j + 1]) {
+            j++;
+        }
+        if (j == pattern.size()) {
+            res.push_back(i - j);
+            j = ne[j];   // move forward for next possible match
         }
     }
 

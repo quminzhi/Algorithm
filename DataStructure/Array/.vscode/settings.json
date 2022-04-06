@@ -85,6 +85,7 @@
         "endl",
         "nullptr",
         "nums",
+        "substr",
         "vals"
     ]
 }

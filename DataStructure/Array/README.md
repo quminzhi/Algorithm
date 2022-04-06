@@ -276,3 +276,109 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
     return res;
 }
 ```
+
+### KMP
+
+> Given two strings, `s` and pattern `sub`, find all matching index for `sub` in `s`. Return the first index of matching location.
+
+Let's see the problem start from the beginning. (string is 1-based in following discussion)
+
+```text
+ex>      s =  a  b  a  b  a  b
+   pattern =  a  b  a  b
+              ^        ^
+              1     ^        ^
+                    3
+
+There are two matching points.
+```
+
+By abstracting the problem, we got:
+
+```text
+
+      s = oooo1111xoooooooooo
+                  ^
+                  i: points to the first char that match failed in s string.
+pattern =     1111xoooo        (len = 9)
+                 ^
+                 j: points to the last char that matches in pattern string.
+
+where, '1' means matching chars and 'x' means the first not matching char with index `i`, and 'o' means wait to be determined.
+```
+
+So, there are some points should be noted:
+
+- we are focusing on `i` in origin string `s`, which points to the first char that match failed.
+- `j` is the size of matching chars in `pattern`. And j happens to point to the last matching char in pattern string, i.e. `pattern[1..j] == s[i-j..i-1]`.
+- Given `j == i - 1`, if we subtract `j` by `m`, it looks like we move pattern string forward by m steps. See the diagram below.
+
+```text
+
+      s = oooo1111xoooooooooo
+                  ^
+                  i
+pattern =     1111xoooo    (there are 4 common chars)
+                 ^
+                 j == i - 1
+
+Move pattern forward by 2.
+
+pattern =       11xoooooo  (there are only 2 common chars left)
+                 ^
+                 j == i - 1
+```
+
+- We need to decide the maximum steps pattern can move forward at each step by `next[j]`. One observation is that we can get maximum interest by move `len` step, where `len` is the length of prefix and postfix of matching string `pattern[1..j]`.
+
+```text
+pattern: a  b  c  a  b
+  index: 1  2  3  4  5
+ next[]: 0  0  0  1  2
+
+when `j == 1`, matching string is `pattern[1..1]`, prefix and postfix can not be the same char, so next[1] = 0.
+when `j == 2`, matching string is `pattern[1..1]`, 'prefix = a' != 'postfix = b', so next[2] = 0.
+...
+when `j == 4`, 'prefix = ab' != 'postfix = ca', but 'prefix = a' == 'postfix = a', so next[4] = 1.
+when `j == 4`, 'prefix = ab' == 'postfix = ba', so next[5] = 2.
+```
+
+```c++
+vector<int> kmp(string s, string pattern) {
+    // transform to 1-based string
+    string ss = string("0") + s;
+    string pp = string("0") + pattern;
+
+    // build next
+    vector<int> ne(pp.size(), 0);
+    // the first char pp[1] cannot have common prefix and postfix since our definition.
+    // note that j is also the len of matching string.
+    for (int i = 2, j = 0; i <= pattern.size(); i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        // update ne[j]
+        ne[i] = j;
+    }
+
+    vector<int> res;
+    // match
+    for (int i = 1, j = 0; i <= s.size(); i++) {
+        while (j > 0 && ss[i] != pp[j + 1]) {
+            j = ne[j];   // move forward
+        }
+        if (ss[i] == pp[j + 1]) {
+            j++;
+        }
+        if (j == pattern.size()) {
+            res.push_back(i - j);
+            j = ne[j];   // move forward for next possible match
+        }
+    }
+
+    return res;
+}
+```
