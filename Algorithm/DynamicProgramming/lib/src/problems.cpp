@@ -627,7 +627,7 @@ int numDecodings(string s) {
     }
 
     vector<int> f(s.size(), 0);
-    f[0] = s[0] == '0' ? 0 : 1;    // decode on its own
+    f[0] = s[0] == '0' ? 0 : 1;   // decode on its own
 
     for (int i = 1; i < s.size(); i++) {
         if (s[i] != '0') {
@@ -642,11 +642,51 @@ int numDecodings(string s) {
                 f[i] += 1;
             }
         }
-        
+
         if (s[i] == '0' && key.find(comb) == key.end()) {   // bad 0
             return 0;
         }
     }
 
     return f[s.size() - 1];
+}
+
+/**
+ * @brief f[i] = max(nums[i], nums[i] + f[i-1])
+ *
+ * @param nums
+ * @return int
+ */
+int maxSubArray(vector<int>& nums) {
+    vector<int> f(nums.size(), -1e5);
+    f[0] = nums[0];
+    for (int i = 1; i < nums.size(); i++) {
+        f[i] = max(nums[i], nums[i] + f[i - 1]);
+    }
+
+    int res = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        res = max(res, f[i]);
+    }
+
+    return res;
+}
+
+/**
+ * @brief state compression
+ *
+ * @param nums
+ * @return int
+ */
+int maxSubArrayII(vector<int>& nums) {
+    int pre = 0;
+    int cur = 0;
+    int maxSum = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        cur = max(nums[i], pre + nums[i]);   // update f[i]
+        maxSum = max(maxSum, cur);
+        pre = cur;   // record f[i-1]
+    }
+
+    return maxSum;
 }

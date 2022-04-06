@@ -29,10 +29,12 @@
     },
     "cSpell.ignoreWords": [
         "Nlog",
+        "Subarray",
         "applepenapple",
         "conds",
         "cooldown",
         "memset",
+        "nums",
         "onestep",
         "substr",
         "twosteps"

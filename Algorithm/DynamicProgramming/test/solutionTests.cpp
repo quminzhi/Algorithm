@@ -190,7 +190,7 @@ TEST(MyTest, lengthOfLISTEST) {
 }
 
 TEST(MyTest, maxProfitTEST) {
-    vector<int> prices = {1,2,3,0,2};
+    vector<int> prices = {1, 2, 3, 0, 2};
     EXPECT_EQ(maxProfit(prices), 3);
 }
 
@@ -206,4 +206,10 @@ TEST(MyTest, numDecodingTEST) {
     EXPECT_EQ(numDecodings("10"), 1);
     EXPECT_EQ(numDecodings("0"), 0);
     EXPECT_EQ(numDecodings("2101"), 1);
+}
+
+TEST(MyTest, maxSubArrayTEST) {
+    vector<int> v = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+    EXPECT_EQ(maxSubArray(v), 6);
+    EXPECT_EQ(maxSubArrayII(v), 6);
 }

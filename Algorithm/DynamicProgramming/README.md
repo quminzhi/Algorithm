@@ -1427,7 +1427,6 @@ Deduction: say our problem is `f[11111, 4]`. Which sub problem contributes the s
 
 Deduction: what we care about is what's the vertexes directly connected to `j`. Say that point is `k`, then according to the definition of Hamilton distance, `f[i][j] = f[i'][k] + cost[k][j]` and `k` must be in the state and `j` cannot be in the state.
 
-
 ```c++
 /**
  * @brief return the shortest path from vertex 0 to the last vertex
@@ -2517,3 +2516,63 @@ unordered_map<string, char> key;
 ```
 
 The code above can be optimized with three variables to calculate result iteratively, given that `f[i]` only relies on `f[i-1]` and `f[i-2]` and we do not need to save intermediate calculation.
+
+### Maximum Subarray
+
+> Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+>
+> A subarray is a contiguous part of an array.
+
+Define `f[i]` as:
+
+- problem sets: all different continuous subsequences ending with `nums[i]`.
+- property: maximum sum of the subsequence.
+
+Deduction:
+
+- since `nums[i] + f[i-1]` or  `nums[i]` may be negative, so `f[i] = max(nums[i], nums[i] + f[i-1])`.
+
+```c++
+int maxSubArray(vector<int>& nums) {
+    vector<int> f(nums.size(), -1e5);
+    f[0] = nums[0];
+    for (int i = 1; i < nums.size(); i++) {
+        f[i] = max(nums[i], nums[i] + f[i - 1]);
+    }
+
+    int res = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        res = max(res, f[i]);
+    }
+ 
+    return res;
+}
+```
+
+- state compression
+
+Given that `f[i] only relies on f[i-1]` and we do not care about the intermediate results. We are able to use two variables to solve the problem iteratively. Since the subsequence with max sum is not necessarily ending with the last element. We should store the maximum value among intermediate results.
+
+```c++
+int maxSubArrayII(vector<int>& nums) {
+    int pre = 0;
+    int cur = 0;
+    int maxSum = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        cur = max(nums[i], pre + nums[i]);   // update f[i]
+        maxSum = max(maxSum, cur);
+        pre = cur;   // record f[i-1]
+    }
+
+    return maxSum;
+}
+```
+
+### Best Time to Buy and Sell Stock
+
+> You are given an array prices where prices[i] is the price of a given stock on the ith day.
+>
+> You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+>
+> Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+

@@ -34,5 +34,8 @@ int numWays(int n, int k);
 int changeII(int amount, vector<int>& coins);
 int changeIII(int amount, vector<int>& coins);
 int numDecodings(string s);
+int maxSubArray(vector<int>& nums);
+int maxSubArrayII(vector<int>& nums);
+
 
 #endif
