@@ -43,5 +43,6 @@ int maxProfitII(vector<int>& prices);
 void shiftVector(vector<int>& nums, int shift);
 int maxSubarraySumCircular(vector<int>& nums);
 int maxSubarraySumCircularII(vector<int>& nums);
+int uniquePaths(int m, int n);
 
 #endif
