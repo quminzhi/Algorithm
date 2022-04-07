@@ -2801,3 +2801,109 @@ int uniquePathsCompressed(int m, int n) {
 }
 ```
 
+### Unique Path II
+
+> Following up the last problem, an obstacle and space are marked as 1 or 0 respectively in grid. A path that the robot takes cannot include any square that is an obstacle.
+>
+> Return the number of possible unique paths that the robot can take to reach the bottom-right corner.
+
+Can we find any correlation between this problem and above one? There is a bold assumption: the unique path with obstacles = the unique path without obstacles - all paths of traveling from entry to the exit through obstacle.
+
+```text
+matrix:
+    *  0  0  0
+    0  1  0  0
+    0  0  0  *
+
+without obstacle we get f[i][j] as follows
+f:  without          with obstacle
+    1  1  1  1       1  1  1  1
+    1  2  3  4       1  0  1  2
+    1  3  6  10      1  1  2  4
+
+all paths from begin to obstacles
+    1  1  0  0
+    1  2  0  0
+    0  0  0  0
+
+all paths from obstacle to the exit
+    *  0  0  0
+    0  1  1  1
+    0  1  2  3
+```
+
+We will find, there are 2 ways from entry point to the obstacle and 3 ways from obstacle to the exit. So the number of ways going from entry to the exit through the obstacle is 2 * 3 = 6. The answer is 10 - 6 = 4, great!.
+
+How to solve all the ways from entry point to some point in the matrix? That's what we did in the last problem. How to solve the reverse one, from some point to the exit? The way from A to B equals the way from B to A. So a wise way is to consider the exit as the entry point and dp.
+
+`f[i][j]` is defined in the same way and `f[i][j] = f[i-1][j] + f[i][j-1]`.
+
+Define `ff[i][j]` as:
+
+- problem sets: all the ways from the exit to the point (i, j).
+- property: number of ways.
+
+Deduction:
+
+- the way from the exit to current comes from the way from the exit to (i+1, j) and (i, j+1), a mirror operation of `f[i][j]`.
+
+So, we got `ff[i][j] = ff[i+1][j] + ff[i][j+1]`.
+
+```c++
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+    int m = obstacleGrid.size();
+    int n = obstacleGrid[0].size();
+    vector<vector<int>> f(m, vector<int>(n, 1));   // save operation for base case
+    for (int i = 1; i < m; i++) {
+        for (int j = 1; j < n; j++) {
+            f[i][j] = f[i - 1][j] + f[i][j - 1];
+        }
+    }
+
+    vector<vector<int>> ff(m, vector<int>(n, 1));
+    for (int i = m - 2; i >= 0; i--) {
+        for (int j = n - 2; j >= 0; j--) {
+            ff[i][j] = ff[i + 1][j] + ff[i][j + 1];
+        }
+    }
+
+    int res = f[m - 1][n - 1];
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (obstacleGrid[i][j]) {
+                res -= f[i][j] * ff[i][j];
+            }
+        }
+    }
+
+    return res;
+}
+```
+
+But the test tells us: the algorithm above **only works** when there is only 1 obstacle in the matrix.
+
+Let's put it simple, if (i, j) is an obstacle, there is no way from that point to the exit. We got: `f[i][j] = f[i-1][j] + f[i][j-1]` if (i, j) is not an obstacle. Otherwise, `f[i][j] = 0`. Note that we have do the same operation on base case (the first row and the first column).
+
+```c++
+int uniquePathsWithObstaclesII(vector<vector<int>>& obstacleGrid) {
+    int m = obstacleGrid.size();
+    int n = obstacleGrid[0].size();
+    vector<vector<int>> f(m, vector<int>(n, 0));
+    // base case: 1 until hitting block
+    for (int i = 0; i < m && !obstacleGrid[i][0]; i++) {
+        f[i][0] = 1;
+    }
+    for (int j = 0; j < n && !obstacleGrid[0][j]; j++) {
+        f[0][j] = 1;
+    }
+
+    // conduction
+    for (int i = 1; i < m; i++) {
+        for (int j = 1; j < n; j++) {
+            f[i][j] = obstacleGrid[i][j] ? 0 : f[i - 1][j] + f[i][j - 1];
+        }
+    }
+
+    return f[m - 1][n - 1];
+}
+```

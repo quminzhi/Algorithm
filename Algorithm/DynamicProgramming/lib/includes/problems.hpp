@@ -44,5 +44,8 @@ void shiftVector(vector<int>& nums, int shift);
 int maxSubarraySumCircular(vector<int>& nums);
 int maxSubarraySumCircularII(vector<int>& nums);
 int uniquePaths(int m, int n);
+int uniquePathsCompressed(int m, int n);
+int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid);
+int uniquePathsWithObstaclesII(vector<vector<int>>& obstacleGrid);
 
 #endif

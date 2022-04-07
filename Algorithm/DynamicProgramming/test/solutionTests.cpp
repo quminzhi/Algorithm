@@ -234,3 +234,11 @@ TEST(MyTest, maxCirSubArrayTEST) {
     EXPECT_EQ(maxSubarraySumCircular(vv1), 10);
     EXPECT_EQ(maxSubarraySumCircularII(vv1), 10);
 }
+
+TEST(MyTest, ObstaclesTEST) {
+    vector<vector<int>> matrix = {
+        {0, 0, 0, 0},
+        {0, 1, 0, 0}
+    };
+    EXPECT_EQ(uniquePathsWithObstacles(matrix), 2);
+}
