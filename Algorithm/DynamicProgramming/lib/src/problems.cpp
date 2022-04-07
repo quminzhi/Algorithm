@@ -724,3 +724,68 @@ int maxProfitII(vector<int>& prices) {
 
     return maxVal;
 }
+
+/* inplace shift */
+void shiftVector(vector<int>& nums, int shift) {
+    // pop back and insert to the front
+    for (int i = 0; i < shift; i++) {
+        int t = nums[nums.size() - 1];
+        nums.pop_back();
+        nums.insert(nums.begin(), t);
+    }
+}
+
+/**
+ * @brief f[i] = max(f[i-1] + nums[i], nums[i])
+ *
+ * @param nums
+ * @return int
+ */
+int maxSubarraySumCircular(vector<int>& nums) {
+    int maxVal = -1e5;
+    int shift = 0;
+    while (shift < nums.size()) {
+        shiftVector(nums, 1);
+        int pre = 0;
+        int cur = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            cur = max(pre + nums[i], nums[i]);
+            maxVal = max(maxVal, cur);
+            pre = cur;
+        }
+        shift++;
+    }
+
+    return maxVal;
+}
+
+/**
+ * @brief
+ *
+ * @param nums
+ * @return int
+ */
+int maxSubarraySumCircularII(vector<int>& nums) {
+    vector<int> f(nums.size(), -1e5);
+    f[0] = nums[0];
+    int maxVal = f[0];
+    int sum = nums[0];
+    for (int i = 1; i < nums.size(); i++) {
+        sum += nums[i];
+        f[i] = max(sum, f[i - 1]);
+        maxVal = max(maxVal, f[i]);
+    }
+
+    vector<int> ff(nums.size(), -1e5);
+    ff[nums.size() - 1] = nums[nums.size() - 1];
+    sum = nums[nums.size() - 1];
+    for (int i = nums.size() - 2; i >= 0; i--) {
+        sum += nums[i];
+        ff[i] = max(sum, ff[i + 1]);
+    }
+
+    for (int mid = 1; mid < nums.size() - 1; mid++) {
+        maxVal = max(maxVal, ff[mid] + f[(mid - 1 + nums.size()) % nums.size()]);
+    }
+    return maxVal;
+}

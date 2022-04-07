@@ -2621,3 +2621,64 @@ int maxProfitII(vector<int>& prices) {
 }
 ```
 
+### Maximum Sum Circular Subarray
+
+> Given a circular integer array nums of length n, return the maximum possible sum of a non-empty subarray of nums.
+>
+> A circular array means the end of the array connects to the beginning of the array. Formally, the next element of `nums[i]` is `nums[(i + 1) % n]` and the previous element of `nums[i]` is `nums[(i - 1 + n) % n]`.
+>
+> A subarray may only include each element of the fixed buffer nums at most once. Formally, for a subarray `nums[i], nums[i + 1], ..., nums[j]`, there does not exist `i <= k1, k2 <= j` with `k1 % n == k2 % n`.
+
+The problem is similar to **Maximum Sum Subarray**. The only difference is the array becomes circular. We can decompose the problem into `n` non-circular arrays and solve them one by one.
+
+Define `f[i]` as:
+
+- problem set: all subarray ending with `nums[i]`.
+- property: maximum sum.
+
+Deduction:
+
+- maximums sum of subarray ending with `nums[i]` may be 1. maximum subarray ending with `nums[i-1]` concatenated by `nums[i]` (including subarray) or 2. `nums[i]` itself (`f[i-1] < 0`) (exclude subarray).
+
+So, we got `f[i] = max(f[i-1] + nums[i], nums[i])`.
+
+Repeat the algorithm `n` times for each non-circular array.
+
+```c++
+int maxSubarraySumCircular(vector<int>& nums) {
+    int maxVal = -1e5;
+    int shift = 0;
+    while (shift < nums.size()) {
+        shiftVector(nums, 1);
+        int pre = 0;
+        int cur = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            cur = max(pre + nums[i], nums[i]);
+            maxVal = max(maxVal, cur);
+            pre = cur;
+        }
+        shift++;
+    }
+
+    return maxVal;
+}
+```
+
+The solution above may Time Limit Exceed (TLE). Let's consider the second solution where we will present a normal way to solve circular problem, i.e. convert to linear problem. Although the solution above is also trying to do such conversion, we will discuss another better way to convert circular into linear problem.
+
+Say, we have `nums` as follows,
+
+```text
+ex> nums = 1  -2  3  -4  5
+       f = 1  -1  3  -1  5
+```
+
+Define `f[i]` as maximum subarray in range `[0, i]` and starting from 0. `f[i]` has two possibles: 1. sum starts from 0 to `i`, or 2. `f[i-1]` (maximum subarray we got from last calculation).
+
+So, we got `f[i] = max(sum[0..i], f[i-1])`.
+
+In the similar idea, define `ff[i]` as the max sum of subarray in range `[i, last]` and ending with 0. `ff[i]` may be: 1. sum starts from i to last, or 2. `ff[i+1]`.
+
+So, we got `ff[i] = max(sum[i..last], ff[i+1])`.
+
+Therefore, we got `f[i]` (max sum ending with `i`]) and `ff[i]` (max sum beginning with `i`). Concatenate them and we get maxVal with `i` as the middle point. We just need to enumerate all possible middle points and get the maximum value, i.e. `max[i] = f[i] + ff[(i - 1 + size) % size]`.

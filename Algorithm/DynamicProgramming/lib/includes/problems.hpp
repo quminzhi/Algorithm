@@ -40,5 +40,8 @@ int maxSubArrayII(vector<int>& nums);
 
 int maxProfitI(vector<int>& prices);
 int maxProfitII(vector<int>& prices);
+void shiftVector(vector<int>& nums, int shift);
+int maxSubarraySumCircular(vector<int>& nums);
+int maxSubarraySumCircularII(vector<int>& nums);
 
 #endif

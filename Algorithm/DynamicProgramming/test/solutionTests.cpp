@@ -213,3 +213,21 @@ TEST(MyTest, maxSubArrayTEST) {
     EXPECT_EQ(maxSubArray(v), 6);
     EXPECT_EQ(maxSubArrayII(v), 6);
 }
+
+TEST(MyTest, maxCirSubArrayTEST) {
+    vector<int> v = {1, 2, 3, 4};
+    vector<int> v1 = {4, 1, 2, 3};
+    vector<int> v2 = {3, 4, 1, 2};
+    vector<int> v3 = {2, 3, 4, 1};
+    // inplace shift
+    shiftVector(v, 1);
+    EXPECT_EQ(v, v1);
+    shiftVector(v, 1);
+    EXPECT_EQ(v, v2);
+    shiftVector(v, 1);
+    EXPECT_EQ(v, v3);
+
+    vector<int> vv1 = {5, -3, 5};
+    EXPECT_EQ(maxSubarraySumCircular(vv1), 10);
+    EXPECT_EQ(maxSubarraySumCircularII(vv1), 10);
+}
