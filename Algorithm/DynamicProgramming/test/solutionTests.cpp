@@ -227,6 +227,9 @@ TEST(MyTest, maxCirSubArrayTEST) {
     shiftVector(v, 1);
     EXPECT_EQ(v, v3);
 
+    vector<int> vv = {1, -2, 3, -2};
+    EXPECT_EQ(maxSubarraySumCircular(vv), 3);
+    EXPECT_EQ(maxSubarraySumCircularII(vv), 3);
     vector<int> vv1 = {5, -3, 5};
     EXPECT_EQ(maxSubarraySumCircular(vv1), 10);
     EXPECT_EQ(maxSubarraySumCircularII(vv1), 10);

@@ -2664,21 +2664,92 @@ int maxSubarraySumCircular(vector<int>& nums) {
 }
 ```
 
-The solution above may Time Limit Exceed (TLE). Let's consider the second solution where we will present a normal way to solve circular problem, i.e. convert to linear problem. Although the solution above is also trying to do such conversion, we will discuss another better way to convert circular into linear problem.
+The solution above may Time Limit Exceed (TLE). Let's consider the second solution where we will present a normal way to solve circular problem, i.e. convert to linear problem. Although the solution above is also trying to do such conversion, we will discuss another better way to convert circular into linear problem. Let's see the problem from the perspective of solution.
 
 Say, we have `nums` as follows,
 
 ```text
-ex> nums = 1  -2  3  -4  5
-       f = 1  -1  3  -1  5
+ex> nums = 1  -2  3  -4  5 [ 1  -2  3  -4  5 ]
+           <solution1>   ^
+                        last
 ```
+
+There are two possible solutions for a given problem:
+
+- solution does not go cross the last point. (which can be solved in linear method)
+- solution go cross the last point.
+
+```text
+ex> nums = 1  -2  3  -4  5 [ 1  -2  3  -4  5 ]
+     idx = 0   1  2   3  4   0   1  2   3  4
+               ^     < solution2 >      ^
+               i     <left><right>      i
+               |<-ff[i]->|   |<- f[i] ->|
+```
+
+We just need a wise way to solve the second solution. And the answer is `max(solution1, solution2)`
+
+Now let's discuss how to solve `solution2`.
 
 Define `f[i]` as maximum subarray in range `[0, i]` and starting from 0. `f[i]` has two possibles: 1. sum starts from 0 to `i`, or 2. `f[i-1]` (maximum subarray we got from last calculation).
 
 So, we got `f[i] = max(sum[0..i], f[i-1])`.
 
-In the similar idea, define `ff[i]` as the max sum of subarray in range `[i, last]` and ending with 0. `ff[i]` may be: 1. sum starts from i to last, or 2. `ff[i+1]`.
+In the similar idea, define `ff[i]` as the max sum of subarray in range `[i, last]` and ending with last. `ff[i]` may be: 1. sum starts from i to last, or 2. `ff[i+1]`.
 
 So, we got `ff[i] = max(sum[i..last], ff[i+1])`.
 
 Therefore, we got `f[i]` (max sum ending with `i`]) and `ff[i]` (max sum beginning with `i`). Concatenate them and we get maxVal with `i` as the middle point. We just need to enumerate all possible middle points and get the maximum value, i.e. `max[i] = f[i] + ff[(i - 1 + size) % size]`.
+
+For all solutions across the middle point, we can combine them with `f[i]` and `ff[i]`. Say, we want to find the max value for the following array.
+
+```text
+ex> nums = 1  -2  [ 3  -4   5   1  -2 ] 3  -4   5 
+     idx = 0   1    2   3   4   0   1   2   3   4
+                    < ff[2] >   <f[1]>
+
+ff[2] = 5, f[1] = 1, so the max sum = 5 + 1 = 6.
+```
+
+So, solution 2 can be constructed with `ff[i] + f[(i - 1 + size) % size]`, where `i` is ranging from 1 to last. The final answer is the max value of values in solution 1 and solution 2.
+
+```c++
+int maxSubarraySumCircularII(vector<int>& nums) {
+    int size = nums.size();
+
+    // solution 1
+    int pre = 0;
+    int cur = 0;
+    int maxSum = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        cur = max(nums[i], pre + nums[i]);
+        maxSum = max(maxSum, cur);
+        pre = cur;
+    }
+
+    // solution 2
+    vector<int> f(size, -1e5);   // max sum subarray in [0..i]
+    f[0] = nums[0];
+    int sum = nums[0];
+    for (int i = 1; i < size; i++) {
+        sum += nums[i];
+        f[i] = max(sum, f[i - 1]);
+        maxSum = max(maxSum, f[i]);
+    }
+
+    vector<int> ff(size, -1e5);   // max sum subarray in [i..last]
+    ff[size - 1] = nums[size - 1];
+    sum = nums[size - 1];
+    for (int i = size - 2; i >= 0; i--) {
+        sum += nums[i];
+        ff[i] = max(sum, ff[i + 1]);
+    }
+
+    // find the max value among solution 2
+    for (int mid = 1; mid < size - 1; mid++) {
+        maxSum = max(maxSum, ff[mid] + f[(mid - 1 + size) % size]);
+    }
+
+    return maxSum;
+}
+```

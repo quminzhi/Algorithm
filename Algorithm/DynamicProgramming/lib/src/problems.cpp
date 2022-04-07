@@ -760,32 +760,46 @@ int maxSubarraySumCircular(vector<int>& nums) {
 }
 
 /**
- * @brief
+ * @brief divide solution into two parts.
  *
  * @param nums
  * @return int
  */
 int maxSubarraySumCircularII(vector<int>& nums) {
-    vector<int> f(nums.size(), -1e5);
-    f[0] = nums[0];
-    int maxVal = f[0];
-    int sum = nums[0];
-    for (int i = 1; i < nums.size(); i++) {
-        sum += nums[i];
-        f[i] = max(sum, f[i - 1]);
-        maxVal = max(maxVal, f[i]);
+    int size = nums.size();
+
+    // solution 1
+    int pre = 0;
+    int cur = 0;
+    int maxSum = -1e5;
+    for (int i = 0; i < nums.size(); i++) {
+        cur = max(nums[i], pre + nums[i]);
+        maxSum = max(maxSum, cur);
+        pre = cur;
     }
 
-    vector<int> ff(nums.size(), -1e5);
-    ff[nums.size() - 1] = nums[nums.size() - 1];
-    sum = nums[nums.size() - 1];
-    for (int i = nums.size() - 2; i >= 0; i--) {
+    // solution 2
+    vector<int> f(size, -1e5);   // max sum subarray in [0..i]
+    f[0] = nums[0];
+    int sum = nums[0];
+    for (int i = 1; i < size; i++) {
+        sum += nums[i];
+        f[i] = max(sum, f[i - 1]);
+        maxSum = max(maxSum, f[i]);
+    }
+
+    vector<int> ff(size, -1e5);   // max sum subarray in [i..last]
+    ff[size - 1] = nums[size - 1];
+    sum = nums[size - 1];
+    for (int i = size - 2; i >= 0; i--) {
         sum += nums[i];
         ff[i] = max(sum, ff[i + 1]);
     }
 
-    for (int mid = 1; mid < nums.size() - 1; mid++) {
-        maxVal = max(maxVal, ff[mid] + f[(mid - 1 + nums.size()) % nums.size()]);
+    // find the max value among solution 2
+    for (int mid = 1; mid < size - 1; mid++) {
+        maxSum = max(maxSum, ff[mid] + f[(mid - 1 + size) % size]);
     }
-    return maxVal;
+
+    return maxSum;
 }
