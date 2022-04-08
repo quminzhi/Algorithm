@@ -57,14 +57,15 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
 /**
  * @brief
  *
- *       s = oooo1111xoooooooooo
+ *       s = oooo 1111 xoooooooooo
+ *                ^  ^ ^
+ *                a  b i: points to the first char that match failed in s string.
+ * 
+ * pattern =      1111 xoooo        (len = 9)
  *                   ^
- *                   i: points to the first char that match failed in s string.
- * pattern =     1111xoooo        (len = 9)
- *                  ^
- *                  j: points to the last char that matches in pattern string.
- *                     also the size of matching chars
- *
+ *                   j: points to the last char that matches in pattern string.
+ *                      also the size of matching chars
+ * 
  * @param s
  * @param pattern
  * @return vector<int>
@@ -76,8 +77,9 @@ vector<int> kmp(string s, string pattern) {
 
     // build next
     vector<int> ne(pp.size(), 0);
-    // the first char pp[1] cannot have common prefix and postfix since our definition.
+    // the first char pp[1] do not have common prefix and postfix since our definition.
     // note that j is also the len of matching string.
+    // next[0] and next[1] must be 0.
     for (int i = 2, j = 0; i <= pattern.size(); i++) {
         while (j && pp[i] != pp[j + 1]) {
             j = ne[j];
@@ -98,6 +100,7 @@ vector<int> kmp(string s, string pattern) {
         if (ss[i] == pp[j + 1]) {
             j++;
         }
+
         if (j == pattern.size()) {
             res.push_back(i - j);
             j = ne[j];   // move forward for next possible match

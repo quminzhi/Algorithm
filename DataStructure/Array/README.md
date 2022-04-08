@@ -340,8 +340,25 @@ when `j == 1`, matching string is `pattern[1..1]`, prefix and postfix can not be
 when `j == 2`, matching string is `pattern[1..1]`, 'prefix = a' != 'postfix = b', so next[2] = 0.
 ...
 when `j == 4`, 'prefix = ab' != 'postfix = ca', but 'prefix = a' == 'postfix = a', so next[4] = 1.
-when `j == 4`, 'prefix = ab' == 'postfix = ba', so next[5] = 2.
+when `j == 5`, 'prefix = ab' == 'postfix = ba', so next[5] = 2. (for moving when match succeeds)
+
+**Note: next[4] = 1 means: when substr = 'abca' matches, and 'b' (pattern[5]) does not match, the most length of matching substring should be 1, since we can move the first `a` to the last `a`.
+
+the meaning of j: indicates how many characters match (pattern[1..j] matches).
 ```
+
+- How to obtain `ne` (next)?
+
+We have a wise method. Our algorithm above is to find matching prefix in pattern for `s[a..b]` indicated by `i` and `j`, since `a = i - j + 1`
+
+```text
+ Note: b - a + 1 = j (j != b, they are on the different strings)
+       b = i - 1
+       a = i - j + 1 (1-based)  <=== HERE
+       a = i - j + 1 - 1 = i - j (0-based)
+```
+
+if the original string `s` becomes pattern string `p`, it happens to have the same effect of calculating the previous matching index where `prefix == postfix` in `substring[1..i-1]`, which is what `ne[]` means.
 
 ```c++
 vector<int> kmp(string s, string pattern) {
