@@ -77,9 +77,6 @@ vector<int> kmp(string s, string pattern) {
 
     // build next
     vector<int> ne(pp.size(), 0);
-    // the first char pp[1] do not have common prefix and postfix since our definition.
-    // note that j is also the len of matching string.
-    // next[0] and next[1] must be 0.
     for (int i = 2, j = 0; i <= pattern.size(); i++) {
         while (j && pp[i] != pp[j + 1]) {
             j = ne[j];

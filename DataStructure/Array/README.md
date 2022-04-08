@@ -360,6 +360,35 @@ We have a wise method. Our algorithm above is to find matching prefix in pattern
 
 if the original string `s` becomes pattern string `p`, it happens to have the same effect of calculating the previous matching index where `prefix == postfix` in `substring[1..i-1]`, which is what `ne[]` means.
 
+Why we compare pattern string and pattern string being shifted 1 step? How it gets `ne[]`?
+
+Let's focus on the first pattern string (without shift). We want to find the prefix and postfix of `patter[1..i]`.
+
+```text
+               <-------->
+ex>  pattern = oo 11111 x ooo
+               1  ^   ^ ^   m
+                  a   b i
+     pattern =    11111 x ooooo
+  (shifted by 1)  1   ^       m
+                      j
+
+when p[j+1] == p[i], j++
+
+               <-------->  p[1..i]
+ex>  pattern = oo 11111 1 ooo
+               1  ^   ^ ^   m
+                  a   b i
+                  <-----> p[1..i]'s postfix
+
+     pattern =    11111 1 ooooo
+   (shifted by 1) 1     ^     m
+                        j  <== after j++, but not i++
+                  <-----> p[1..i]'s prefix same as [p..i]'s postfix
+
+where postfix == prefix, and next[i] = j
+```
+
 ```c++
 vector<int> kmp(string s, string pattern) {
     // transform to 1-based string
@@ -368,8 +397,8 @@ vector<int> kmp(string s, string pattern) {
 
     // build next
     vector<int> ne(pp.size(), 0);
-    // the first char pp[1] cannot have common prefix and postfix since our definition.
-    // note that j is also the len of matching string.
+    // why start from 2? since we are focusing on p[1..i], when i == 1, p[1..1] has only 1 element, its next is 0 by definition (postfix and prefix cannot be the same element).
+    // j always points to the possible right boundary of prefix (p[1..j]).
     for (int i = 2, j = 0; i <= pattern.size(); i++) {
         while (j && pp[i] != pp[j + 1]) {
             j = ne[j];
