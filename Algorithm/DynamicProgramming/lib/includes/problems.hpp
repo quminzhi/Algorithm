@@ -50,5 +50,6 @@ int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid);
 
 int lenOfBin(int x);
 int binaryMaxLength(string s, int x);
+int strStr(string haystack, string needle);
 
 #endif

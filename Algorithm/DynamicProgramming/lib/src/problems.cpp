@@ -906,10 +906,10 @@ int lenOfBin(int x) {
 
 /**
  * @brief f[i, j] = min(f[i-1, j], f[i-1, j-1] << 1 + s[i])
- * 
- * One observation (optimization): max length should be less than or equal to length of x in
- * binary form.
- * 
+ *
+ * One observation (optimization): max length should be less than or equal to length of x
+ * in binary form.
+ *
  * @param s
  * @param x
  * @return int
@@ -938,4 +938,42 @@ int binaryMaxLength(string s, int x) {
     }
 
     return j;
+}
+
+/**
+ * @brief simplified kmp
+ *
+ * @param haystack: s
+ * @param needle: pattern
+ * @return int: the first index when match occurs for the first time
+ */
+int strStr(string haystack, string needle) {
+    string ss = string("0") + haystack;
+    string pp = string("0") + needle;
+    // initialize ne[]:
+    vector<int> ne(pp.size(), 0);   // 1-based
+    for (int i = 2, j = 0; i < pp.size() - 1; i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    // match
+    for (int i = 1, j = 0; i < ss.size(); i++) {
+        while (j && ss[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (ss[i] == pp[j + 1]){
+            j++;
+        }
+        if (j == needle.size()) {
+            return i - j;  // problem is zero-based
+            j = ne[j];
+        }
+    }
+
+    return -1;
 }

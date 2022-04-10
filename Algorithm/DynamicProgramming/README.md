@@ -2971,3 +2971,75 @@ int binaryMaxLength(string s, int x) {
     return j;
 }
 ```
+
+### str str
+
+> Given two strings needle and haystack, return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+>
+> What should we return when needle is an empty string? This is a great question to ask during an interview.
+
+This is a pattern-matching problem which is typically solved by KMP algorithm.
+
+The core of KMP algorithm are:
+
+- focusing on substring that matches, the best movement we can do when `s[i] != p[j+1]` is to move p to its 'postfix' of matched substring.
+
+```text
+s:  xxxxx 11111 ? xxxxx
+          a   b i
+p:        11111 ? xx
+          1   j
+
+ex> 
+s:  xxxxx cdccd ? xxxxx
+          a   b i
+p:        cdccd ? xx
+          1   j
+where 'cd...' is the prefix in substring p[1..j], and '...cd' is the postfix in substring p[1..j]. The best movement is to move prefix to postfix place.
+```
+
+- `ne[]` (`next[]` is in standard libc) for pattern string: indicate where to move. Say pattern string is `cdccdcab`.
+
+```text
+p:    c d c c d c a b
+idx:  1 2 3 4 5 6 7 8
+ne[]: 0 0 1 1 2 1 0 0
+
+when i == 5, [c d] c [c d]
+            prefix  postfix
+```
+
+`ne[j]` indicates the max length(or last index of prefix, that's why 1-based index) of prefix and postfix in matched substring when p[j+1] fails to match (matched substring is p[1..j]).
+
+```c++
+int strStr(string haystack, string needle) {
+    string ss = string("0") + haystack;
+    string pp = string("0") + needle;
+    // initialize ne[]:
+    vector<int> ne(pp.size(), 0);   // 1-based
+    for (int i = 2, j = 0; i < pp.size() - 1; i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    // match
+    for (int i = 1, j = 0; i < ss.size(); i++) {
+        while (j && ss[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (ss[i] == pp[j + 1]){
+            j++;
+        }
+        if (j == needle.size()) {
+            return i - j;  // problem is zero-based
+            j = ne[j];
+        }
+    }
+
+    return -1;
+}
+```
