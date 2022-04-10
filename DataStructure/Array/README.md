@@ -420,11 +420,158 @@ vector<int> kmp(string s, string pattern) {
             j++;
         }
         if (j == pattern.size()) {
-            res.push_back(i - j);
+            res.push_back(i - j); // the index in ss not pp, assuming answer is 0-based
             j = ne[j];   // move forward for next possible match
         }
     }
 
     return res;
+}
+```
+
+### str str
+
+> Given two strings needle and haystack, return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+>
+> What should we return when needle is an empty string? This is a great question to ask during an interview.
+
+This is a pattern-matching problem which is typically solved by KMP algorithm.
+
+The core of KMP algorithm are:
+
+- focusing on substring that matches, the best movement we can do when `s[i] != p[j+1]` is to move p to its 'postfix' of matched substring.
+
+```text
+s:  xxxxx 11111 ? xxxxx
+          a   b i
+p:        11111 ? xx
+          1   j
+
+ex> 
+s:  xxxxx cdccd ? xxxxx
+          a   b i
+p:        cdccd ? xx
+          1   j
+where 'cd...' is the prefix in substring p[1..j], and '...cd' is the postfix in substring p[1..j]. The best movement is to move prefix to postfix place.
+```
+
+- `ne[]` (`next[]` is in standard libc) for pattern string: indicate where to move. Say pattern string is `cdccdcab`.
+
+```text
+p:    c d c c d c a b
+idx:  1 2 3 4 5 6 7 8
+ne[]: 0 0 1 1 2 1 0 0
+
+when i == 5, [c d] c [c d]
+            prefix  postfix
+```
+
+`ne[j]` indicates the max length(or last index of prefix, that's why 1-based index) of prefix and postfix in matched substring when p[j+1] fails to match (matched substring is p[1..j]).
+
+```c++
+int strStr(string haystack, string needle) {
+    string ss = string("0") + haystack;
+    string pp = string("0") + needle;
+    // initialize ne[]:
+    vector<int> ne(pp.size(), 0);   // 1-based
+    for (int i = 2, j = 0; i < pp.size(); i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    // match
+    for (int i = 1, j = 0; i < ss.size(); i++) {
+        while (j && ss[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (ss[i] == pp[j + 1]){
+            j++;
+        }
+        if (j == needle.size()) {
+            return i - j;  // problem is zero-based
+            j = ne[j];
+        }
+    }
+
+    return -1;
+}
+```
+
+### Shortest Palindrome
+
+> You are given a string s. You can convert s to a palindrome by adding characters in front of it.
+>
+> Return the shortest palindrome you can find by performing this transformation.
+
+The basic idea is that such palindrome can be found by finding the longest palindrome substring, say `subPalindrome`. Then `s` will be partitioned into two parts, `subPalindrome` and `rest`. We just need to add the reverse of `rest` to the head to form a bigger palindrome and this palindrome must be the shortest palindrome we can get by adding characters in front of it.
+
+```text
+How to check if the sting is palindrome? s == reverse(s)
+
+ex>  s = a b a b c
+   rev = c b a b a
+
+1st: s[0..4] == rev[0..4]?  NO
+2nd: s[0..3] == rev[1..4]?  NO
+3rd: s[0..2] == rev[2..4]?..YES
+
+So we got the max length of subPalindrome is 3.
+```
+
+```c++
+string shortestPalindrome(string s) {
+    int n = s.size();
+    string rev(s);
+    reverse(rev.begin(), rev.end());
+    for (int i = 0; i < n; i++) {
+        if (s.substr(0, n - i) == rev.substr(i))
+            return rev.substr(0, i) + s;
+    }
+    return "";
+}
+```
+
+But, str comparison takes O(n) time and the algorithm costs O(n^2) time in total.
+
+Is there a good way to find the longest palindrome substring from the beginning?
+
+```text
+Continue with the last example:
+    s = a b a b c
+    rev = c b a b a
+
+The process is similar to calculate ne[i] (KMP), i.e. the max length of prefix and postfix (same).
+
+So we can construct a string: s + rev, and find ne[i].
+
+*But the solution does not work for s = aaaa, so we need add a delimiter between s and rev, say #.
+```
+
+so, `shortest palindrome = reverse(rest) + s (subPalindrome + rest)`.
+
+```c++
+string shortestPalindrome(string s) {
+    string rev = s;
+    reverse(rev.begin(), rev.end());
+    string pp = string("0") + s + "#" + rev;   // add 0 for 1-based
+    vector<int> ne(pp.size(), 0);
+    for (int i = 2, j = 0; i < pp.size(); i++) {
+        while (j && pp[i] != pp[j + 1]) j = ne[j];
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    
+    int lenOfSubPalindrome = ne[pp.size() - 1];
+    // shortest palindrome = reverse(rest) + s (subpalindrome + rest)
+    string revRest = s.substr(lenOfSubPalindrome);
+    reverse(revRest.begin(), revRest.end());
+    
+    return revRest + s;
 }
 ```

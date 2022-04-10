@@ -60,12 +60,12 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
  *       s = oooo 1111 xoooooooooo
  *                ^  ^ ^
  *                a  b i: points to the first char that match failed in s string.
- * 
+ *
  * pattern =      1111 xoooo        (len = 9)
  *                   ^
  *                   j: points to the last char that matches in pattern string.
  *                      also the size of matching chars
- * 
+ *
  * @param s
  * @param pattern
  * @return vector<int>
@@ -105,4 +105,69 @@ vector<int> kmp(string s, string pattern) {
     }
 
     return res;
+}
+
+/**
+ * @brief simplified kmp
+ *
+ * @param haystack: s
+ * @param needle: pattern
+ * @return int: the first index when match occurs for the first time
+ */
+int strStr(string haystack, string needle) {
+    string ss = string("0") + haystack;
+    string pp = string("0") + needle;
+    // initialize ne[]:
+    vector<int> ne(pp.size(), 0);   // 1-based
+    for (int i = 2, j = 0; i < pp.size() - 1; i++) {
+        while (j && pp[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    // match
+    for (int i = 1, j = 0; i < ss.size(); i++) {
+        while (j && ss[i] != pp[j + 1]) {
+            j = ne[j];
+        }
+        if (ss[i] == pp[j + 1]) {
+            j++;
+        }
+        if (j == needle.size()) {
+            return i - j;   // problem is zero-based
+            j = ne[j];
+        }
+    }
+
+    return -1;
+}
+
+/**
+ * @brief
+ *
+ * @param s
+ * @return string
+ */
+string shortestPalindrome(string s) {
+    string rev = s;
+    reverse(rev.begin(), rev.end());
+    string pp = string("0") + s + "#" + rev;   // add 0 for 1-based
+    vector<int> ne(pp.size(), 0);
+    for (int i = 2, j = 0; i < pp.size(); i++) {
+        while (j && pp[i] != pp[j + 1]) j = ne[j];
+        if (pp[i] == pp[j + 1]) {
+            j++;
+        }
+        ne[i] = j;
+    }
+    
+    int lenOfSubPalindrome = ne[pp.size() - 1];
+    // shortest palindrome = reverse(rest) + s (subpalindrome + rest)
+    string revRest = s.substr(lenOfSubPalindrome);
+    reverse(revRest.begin(), revRest.end());
+    
+    return revRest + s;
 }
