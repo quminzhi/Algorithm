@@ -2907,3 +2907,67 @@ int uniquePathsWithObstaclesII(vector<vector<int>>& obstacleGrid) {
     return f[m - 1][n - 1];
 }
 ```
+
+### Max Length of Binary Number
+
+> Given a binary string `s` and max number `m`, find all substrings whose decimal representation is less than or equal to `m` and return the max length of substrings.
+>
+> ex> s = 110110101  m = 40
+> return 6 -> 100101(37) <= 40
+>
+> The binary number should be leading with 1.
+
+Define `f[i, j]` as
+
+- problem sets: substring from first i bits, min value of all substrings with length of j. (1-based)
+- property: min value.
+
+Deduction:
+
+```text
+f[1, 0] = 0; f[1, 1] = 1 (leading 1);
+f[2, 0] = 0; f[2, 1] = 1 (leading 1); f[2, 2] = 3
+f[3, 0] = 0; f[3, 1] = 1; f[3, 2] = min(f[2, 2], f[2, 1] << 1 + s[i]); f[3, 3] = 6
+...
+f[i, 0] = 0; f[i, 1] = 1; f[i, 2] = min(f[i-1, 2], f[i-1, 1] << 1 + s[i]); f[i, j] = min(f[i-1, j], f[i-1, j-1] << 1 + s[i]); ... f[i, i] = s[1..i].
+```
+
+So, we got `f[i, j] = min(f[i-1, j], f[i-1, j-1] << 1 + s[i])` where `j` from 2 to `i`.
+
+```c++
+/**
+ * @brief f[i, j] = min(f[i-1, j], f[i-1, j-1] << 1 + s[i])
+ * 
+ * One observation (optimization): max length should be less than or equal to length of x in
+ * binary form.
+ * 
+ * @param s
+ * @param x
+ * @return int
+ */
+int binaryMaxLength(string s, int x) {
+    if (x == 0) return 0;
+    int len = lenOfBin(x);      // max length must be less than len
+    s.insert(s.begin(), '0');   // 1 ~ s.size() - 1
+    vector<vector<int>> f(s.size(), vector<int>(len, 1e6));   // 1-based
+
+    // base:
+    for (int i = 1; i < s.size(); i++) {
+        f[i][0] = 0;
+    }
+
+    for (int i = 1; i < s.size(); i++) {
+        // optimize: if i > len, we do not need to proceed
+        for (int j = 1; j <= min(i, len); j++) {
+            f[i][j] = max(f[i - 1][j], (f[i - 1][j - 1] << 1) + s[i] - '0');
+        }
+    }
+
+    // find max length of binary whose min value is less than or equal to x
+    int j = len < s.size() - 1 ? len : s.size() - 1;
+    for (; j > 0 && f[s.size() - 1][j] <= x; j--) {
+    }
+
+    return j;
+}
+```

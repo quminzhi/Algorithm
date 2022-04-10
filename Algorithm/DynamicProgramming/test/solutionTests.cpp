@@ -242,3 +242,14 @@ TEST(MyTest, ObstaclesTEST) {
     };
     EXPECT_EQ(uniquePathsWithObstacles(matrix), 2);
 }
+
+TEST(MyTest, binaryMaxLengthTEST) {
+    EXPECT_EQ(binaryMaxLength("110110101", 40), 6);
+    EXPECT_EQ(binaryMaxLength("110110101", 0), 0);
+    EXPECT_EQ(binaryMaxLength("110110101", 1), 1);
+    EXPECT_EQ(binaryMaxLength("110110101", 5), 3);
+    EXPECT_EQ(binaryMaxLength("101101", 198), 6);
+    EXPECT_EQ(binaryMaxLength("10110010", 2), 2);
+    EXPECT_EQ(binaryMaxLength("10010100", 3), 2);
+    EXPECT_EQ(binaryMaxLength("1101101010001110010101101", 4000000), 22);
+}

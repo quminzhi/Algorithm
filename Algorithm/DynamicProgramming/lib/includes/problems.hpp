@@ -2,6 +2,7 @@
 #define PROBLEMS_HPP
 
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 int rob(vector<int>& nums);
@@ -46,6 +47,8 @@ int maxSubarraySumCircularII(vector<int>& nums);
 int uniquePaths(int m, int n);
 int uniquePathsCompressed(int m, int n);
 int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid);
-int uniquePathsWithObstaclesII(vector<vector<int>>& obstacleGrid);
+
+int lenOfBin(int x);
+int binaryMaxLength(string s, int x);
 
 #endif
