@@ -940,3 +940,37 @@ int binaryMaxLength(string s, int x) {
     return j;
 }
 
+/**
+ * @brief f[i][j] = min(f[i-1][j], f[i][j-1]) + grid[i][j]
+ *
+ * @param grid
+ * @return int
+ */
+int minPathSum(vector<vector<int>>& grid) {
+    int m = grid.size(), n = grid[0].size();
+    vector<vector<int>> f(m + 1, vector<int>(n + 1, 1e6));   // 1-based to save base case
+
+    f[0][0] = f[1][0] = f[0][1] = 0;
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            f[i][j] =
+                min(f[i - 1][j], f[i][j - 1]) + grid[i - 1][j - 1];   // grid is 0-based
+        }
+    }
+
+    return f[m][n];
+}
+
+int minPathSumII(vector<vector<int>>& grid) {
+    int m = grid.size(), n = grid[0].size();
+    vector<int> f(n + 1, 1e6);   // 1-based to save base case
+
+    for (int i = 1; i <= m; i++) {
+        f[0] = i == 1 ? 0 : 1e6;   // only set cell(1, 0) to be 1 to start iteration.
+        for (int j = 1; j <= n; j++) {
+            f[j] = min(f[j], f[j - 1]) + grid[i - 1][j - 1];
+        }
+    }
+
+    return f[n];
+}

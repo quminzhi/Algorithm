@@ -253,3 +253,20 @@ TEST(MyTest, binaryMaxLengthTEST) {
     EXPECT_EQ(binaryMaxLength("10010100", 3), 2);
     EXPECT_EQ(binaryMaxLength("1101101010001110010101101", 4000000), 22);
 }
+
+TEST(MyTest, minPathSumTEST) {
+    vector<vector<int>> grid = {
+        {1, 3, 1},
+        {1, 5, 1},
+        {4, 2, 1}
+    };
+    EXPECT_EQ(minPathSum(grid), 7);
+    // EXPECT_EQ(minPathSumII(grid), 7);
+
+    vector<vector<int>> grid2 = {
+        {1, 2},
+        {1, 1}
+    };
+    EXPECT_EQ(minPathSum(grid2), 3);
+    EXPECT_EQ(minPathSumII(grid2), 3);
+}
