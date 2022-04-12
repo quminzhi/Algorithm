@@ -3023,3 +3023,55 @@ int m = grid.size(), n = grid[0].size();
     return f[n];
 ```
 
+### Minimum Falling Path Sum
+
+> Given an n x n array of integers matrix, return the minimum sum of any falling path through matrix.
+>
+> A falling path starts at any element in the first row and chooses the element in the next row that is either directly below or diagonally left/right. Specifically, the next element from position (row, col) will be (row + 1, col - 1), (row + 1, col), or (row + 1, col + 1).
+
+Falling structure is pretty like trinary tree.
+
+Define `f[i][j]` as
+
+- problem sets: all the way (falling path) from possible cells on the first row to cell(i, j).
+- property: min sum.
+
+Deduction:
+
+- for each cell (excluding those on the first row), its directly connected cells (one step before it) can comes from up left, up, and up right.
+
+So, it can be derived that `f[i][j] = min(f[i-1][j-1], f[i-1][j], f[i-1][j+1]) + matrix[i][j]`.
+
+```c++
+int minFallingPathSum(vector<vector<int>>& matrix) {
+    int m = matrix.size(), n = matrix[0].size();
+    vector<vector<int>> f(
+        m + 2,
+        vector<int>(n + 2, 1e6));   // 2 for padding left, top, right and bottom boundary
+
+    for (int j = 1; j <= n; j++) {
+        f[0][j] = 0;
+    }
+
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            f[i][j] = min(f[i][j], f[i - 1][j]);
+            f[i][j] = min(f[i][j], f[i - 1][j - 1]);
+            f[i][j] = min(f[i][j], f[i - 1][j + 1]);
+            f[i][j] += matrix[i - 1][j - 1];   // matrix is zero based
+        }
+    }
+
+    int res = 1e6;
+    for (int j = 1; j <= n; j++) {
+        res = min(res, f[m][j]);
+    }
+    return res;
+}
+```
+
+Note: we can NOT compress the state for `f[i][j]` since it relies on its left and right part simultaneously.
+
+Tricks:
+
+- Padding: padding is a good way for incorporating the base into induction if they have the same logic. But we should be careful in dealing with idx of 0-based array and 1-based array.

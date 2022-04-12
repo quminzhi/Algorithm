@@ -270,3 +270,12 @@ TEST(MyTest, minPathSumTEST) {
     EXPECT_EQ(minPathSum(grid2), 3);
     EXPECT_EQ(minPathSumII(grid2), 3);
 }
+
+TEST(MyTest, minFallingPathSumTEST) {
+    vector<vector<int>> grid = {
+        {2, 1, 3},
+        {6, 5, 4},
+        {7, 8, 9}
+    };
+    EXPECT_EQ(minFallingPathSum(grid), 13);
+}

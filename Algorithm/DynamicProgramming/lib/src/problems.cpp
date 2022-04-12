@@ -948,7 +948,8 @@ int binaryMaxLength(string s, int x) {
  */
 int minPathSum(vector<vector<int>>& grid) {
     int m = grid.size(), n = grid[0].size();
-    vector<vector<int>> f(m + 1, vector<int>(n + 1, 1e6));   // 1-based to save base case
+    vector<vector<int>> f(m + 1,
+                          vector<int>(n + 1, 1e6));   // padding left and top boundary
 
     f[0][0] = f[1][0] = f[0][1] = 0;
     for (int i = 1; i <= m; i++) {
@@ -973,4 +974,36 @@ int minPathSumII(vector<vector<int>>& grid) {
     }
 
     return f[n];
+}
+
+/**
+ * @brief f[i][j] = min(f[i-1][j-1], f[i-1][j], f[i-1][j+1]) + matrix[i][j]
+ *
+ * @param matrix
+ * @return int
+ */
+int minFallingPathSum(vector<vector<int>>& matrix) {
+    int m = matrix.size(), n = matrix[0].size();
+    vector<vector<int>> f(
+        m + 2,
+        vector<int>(n + 2, 1e6));   // 2 for padding left, top, right and bottom boundary
+
+    for (int j = 1; j <= n; j++) {
+        f[0][j] = 0;
+    }
+
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            f[i][j] = min(f[i][j], f[i - 1][j]);
+            f[i][j] = min(f[i][j], f[i - 1][j - 1]);
+            f[i][j] = min(f[i][j], f[i - 1][j + 1]);
+            f[i][j] += matrix[i - 1][j - 1];   // matrix is zero based
+        }
+    }
+
+    int res = 1e6;
+    for (int j = 1; j <= n; j++) {
+        res = min(res, f[m][j]);
+    }
+    return res;
 }

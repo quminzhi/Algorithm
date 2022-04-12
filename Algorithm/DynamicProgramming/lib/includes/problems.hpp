@@ -52,6 +52,7 @@ int lenOfBin(int x);
 int binaryMaxLength(string s, int x);
 int minPathSum(vector<vector<int>>& grid);
 int minPathSumII(vector<vector<int>>& grid);
+int minFallingPathSum(vector<vector<int>>& matrix);
 
 
 #endif
