@@ -1007,3 +1007,40 @@ int minFallingPathSum(vector<vector<int>>& matrix) {
     }
     return res;
 }
+
+int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& prices, int fee, int i, int hold) {
+    if (i >= prices.size()) {
+        return 0;
+    }
+    if (visited[i][hold]) {
+        return f[i][hold];
+    }
+
+    if (hold == 0) {
+        // buy?
+        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) - prices[i] - fee);
+    }
+    if (hold == 1) {
+        // sell?
+        f[i][hold] =
+            max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
+    }
+    f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, hold));
+
+    visited[i][hold] = true;
+    return f[i][hold];
+}
+
+/**
+ * @brief
+ *
+ * @param prices
+ * @param fee
+ * @return int
+ */
+int maxProfit(vector<int>& prices, int fee) {
+    vector<vector<int>> f(prices.size(), vector<int>(2, -1e5));
+    vector<vector<bool>> visited(prices.size(), vector<bool>(2, false));
+    int ret = maxProfitHelper(f, visited, prices, fee, 0, 0);
+    return ret;
+}

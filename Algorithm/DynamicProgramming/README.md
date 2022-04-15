@@ -3075,3 +3075,70 @@ Note: we can NOT compress the state for `f[i][j]` since it relies on its left an
 Tricks:
 
 - Padding: padding is a good way for incorporating the base into induction if they have the same logic. But we should be careful in dealing with idx of 0-based array and 1-based array.
+
+### Best Time to Buy and Sell Stock with Transaction Fee
+
+> You are given an array prices where `prices[i]` is the price of a given stock on the ith day, and an integer fee representing a transaction fee.
+>
+> Find the maximum profit you can achieve. You may complete as many transactions as you like, but you need to pay the transaction fee for each transaction.
+>
+> Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
+
+The problem is similar to kth transaction problem, but the constraint now becomes transaction fee. Define `f[i][j]` as follows:
+
+- problem sets: from ith days, and with or without (`j = 1` or `j = 0`) holding a stock, the different transaction strategies.
+- property: the maximum profit earned.
+
+Deduction:
+
+- with a stock holding in hand (`j = 1`), there are two choices:
+    - sell it, then we can earn `prices[i] - fee`, and `f[i][j] = f[i+1][0] + prices[i] - fee`.
+    - keep holding it, then `f[i][j] = f[i+1][j]`.
+- without holding a stock in hand (`j = 0`), there are two choices:
+    - buy one stock, then we will pay (earn negatively) `-prices[i] - fee`, and `f[i][j] = f[i+1][1] - prices[i] - fee`.
+    - keep nothing in hand, then `f[i][j] = f[i+1][j]`.
+
+```c++
+int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& prices, int fee, int i, int hold) {
+    if (i >= prices.size()) {
+        return 0;
+    }
+    if (visited[i][hold]) {
+        return f[i][hold];
+    }
+
+    if (hold == 0) {
+        // buy?
+        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) - prices[i] - fee);
+    }
+    if (hold == 1) {
+        // sell?
+        f[i][hold] =
+            max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
+    }
+    f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, hold));
+
+    visited[i][hold] = true;
+    return f[i][hold];
+}
+```
+
+```c++
+int maxProfit(vector<int>& prices, int fee) {
+    vector<vector<int>> f(prices.size(), vector<int>(2, -1e5));
+    vector<vector<bool>> visited(prices.size(), vector<bool>(2, false));
+    int ret = maxProfitHelper(f, visited, prices, fee, 0, 0);
+    return ret;
+}
+```
+
+### Paint House
+
+> There is a row of n houses, where each house can be painted one of three colors: red, blue, or green. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+>
+> The cost of painting each house with a certain color is represented by an n x 3 cost matrix costs.
+>
+> - For example, `costs[0][0]` is the cost of painting house 0 with the color red; `costs[1][2]` is the cost of painting house 1 with color green, and so on...
+>
+> Return the minimum cost to paint all houses.
+

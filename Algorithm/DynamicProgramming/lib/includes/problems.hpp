@@ -54,5 +54,6 @@ int minPathSum(vector<vector<int>>& grid);
 int minPathSumII(vector<vector<int>>& grid);
 int minFallingPathSum(vector<vector<int>>& matrix);
 
+int maxProfit(vector<int>& prices, int fee);
 
 #endif

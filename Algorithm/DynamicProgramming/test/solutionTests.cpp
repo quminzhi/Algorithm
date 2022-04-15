@@ -279,3 +279,8 @@ TEST(MyTest, minFallingPathSumTEST) {
     };
     EXPECT_EQ(minFallingPathSum(grid), 13);
 }
+
+TEST(MyTest, maxProfitFeeTEST) {
+    vector<int> prices = {1, 3, 2, 8, 4, 9};
+    EXPECT_EQ(maxProfit(prices, 2), 8);
+}
