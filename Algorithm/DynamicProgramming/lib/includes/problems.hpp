@@ -55,5 +55,8 @@ int minPathSumII(vector<vector<int>>& grid);
 int minFallingPathSum(vector<vector<int>>& matrix);
 
 int maxProfit(vector<int>& prices, int fee);
+int minPaintCost(vector<vector<int>>& costs);
+int minCostII(vector<vector<int>>& costs);
+int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target);
 
 #endif

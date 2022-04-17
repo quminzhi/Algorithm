@@ -1008,7 +1008,8 @@ int minFallingPathSum(vector<vector<int>>& matrix) {
     return res;
 }
 
-int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& prices, int fee, int i, int hold) {
+int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
+                    vector<int>& prices, int fee, int i, int hold) {
     if (i >= prices.size()) {
         return 0;
     }
@@ -1018,12 +1019,13 @@ int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vecto
 
     if (hold == 0) {
         // buy?
-        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) - prices[i] - fee);
+        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) -
+                                         prices[i] - fee);
     }
     if (hold == 1) {
         // sell?
-        f[i][hold] =
-            max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
+        f[i][hold] = max(f[i][hold],
+                         maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
     }
     f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, hold));
 
@@ -1043,4 +1045,136 @@ int maxProfit(vector<int>& prices, int fee) {
     vector<vector<bool>> visited(prices.size(), vector<bool>(2, false));
     int ret = maxProfitHelper(f, visited, prices, fee, 0, 0);
     return ret;
+}
+
+int minCostHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
+                  vector<vector<int>>& costs, int i, int color) {
+    if (i >= costs.size()) {
+        return 0;
+    }
+    if (visited[i][color]) {
+        return f[i][color];
+    }
+
+    for (int k = 0; k < costs[i].size(); k++) {
+        if (k != color) {
+            f[i][color] = min(f[i][color], minCostHelper(f, visited, costs, i + 1, k));
+        }
+    }
+    f[i][color] += costs[i][color];
+
+    visited[i][color] = true;
+    return f[i][color];
+}
+
+/**
+ * @brief
+ *
+ * @param costs
+ * @return int
+ */
+int minPaintCost(vector<vector<int>>& costs) {
+    vector<vector<int>> f(costs.size(), vector<int>(costs[0].size(), 1e5));
+    vector<vector<bool>> visited(costs.size(), vector<bool>(costs[0].size(), false));
+    int ret = minCostHelper(f, visited, costs, 0, 0);
+    ret = min(ret, minCostHelper(f, visited, costs, 0, 1));
+    ret = min(ret, minCostHelper(f, visited, costs, 0, 2));
+    return ret;
+}
+
+/**
+ * @brief
+ *
+ * @param costs
+ * @return int
+ */
+int minCostII(vector<vector<int>>& costs) {
+    vector<vector<int>> f(costs.size(), vector<int>(costs[0].size(), 1e5));
+    vector<vector<bool>> visited(costs.size(), vector<bool>(costs[0].size(), false));
+    int ret = 1e5;
+    for (int k = 0; k < costs[0].size(); k++) {
+        ret = min(ret, minCostHelper(f, visited, costs, 0, k));
+    }
+    return ret;
+}
+
+int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
+                    vector<int>& houses, vector<vector<int>>& cost, int target, int i,
+                    int color, int neighborCnt) {
+    // boundary
+    if (i == houses.size()) {
+        return neighborCnt == 0 ? 0 : 1e7;
+    }
+
+    if (visited[i][color][neighborCnt]) {
+        return f[i][color][neighborCnt];
+    }
+
+    // color 0 is not defined
+    // number of houses from i to end =  houses.size() - i
+    if (color == 0 || neighborCnt > houses.size() - i || neighborCnt <= 0) {
+        visited[i][color][neighborCnt] = true;
+        f[i][color][neighborCnt] = 1e7;
+        return f[i][color][neighborCnt];
+    }
+
+    // if ith house is not painted
+    if (houses[i] == 0) {
+        // paint same color as house[i+1]
+        f[i][color][neighborCnt] =
+            minCostHelperII(f, visited, houses, cost, target, i + 1, color, neighborCnt);
+        // paint different color with house[i+1]
+        for (int j = 1; j <= cost[0].size(); j++) {
+            if (j != color) {
+                f[i][color][neighborCnt] =
+                    min(f[i][color][neighborCnt],
+                        minCostHelperII(f, visited, houses, cost, target, i + 1, j,
+                                        neighborCnt - 1));
+            }
+        }
+        f[i][color][neighborCnt] += cost[i][color - 1];   // cost is 0-based
+    } else {
+        if (houses[i] == color) {
+            f[i][houses[i]][neighborCnt] = minCostHelperII(
+                f, visited, houses, cost, target, i + 1, color, neighborCnt);
+            for (int j = 1; j <= cost[0].size(); j++) {
+                if (j != color) {
+                    f[i][color][neighborCnt] =
+                        min(f[i][color][neighborCnt],
+                            minCostHelperII(f, visited, houses, cost, target, i + 1, j,
+                                            neighborCnt - 1));
+                }
+            }
+        } else {
+            // can not paint color
+            f[i][color][neighborCnt] = 1e7;
+        }
+    }
+
+    visited[i][color][neighborCnt] = true;
+    return f[i][color][neighborCnt];
+}
+
+/**
+ * @brief
+ *
+ * @param houses
+ * @param cost
+ * @param m
+ * @param n
+ * @param target
+ * @return int
+ */
+int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target) {
+    vector<vector<vector<int>>> f(
+        m, vector<vector<int>>(n + 1, vector<int>(target + 1, 1e7)));
+    vector<vector<vector<bool>>> visited(
+        m, vector<vector<bool>>(n + 1, vector<bool>(target + 1, false)));
+    int ret = 1e7;
+    for (int color = 1; color <= n; color++) {
+        ret =
+            min(ret, minCostHelperII(f, visited, houses, cost, target, 0, color, target));
+    }
+
+    return ret >= 1e7 ? -1 : ret;
 }

@@ -585,7 +585,7 @@ int GroupKnapsackII(vector<vector<int> > items, int total) {
 
 ### Mixed Knapsack
 
-> We have different kind items to be chosen, some can be chosen at most one time, some `m` times, and some unlimited. Return the maximum value we can get given a weight constrain.
+> We have different kind items to be chosen, some can be chosen at most one time, some `m` times, and some unlimited. Return the maximum value we can get given a weight constraint.
 
 The basic idea is converting limited item to 0-1 item (bit optimization) and deduct in two cases, one for 0-1 knapsack and the other for unlimited knapsack.
 
@@ -1310,7 +1310,7 @@ row\col   0  1    2    3    4
 
 We use k to enumerate all possible ways of putting `1*2` blocks on `i`th column. As shown in the diagram above, `k = 100000` is a bad choice, since on the first row `i-1` has placed a block there for some `f[i-1][j]`. However `k = 01000` seems a feasible placement. So, we can check if current placement is feasible by evaluating `j & k == 0` (the bit on both side cannot be 1 simultaneously).
 
-There is another constrain in this problem. Since all the rest cells will be placed with `2*1` blocks. After placing with `k`, the length of consecutive blank cells must be even. That is `j | k` cannot have consecutive 0s with odd size.
+There is another constraint in this problem. Since all the rest cells will be placed with `2*1` blocks. After placing with `k`, the length of consecutive blank cells must be even. That is `j | k` cannot have consecutive 0s with odd size.
 
 ```c++
 /**
@@ -2204,7 +2204,7 @@ int maxProfit(int k, vector<int>& prices) {
 >
 > Note: You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).
 
-This problem is similar to the one above other than constrains. In the last problem, the constrain is limitation of number of transaction while in this problem it becomes cooldown day.
+This problem is similar to the one above other than constrains. In the last problem, the constraint is limitation of number of transaction while in this problem it becomes cooldown day.
 
 It can be solved in a similar way. Define `f[i][j][k]` as `i` means we are processing ith day, `j` indicates the day when the stock is sold out last time, and `k` is a binary number with 1 representing holding a stock and 0 not.
 
@@ -3142,3 +3142,181 @@ int maxProfit(vector<int>& prices, int fee) {
 >
 > Return the minimum cost to paint all houses.
 
+The constraint in the problem is that two adjacent houses cannot be painted with the same color.
+
+Define `f[i][j]` as follows:
+
+- problem sets: from ith house which is painted with jth color, all painting plan for `houses[i+1..end]`.
+- property: min costs.
+
+Deduction:
+
+- painting ith house with color `j` costs us `costs[i][j]` and there are only two options for `i+1`th house.
+
+So, we got `f[i][j] = min(f[i+1][k]) - costs[i][j]`, where `k != j` and `k` is in [0, 2] representing three colors.
+
+```c++
+int minCostHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
+                  vector<vector<int>>& costs, int i, int color) {
+    if (i >= costs.size()) {
+        return 0;
+    }
+    if (visited[i][color]) {
+        return f[i][color];
+    }
+
+    for (int k = 0; k < costs[i].size(); k++) {
+        if (k != color) {
+            f[i][color] = min(f[i][color], minCostHelper(f, visited, costs, i + 1, k));
+        }
+    }
+    f[i][color] += costs[i][color];
+
+    visited[i][color] = true;
+    return f[i][color];
+}
+```
+
+```c++
+int minPaintCost(vector<vector<int>>& costs) {
+    vector<vector<int>> f(costs.size(), vector<int>(costs[0].size(), 1e5));
+    vector<vector<bool>> visited(costs.size(), vector<bool>(costs[0].size(), false));
+    int ret = minCostHelper(f, visited, costs, 0, 0);
+    ret = min(ret, minCostHelper(f, visited, costs, 0, 1));
+    ret = min(ret, minCostHelper(f, visited, costs, 0, 2));
+    return ret;
+}
+```
+
+### Paint House II
+
+> There are a row of n houses, each house can be painted with one of the k colors. The cost of painting each house with a certain color is different. You have to paint all the houses such that no two adjacent houses have the same color.
+>
+> The cost of painting each house with a certain color is represented by an n x k cost matrix costs.
+>
+> - For example, `costs[0][0]` is the cost of painting house 0 with color 0; `costs[1][2]` is the cost of painting house 1 with color 2, and so on..
+>
+> Return the minimum cost to paint all houses.
+
+The solution is same as Paint House with the only exception for main func.
+
+```c++
+int minCostII(vector<vector<int>>& costs) {
+    vector<vector<int>> f(costs.size(), vector<int>(costs[0].size(), 1e5));
+    vector<vector<bool>> visited(costs.size(), vector<bool>(costs[0].size(), false));
+    int ret = 1e5;
+    for (int k = 0; k < costs[0].size(); k++) {
+        ret = min(ret, minCostHelper(f, visited, costs, 0, k));
+    }
+    return ret;
+}
+```
+
+### Paint House III
+
+> There is a row of m houses in a small city, each house must be painted with one of the n colors (labeled from 1 to n), some houses that have been painted last summer should not be painted again.
+>
+> A neighborhood is a maximal group of continuous houses that are painted with the same color.
+>
+> - For example: houses = `[1,2,2,3,3,2,1,1]` contains 5 neighborhoods `[{1}, {2,2}, {3,3}, {2}, {1,1}]`.
+>
+> Given an array houses, an m x n matrix cost and an integer target where:
+>
+> - `houses[i]`: is the color of the house `i`, and 0 if the house is not painted yet.
+> - `cost[i][j]`: is the cost of paint the house `i` with the color `j + 1`.
+>
+> Return the minimum cost of painting all the remaining houses in such a way that there are exactly target neighborhoods. If it is not possible, return -1.
+
+There are two constraints in the problems: 1. costs and 2. number of neighborhoods.
+
+As we did before, we can solve it with top-to-down dynamic programming.
+
+Define `f[i][j][k]` as:
+
+- problem sets: paint ith house with color j and number of neighborhoods is k, all painting plan of `houses[i+1...end]`.
+- property: min cost.
+
+Deduction:
+
+- there are two cases: 
+    - `house[i]` is painted: 1. if the painted color is same as what we want to paint, we can save the cost for painting. 2. if it is different, this is an impossible case, simply set `f[i][j][k]` to be an impossible number (`1e7` in the following code).
+    - `house[i]` is not painted: 1. paint ith house with color same as `i+1`th house or 2. with a different house.
+
+Note: painting the same color or different color affects neighborhoods which represented in code as `neighborCnt`.
+
+So, we got `f[i][j][k] = min(f[i+1][j][k], f[i+1][any color other than j][k-1]) + cost[i][j]`.
+
+```c++
+int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
+                    vector<int>& houses, vector<vector<int>>& cost, int target, int i,
+                    int color, int neighborCnt) {
+    // boundary
+    if (i == houses.size()) {
+        return neighborCnt == 0 ? 0 : 1e7;
+    }
+
+    if (visited[i][color][neighborCnt]) {
+        return f[i][color][neighborCnt];
+    }
+
+    // color 0 is not defined
+    // number of houses from i to end =  houses.size() - i
+    if (color == 0 || neighborCnt > houses.size() - i || neighborCnt <= 0) {
+        visited[i][color][neighborCnt] = true;
+        f[i][color][neighborCnt] = 1e7;
+        return f[i][color][neighborCnt];
+    }
+
+    // if ith house is not painted
+    if (houses[i] == 0) {
+        // paint same color as house[i+1]
+        f[i][color][neighborCnt] =
+            minCostHelperII(f, visited, houses, cost, target, i + 1, color, neighborCnt);
+        // paint different color with house[i+1]
+        for (int j = 1; j <= cost[0].size(); j++) {
+            if (j != color) {
+                f[i][color][neighborCnt] =
+                    min(f[i][color][neighborCnt],
+                        minCostHelperII(f, visited, houses, cost, target, i + 1, j,
+                                        neighborCnt - 1));
+            }
+        }
+        f[i][color][neighborCnt] += cost[i][color - 1];   // cost is 0-based
+    } else {
+        if (houses[i] == color) {
+            f[i][houses[i]][neighborCnt] = minCostHelperII(
+                f, visited, houses, cost, target, i + 1, color, neighborCnt);
+            for (int j = 1; j <= cost[0].size(); j++) {
+                if (j != color) {
+                    f[i][color][neighborCnt] =
+                        min(f[i][color][neighborCnt],
+                            minCostHelperII(f, visited, houses, cost, target, i + 1, j,
+                                            neighborCnt - 1));
+                }
+            }
+        } else {
+            // can not paint color
+            f[i][color][neighborCnt] = 1e7;
+        }
+    }
+
+    visited[i][color][neighborCnt] = true;
+    return f[i][color][neighborCnt];
+}
+```
+
+```c++
+int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target) {
+    vector<vector<vector<int>>> f(
+        m, vector<vector<int>>(n + 1, vector<int>(target + 1, 1e7)));
+    vector<vector<vector<bool>>> visited(
+        m, vector<vector<bool>>(n + 1, vector<bool>(target + 1, false)));
+    int ret = 1e7;
+    for (int color = 1; color <= n; color++) {
+        ret =
+            min(ret, minCostHelperII(f, visited, houses, cost, target, 0, color, target));
+    }
+
+    return ret >= 1e7 ? -1 : ret;
+}
+```
