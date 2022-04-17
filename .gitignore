@@ -183,3 +183,4 @@ build/
 _deps
 *.sh
 googletest/
+contest/
