@@ -3568,6 +3568,8 @@ Let's divide the tiling into two cases: for board 2 * k, what's the number of pl
 - fully cover: `f[k] = f[k-1] (with one 2 * 1 domino) + f[k-2] (with two 1 * 2 dominos) + 2 * p[k-1] (with one of two tromino)`, where `f[0] = 1, f[1] = 2`. (*2 since there are two cases for tromino and they are symmetrical)
 - partially cover: `p[k] = p[k-1] + f[k-2]`, where `p[0] = 0, p[1] = 1` (zero-indexed).
 
+Note for `p[k]`, we only care about the number of patterns that first k boards is partially covered. We do not care about if `board[k][0]` or `board[k][1]` is covered. It will be handled in `f`, where `f[k] = ... + 2 * p[k-1]`, 2 matters here.
+
 ```text
 partially cover:
 
@@ -3581,3 +3583,101 @@ p:    k-1 k
     1  1 
     1  2  2
 ```
+
+```c++
+int numTilings(int n) {
+    static int MOD = 1e9 + 7;
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    if (n == 2) return 2;
+    vector<long> f(n, 0);
+    vector<long> p(n, 0);
+    f[0] = 1; f[1] = 2;
+    p[0] = 0; p[1] = 1;
+
+    for (int i = 2; i < n; i++) {
+        f[i] = (f[i - 1] + f[i - 2] + 2 * p[i - 1]) % MOD;
+        p[i] = (p[i - 1] + f[i - 2]) % MOD;
+    }
+    
+    return static_cast<int>(f[n - 1]);
+}
+```
+
+### Minimum Cost For Tickets
+
+> You have planned some train traveling one year in advance. The days of the year in which you will travel are given as an integer array days. Each day is an integer from 1 to 365.
+>
+> Train tickets are sold in three different ways:
+>
+> - a 1-day pass is sold for `costs[0]` dollars,
+> - a 7-day pass is sold for `costs[1]` dollars, and
+> - a 30-day pass is sold for `costs[2]` dollars.
+>
+> The passes allow that many days of consecutive travel.
+>
+> For example, if we get a 7-day pass on day 2, then we can travel for 7 days: 2, 3, 4, 5, 6, 7, and 8.
+>
+> Return the minimum number of dollars you need to travel every day in the given list of days.
+
+Define `f[i][j]` as: (top to bottom pattern)
+
+- problem set: On ith travel day holding the ticket which is expired on jth day, the cost for the travel from i to end days.
+- property: the minimum cost.
+
+Deduction:
+
+- We can buy one of three tickets on ith day. `f[i][j] = min(f[k][k + 1] + cost[0], f[k][k + 7] + cost[1], f[k][k + 30] + cost[2]`, where k is the first travel day that's larger than or equal to j.
+
+```c++
+int minTicketsHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& days, vector<int>& costs,
+                     int i, int expired) {
+    if (i >= days.size() | expired > 365) {
+        return 0;
+    }
+
+    if (visited[i][expired]) {
+        return f[i][expired];
+    }
+
+    // no need to buy
+    if (days[i] < expired) {
+        visited[i][expired] = true;
+        f[i][expired] = minTicketsHelper(f, visited, days, costs, i + 1, expired);
+        return f[i][expired];
+    }
+
+    // need to buy: three choices
+    int minCost = 1e6;
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 1) + costs[0]);
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 7) + costs[1]);
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 30) + costs[2]);
+    f[i][expired] = minCost;
+
+    visited[i][expired] = true;
+    return f[i][expired];
+}
+```
+
+```c++
+int mincostTickets(vector<int>& days, vector<int>& costs) {
+    vector<vector<int>> f(days.size(), vector<int>(366, 1e6));
+    vector<vector<bool>> visited(days.size(), vector<bool>(366, false));
+    int ret = minTicketsHelper(f, visited, days, costs, 0, 0);
+    return ret;
+}
+```
+
+### Interleaving String
+
+> Given strings s1, s2, and s3, find whether s3 is formed by an interleaving of s1 and s2.
+>
+> An interleaving of two strings s and t is a configuration where they are divided into non-empty substrings such that:
+>
+> - s = s1 + s2 + ... + sn
+> - t = t1 + t2 + ... + tm
+> - |n - m| <= 1
+> - The interleaving is s1 + t1 + s2 + t2 + s3 + t3 + ... or t1 + s1 + t2 + s2 + t3 + s3 + ...
+>
+> Note: a + b is the concatenation of strings a and b.
+

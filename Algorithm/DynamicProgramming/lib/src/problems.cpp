@@ -1305,13 +1305,57 @@ int numTilings(int n) {
     if (n == 2) return 2;
     vector<long> f(n, 0);
     vector<long> p(n, 0);
-    f[0] = 1; f[1] = 2;
-    p[0] = 0; p[1] = 1;
+    f[0] = 1;
+    f[1] = 2;
+    p[0] = 0;
+    p[1] = 1;
 
     for (int i = 2; i < n; i++) {
         f[i] = (f[i - 1] + f[i - 2] + 2 * p[i - 1]) % MOD;
         p[i] = (p[i - 1] + f[i - 2]) % MOD;
     }
-    
+
     return static_cast<int>(f[n - 1]);
+}
+
+int minTicketsHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& days, vector<int>& costs,
+                     int i, int expired) {
+    if (i >= days.size() | expired > 365) {
+        return 0;
+    }
+
+    if (visited[i][expired]) {
+        return f[i][expired];
+    }
+
+    // no need to buy
+    if (days[i] < expired) {
+        visited[i][expired] = true;
+        f[i][expired] = minTicketsHelper(f, visited, days, costs, i + 1, expired);
+        return f[i][expired];
+    }
+
+    // need to buy: three choices
+    int minCost = 1e6;
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 1) + costs[0]);
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 7) + costs[1]);
+    minCost = min(minCost, minTicketsHelper(f, visited, days, costs, i + 1, days[i] + 30) + costs[2]);
+    f[i][expired] = minCost;
+
+    visited[i][expired] = true;
+    return f[i][expired];
+}
+
+/**
+ * @brief
+ *
+ * @param days: one based
+ * @param costs
+ * @return int
+ */
+int mincostTickets(vector<int>& days, vector<int>& costs) {
+    vector<vector<int>> f(days.size(), vector<int>(366, 1e6));
+    vector<vector<bool>> visited(days.size(), vector<bool>(366, false));
+    int ret = minTicketsHelper(f, visited, days, costs, 0, 0);
+    return ret;
 }

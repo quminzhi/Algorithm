@@ -64,5 +64,6 @@ int findLength(vector<int>& nums1, vector<int>& nums2);
 int findLengthII(vector<int>& nums1, vector<int>& nums2);
 int numRollsToTarget(int n, int k, int target);
 int numTilings(int n);
+int mincostTickets(vector<int>& days, vector<int>& costs);
 
 #endif
