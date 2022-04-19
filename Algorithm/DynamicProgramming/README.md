@@ -3474,3 +3474,51 @@ int findLength(vector<int>& nums1, vector<int>& nums2) {
 >
 > Given three integers n, k, and target, return the number of possible ways (out of the kn total ways) to roll the dice so the sum of the face-up numbers equals target. Since the answer may be too large, return it modulo 1e9 + 7.
 
+Define `f[i][j]` as: (top to bottom)
+
+- problem sets: In the rounds from i to end, all possible results of rolling dices and the sum of results equals to target (j).
+- property: count.
+
+Deduction:
+
+- `f[i][j] = sum of (f[i+1][j-k])`, k is the result of rolling dice on ith round.
+
+```c++
+int numRollsHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, int n, int k, int i, int target) {
+    static int mod = 1e9 + 7;
+    // boundary
+    if (target <= 0 || i >= n) {
+        return 0;
+    }
+
+    if (visited[i][target]) {
+        return f[i][target];
+    }
+
+    // base
+    if (i == n - 1 && target <= k) {
+        f[i][target] = 1;
+        visited[i][target] = true;
+        return f[i][target];
+    }
+
+    int sum = 0;
+    for (int face = 1; face <= k; face++) {
+        sum = (sum + numRollsHelper(f, visited, n, k, i + 1, target - face)) % mod;
+    }
+    f[i][target] = sum;
+
+    visited[i][target] = true;
+    return f[i][target];
+}
+```
+
+```c++
+int numRollsToTarget(int n, int k, int target) {
+    static int mod = 1e9 + 7;
+    vector<vector<int>> f(n, vector<int>(target + 1, 0));   // k is in [0, k]
+    vector<vector<bool>> visited(n, vector<bool>(target + 1, false));
+    int ret = numRollsHelper(f, visited, n, k, 0, target);
+    return ret;
+}
+```

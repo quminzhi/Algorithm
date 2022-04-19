@@ -504,3 +504,7 @@ TEST(MyTest, repeatedSubarrayTEST) {
     vector<int> nums2 = {3, 2, 1, 4, 7};
     EXPECT_EQ(findLength(nums1, nums2), 3);
 }
+
+TEST(MyTest, rollingDiceTEST) {
+    EXPECT_EQ(numRollsToTarget(2, 6, 7), 6);
+}

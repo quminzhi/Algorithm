@@ -1247,3 +1247,47 @@ int findLengthII(vector<int>& nums1, vector<int>& nums2) {
 
     return f[nums1.size()][nums2.size()];
 }
+
+int numRollsHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, int n, int k, int i, int target) {
+    static int mod = 1e9 + 7;
+    // boundary
+    if (target <= 0 || i >= n) {
+        return 0;
+    }
+
+    if (visited[i][target]) {
+        return f[i][target];
+    }
+
+    // base
+    if (i == n - 1 && target <= k) {
+        f[i][target] = 1;
+        visited[i][target] = true;
+        return f[i][target];
+    }
+
+    int sum = 0;
+    for (int face = 1; face <= k; face++) {
+        sum = (sum + numRollsHelper(f, visited, n, k, i + 1, target - face)) % mod;
+    }
+    f[i][target] = sum;
+
+    visited[i][target] = true;
+    return f[i][target];
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param k
+ * @param target
+ * @return int
+ */
+int numRollsToTarget(int n, int k, int target) {
+    static int mod = 1e9 + 7;
+    vector<vector<int>> f(n, vector<int>(target + 1, 0));   // k is in [0, k]
+    vector<vector<bool>> visited(n, vector<bool>(target + 1, false));
+    int ret = numRollsHelper(f, visited, n, k, 0, target);
+    return ret;
+}
