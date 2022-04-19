@@ -3522,3 +3522,62 @@ int numRollsToTarget(int n, int k, int target) {
     return ret;
 }
 ```
+
+### Domino and Tromino Tiling
+
+> You have two types of tiles: a 2 x 1 domino shape and a tromino shape. You may rotate these shapes.
+>
+> Given an integer n, return the number of ways to tile an 2 x n board. Since the answer may be very large, return it modulo 109 + 7.
+>
+> In a tiling, every square must be covered by a tile. Two tilings are different if and only if there are two 4-directionally adjacent cells on the board such that exactly one of the tilings has both squares occupied by a tile.
+
+Define `f[i]` as: (from top to bottom)
+
+- problem sets: all the possible tilings from i to end.
+- property: count.
+
+Deduction:
+
+- On ith column, there are three choices:
+    - case 1: filling ith column with a 2 * 1 tile.
+    - case 2: filling ith and i+1th column with two 1 * 2 tiles, if i+1th column exists.
+    - case 3: filling ith, i+1th, and i+2th column with two tromino tiles if i+2th column exists.
+
+(note: case 2 cannot tiling with two 2 * 1 tiles, which may cause duplication with case 1).
+
+```text
+case 3:
+    1 2 2    or    1 1 2
+    1 1 2          1 2 2
+```
+
+CAUTION: There is a flaw in this solution, we cannot solve the case in the following for non-adjacent tromino.
+
+```text
+case 3:
+    1 3 3 2 2
+    1 1 3 3 2
+
+1 and 2 are separated by domnino.
+```
+
+- bottom to top pattern
+
+Let's divide the tiling into two cases: for board 2 * k, what's the number of plans that fully cover the board (`f[k]`) and partially cover the board (`p[k]`).
+
+- fully cover: `f[k] = f[k-1] (with one 2 * 1 domino) + f[k-2] (with two 1 * 2 dominos) + 2 * p[k-1] (with one of two tromino)`, where `f[0] = 1, f[1] = 2`. (*2 since there are two cases for tromino and they are symmetrical)
+- partially cover: `p[k] = p[k-1] + f[k-2]`, where `p[0] = 0, p[1] = 1` (zero-indexed).
+
+```text
+partially cover:
+
+add a tromino to fully cover
+p: k-2    k
+    1  2  2
+    1  2
+
+add a domino to partially cover
+p:    k-1 k
+    1  1 
+    1  2  2
+```

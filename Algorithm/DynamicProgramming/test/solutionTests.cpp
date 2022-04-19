@@ -508,3 +508,7 @@ TEST(MyTest, repeatedSubarrayTEST) {
 TEST(MyTest, rollingDiceTEST) {
     EXPECT_EQ(numRollsToTarget(2, 6, 7), 6);
 }
+
+TEST(MyTest, numTilingsTEST) {
+    EXPECT_EQ(numTilings(4), 11);
+}

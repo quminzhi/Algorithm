@@ -33,11 +33,13 @@
         "applepenapple",
         "conds",
         "cooldown",
+        "domnino",
         "libc",
         "memset",
         "nums",
         "onestep",
         "substr",
+        "tromino",
         "twosteps"
     ],
     "cSpell.words": [

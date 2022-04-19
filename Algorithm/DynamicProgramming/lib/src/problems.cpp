@@ -1291,3 +1291,27 @@ int numRollsToTarget(int n, int k, int target) {
     int ret = numRollsHelper(f, visited, n, k, 0, target);
     return ret;
 }
+
+/**
+ * @brief
+ *
+ * @param n
+ * @return int
+ */
+int numTilings(int n) {
+    static int MOD = 1e9 + 7;
+    if (n == 0) return 0;
+    if (n == 1) return 1;
+    if (n == 2) return 2;
+    vector<long> f(n, 0);
+    vector<long> p(n, 0);
+    f[0] = 1; f[1] = 2;
+    p[0] = 0; p[1] = 1;
+
+    for (int i = 2; i < n; i++) {
+        f[i] = (f[i - 1] + f[i - 2] + 2 * p[i - 1]) % MOD;
+        p[i] = (p[i - 1] + f[i - 2]) % MOD;
+    }
+    
+    return static_cast<int>(f[n - 1]);
+}
