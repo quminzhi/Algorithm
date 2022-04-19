@@ -503,3 +503,7 @@ TEST(MyTest, minTicketTEST) {
     vector<int> costs = {2, 7, 15};
     EXPECT_EQ(mincostTickets(days, costs), 11);
 }
+
+TEST(MyTest, InterleavingTEST) {
+    EXPECT_TRUE(isInterleave("aabcc", "dbbca", "aadbbcbcac"));
+}

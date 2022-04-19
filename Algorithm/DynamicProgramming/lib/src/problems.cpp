@@ -1359,3 +1359,46 @@ int mincostTickets(vector<int>& days, vector<int>& costs) {
     int ret = minTicketsHelper(f, visited, days, costs, 0, 0);
     return ret;
 }
+
+/**
+ * @brief 
+ * 
+ * if `s1[i] == s3[i+j]`, `f[i][j] = f[i][j] | f[i-1][j]`.
+ * if `s2[j] == s3[i+j]`, `f[i][j] = f[i][j] | f[i][j-1]`.
+ * 
+ * @param s1 
+ * @param s2 
+ * @param s3 
+ * @return true 
+ * @return false 
+ */
+bool isInterleave(string s1, string s2, string s3) {
+    if (s1.size() + s2.size() != s3.size()) return false;
+    vector<vector<bool>> f(s1.size() + 1, vector<bool>(s2.size() + 1, false));
+    // init: f[i][0] and f[0][j]
+    f[0][0] = true;
+    for (int i = 1; i <= s1.size(); i++) {
+        if (s1[i - 1] == s3[i - 1]) {
+            f[i][0] = f[i][0] | f[i - 1][0];
+        }
+    }
+    for (int j = 1; j <= s2.size(); j++) {
+        if (s2[j - 1] == s3[j - 1]) {
+            f[0][j] = f[0][j] | f[0][j - 1];
+        }
+    }
+
+    // deduction
+    for (int i = 1; i <= s1.size(); i++) {
+        for (int j = 1; j <= s2.size(); j++) {
+            if (s1[i - 1] == s3[i + j - 1]) {
+                f[i][j] = f[i][j] | f[i - 1][j];
+            }
+            if (s2[j - 1] == s3[i + j - 1]) {
+                f[i][j] = f[i][j] | f[i][j - 1];
+            }
+        }
+    }
+
+    return f[s1.size()][s2.size()];
+}

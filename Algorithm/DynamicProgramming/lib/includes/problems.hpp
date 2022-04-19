@@ -65,5 +65,6 @@ int findLengthII(vector<int>& nums1, vector<int>& nums2);
 int numRollsToTarget(int n, int k, int target);
 int numTilings(int n);
 int mincostTickets(vector<int>& days, vector<int>& costs);
+bool isInterleave(string s1, string s2, string s3);
 
 #endif
