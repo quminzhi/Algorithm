@@ -493,3 +493,14 @@ TEST(MyTest, paintHouseIITEST) {
     vector<vector<int>> cost1 = {{1, 10}, {10, 1}, {10, 1}, {1, 10}, {5, 1}};
     EXPECT_EQ(minCost(houses1, cost1, cost1.size(), cost1[0].size(), 3), 11);
 }
+
+TEST(MyTest, vowelPermTEST) {
+    EXPECT_EQ(countVowelPermutation(1), 5);
+    EXPECT_EQ(countVowelPermutation(2), 10);
+}
+
+TEST(MyTest, repeatedSubarrayTEST) {
+    vector<int> nums1 = {1, 2, 3, 2, 1};
+    vector<int> nums2 = {3, 2, 1, 4, 7};
+    EXPECT_EQ(findLength(nums1, nums2), 3);
+}

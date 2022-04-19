@@ -123,8 +123,7 @@ int deleteAndEarn(vector<int>& nums) {
  * @param i: ith step.
  * @param result
  */
-int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
-                       vector<vector<int>>& f, int begin, int i) {
+int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers, vector<vector<int>>& f, int begin, int i) {
     if (f[begin][i] != -1e4) {
         return f[begin][i];
     }
@@ -135,10 +134,8 @@ int maximumScoreHelper(vector<int>& nums, vector<int>& multipliers,
         return max(nums[begin] * multipliers[i], nums[end] * multipliers[i]);
     }
 
-    int maxVal = max(maximumScoreHelper(nums, multipliers, f, begin + 1, i + 1) +
-                         nums[begin] * multipliers[i],
-                     maximumScoreHelper(nums, multipliers, f, begin, i + 1) +
-                         nums[end] * multipliers[i]);
+    int maxVal = max(maximumScoreHelper(nums, multipliers, f, begin + 1, i + 1) + nums[begin] * multipliers[i],
+                     maximumScoreHelper(nums, multipliers, f, begin, i + 1) + nums[end] * multipliers[i]);
     return maxVal;
 }
 
@@ -167,8 +164,7 @@ int maximumScore(vector<int>& nums, vector<int>& multipliers) {
  * @return int
  */
 int maximalSquare(vector<vector<char>>& matrix) {
-    vector<vector<int>> f(matrix.size() + 1,
-                          vector<int>(matrix[0].size() + 1, 0));   // 1-based
+    vector<vector<int>> f(matrix.size() + 1, vector<int>(matrix[0].size() + 1, 0));   // 1-based
 
     int maxLen = 0;
     for (int i = 1; i <= matrix.size(); i++) {
@@ -251,8 +247,7 @@ int coinChange(vector<int>& coins, int amount) {
     return res;
 }
 
-bool wordBreakHelper(const string& s, const vector<string>& wordDict, vector<bool>& memo,
-                     int start) {
+bool wordBreakHelper(const string& s, const vector<string>& wordDict, vector<bool>& memo, int start) {
     if (start >= s.size()) {
         return true;
     }
@@ -263,8 +258,7 @@ bool wordBreakHelper(const string& s, const vector<string>& wordDict, vector<boo
 
     // try all possible words
     for (int i = 0; i < wordDict.size(); i++) {
-        if (s.size() - start >= wordDict[i].size() &&
-            s.substr(start, wordDict[i].size()) == wordDict[i] &&
+        if (s.size() - start >= wordDict[i].size() && s.substr(start, wordDict[i].size()) == wordDict[i] &&
             wordBreakHelper(s, wordDict, memo, start + wordDict[i].size())) {
             memo[start] = true;
             return true;
@@ -345,8 +339,8 @@ int lengthOfLIS(vector<int>& nums) {
     return res;
 }
 
-int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
-                    const vector<int>& prices, int i, int j, int k) {
+int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited, const vector<int>& prices,
+                    int i, int j, int k) {
     if (i >= prices.size()) return 0;
     if (j <= 0) return 0;
 
@@ -360,9 +354,8 @@ int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>
                              maxProfitHelper(f, visited, prices, i + 1, j, 0));
         } else {
             // holding
-            f[i][j][k] =
-                max(maxProfitHelper(f, visited, prices, i + 1, j - 1, 0) + prices[i],
-                    maxProfitHelper(f, visited, prices, i + 1, j, 1));
+            f[i][j][k] = max(maxProfitHelper(f, visited, prices, i + 1, j - 1, 0) + prices[i],
+                             maxProfitHelper(f, visited, prices, i + 1, j, 1));
         }
         return f[i][j][k];
     }
@@ -376,16 +369,13 @@ int maxProfitHelper(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>
  * @return int
  */
 int maxProfit(int k, vector<int>& prices) {
-    vector<vector<vector<int>>> f(prices.size(),
-                                  vector<vector<int>>(k + 1, vector<int>(2, 0)));
-    vector<vector<vector<bool>>> visited(
-        prices.size(), vector<vector<bool>>(k + 1, vector<bool>(2, false)));
+    vector<vector<vector<int>>> f(prices.size(), vector<vector<int>>(k + 1, vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(prices.size(), vector<vector<bool>>(k + 1, vector<bool>(2, false)));
 
     return maxProfitHelper(f, visited, prices, 0, k, 0);
 }
 
-int maxProfitHelperII(vector<vector<vector<int>>>& f,
-                      vector<vector<vector<bool>>>& visited, const vector<int>& prices,
+int maxProfitHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited, const vector<int>& prices,
                       int i, int j, int k) {
     if (i >= prices.size()) {
         return 0;
@@ -396,18 +386,16 @@ int maxProfitHelperII(vector<vector<vector<int>>>& f,
     }
 
     if (k == 1) {
-        f[i][j][k] = max(maxProfitHelperII(f, visited, prices, i + 1, i, 0) +
-                             prices[i],   // sell and update selling day
-                         maxProfitHelperII(f, visited, prices, i + 1, j, k));
+        f[i][j][k] =
+            max(maxProfitHelperII(f, visited, prices, i + 1, i, 0) + prices[i],   // sell and update selling day
+                maxProfitHelperII(f, visited, prices, i + 1, j, k));
     } else {
         // check if this is cooldown day if i want to buy a stock
-        if (j != 0 &&
-            i == j + 1) {   // if j has been updated (at least 1 trans completed)
+        if (j != 0 && i == j + 1) {   // if j has been updated (at least 1 trans completed)
             f[i][j][k] = maxProfitHelperII(f, visited, prices, i + 1, j, k);
         } else {
-            f[i][j][k] = max(
-                maxProfitHelperII(f, visited, prices, i + 1, j, 1) - prices[i],   // buy
-                maxProfitHelperII(f, visited, prices, i + 1, j, k));
+            f[i][j][k] = max(maxProfitHelperII(f, visited, prices, i + 1, j, 1) - prices[i],   // buy
+                             maxProfitHelperII(f, visited, prices, i + 1, j, k));
         }
     }
 
@@ -422,10 +410,8 @@ int maxProfitHelperII(vector<vector<vector<int>>>& f,
  * @return int
  */
 int maxProfit(vector<int>& prices) {
-    vector<vector<vector<int>>> f(prices.size(),
-                                  vector<vector<int>>(prices.size(), vector<int>(2, 0)));
-    vector<vector<vector<bool>>> visited(
-        prices.size(), vector<vector<bool>>(prices.size(), vector<bool>(2, false)));
+    vector<vector<vector<int>>> f(prices.size(), vector<vector<int>>(prices.size(), vector<int>(2, 0)));
+    vector<vector<vector<bool>>> visited(prices.size(), vector<vector<bool>>(prices.size(), vector<bool>(2, false)));
 
     int ret = maxProfitHelperII(f, visited, prices, 0, 0, 0);
 
@@ -438,8 +424,7 @@ int robHelper(TreeNode2* root, bool available) {
     }
 
     if (available) {
-        return max(robHelper(root->left, !available) +
-                       robHelper(root->right, !available) + root->val,
+        return max(robHelper(root->left, !available) + robHelper(root->right, !available) + root->val,
                    robHelper(root->left, available) + robHelper(root->right, available));
     }
 
@@ -458,8 +443,7 @@ int robHelper(TreeNode2* root, bool available) {
  */
 int rob(TreeNode2* root) { return max(robHelper(root, true), robHelper(root, false)); }
 
-int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<int>& cost,
-                                int start) {
+int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<int>& cost, int start) {
     if (start >= cost.size()) {
         return 0;
     }
@@ -468,9 +452,8 @@ int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<in
         return f[start];
     }
 
-    f[start] =
-        cost[start] + min(minCostClimbingStairsHelper(f, visited, cost, start + 1),
-                          minCostClimbingStairsHelper(f, visited, cost, start + 2));
+    f[start] = cost[start] + min(minCostClimbingStairsHelper(f, visited, cost, start + 1),
+                                 minCostClimbingStairsHelper(f, visited, cost, start + 2));
 
     return f[start];
 }
@@ -484,8 +467,7 @@ int minCostClimbingStairsHelper(vector<int>& f, vector<bool>& visited, vector<in
 int minCostClimbingStairsII(vector<int>& cost) {
     vector<int> f(cost.size(), 1e5);
     vector<bool> visited(cost.size(), false);
-    return min(minCostClimbingStairsHelper(f, visited, cost, 0),
-               minCostClimbingStairsHelper(f, visited, cost, 1));
+    return min(minCostClimbingStairsHelper(f, visited, cost, 0), minCostClimbingStairsHelper(f, visited, cost, 1));
 }
 
 /**
@@ -916,8 +898,8 @@ int lenOfBin(int x) {
  */
 int binaryMaxLength(string s, int x) {
     if (x == 0) return 0;
-    int len = lenOfBin(x);      // max length must be less than len
-    s.insert(s.begin(), '0');   // 1 ~ s.size() - 1
+    int len = lenOfBin(x);                                    // max length must be less than len
+    s.insert(s.begin(), '0');                                 // 1 ~ s.size() - 1
     vector<vector<int>> f(s.size(), vector<int>(len, 1e6));   // 1-based
 
     // base:
@@ -948,14 +930,12 @@ int binaryMaxLength(string s, int x) {
  */
 int minPathSum(vector<vector<int>>& grid) {
     int m = grid.size(), n = grid[0].size();
-    vector<vector<int>> f(m + 1,
-                          vector<int>(n + 1, 1e6));   // padding left and top boundary
+    vector<vector<int>> f(m + 1, vector<int>(n + 1, 1e6));   // padding left and top boundary
 
     f[0][0] = f[1][0] = f[0][1] = 0;
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= n; j++) {
-            f[i][j] =
-                min(f[i - 1][j], f[i][j - 1]) + grid[i - 1][j - 1];   // grid is 0-based
+            f[i][j] = min(f[i - 1][j], f[i][j - 1]) + grid[i - 1][j - 1];   // grid is 0-based
         }
     }
 
@@ -984,9 +964,7 @@ int minPathSumII(vector<vector<int>>& grid) {
  */
 int minFallingPathSum(vector<vector<int>>& matrix) {
     int m = matrix.size(), n = matrix[0].size();
-    vector<vector<int>> f(
-        m + 2,
-        vector<int>(n + 2, 1e6));   // 2 for padding left, top, right and bottom boundary
+    vector<vector<int>> f(m + 2, vector<int>(n + 2, 1e6));   // 2 for padding left, top, right and bottom boundary
 
     for (int j = 1; j <= n; j++) {
         f[0][j] = 0;
@@ -1008,8 +986,8 @@ int minFallingPathSum(vector<vector<int>>& matrix) {
     return res;
 }
 
-int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
-                    vector<int>& prices, int fee, int i, int hold) {
+int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<int>& prices, int fee, int i,
+                    int hold) {
     if (i >= prices.size()) {
         return 0;
     }
@@ -1019,13 +997,11 @@ int maxProfitHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
 
     if (hold == 0) {
         // buy?
-        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) -
-                                         prices[i] - fee);
+        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 1) - prices[i] - fee);
     }
     if (hold == 1) {
         // sell?
-        f[i][hold] = max(f[i][hold],
-                         maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
+        f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, 0) + prices[i]);
     }
     f[i][hold] = max(f[i][hold], maxProfitHelper(f, visited, prices, fee, i + 1, hold));
 
@@ -1047,8 +1023,7 @@ int maxProfit(vector<int>& prices, int fee) {
     return ret;
 }
 
-int minCostHelper(vector<vector<int>>& f, vector<vector<bool>>& visited,
-                  vector<vector<int>>& costs, int i, int color) {
+int minCostHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, vector<vector<int>>& costs, int i, int color) {
     if (i >= costs.size()) {
         return 0;
     }
@@ -1098,9 +1073,8 @@ int minCostII(vector<vector<int>>& costs) {
     return ret;
 }
 
-int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited,
-                    vector<int>& houses, vector<vector<int>>& cost, int target, int i,
-                    int color, int neighborCnt) {
+int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>& visited, vector<int>& houses,
+                    vector<vector<int>>& cost, int target, int i, int color, int neighborCnt) {
     // boundary
     if (i == houses.size()) {
         return neighborCnt == 0 ? 0 : 1e7;
@@ -1121,28 +1095,24 @@ int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>
     // if ith house is not painted
     if (houses[i] == 0) {
         // paint same color as house[i+1]
-        f[i][color][neighborCnt] =
-            minCostHelperII(f, visited, houses, cost, target, i + 1, color, neighborCnt);
+        f[i][color][neighborCnt] = minCostHelperII(f, visited, houses, cost, target, i + 1, color, neighborCnt);
         // paint different color with house[i+1]
         for (int j = 1; j <= cost[0].size(); j++) {
             if (j != color) {
                 f[i][color][neighborCnt] =
                     min(f[i][color][neighborCnt],
-                        minCostHelperII(f, visited, houses, cost, target, i + 1, j,
-                                        neighborCnt - 1));
+                        minCostHelperII(f, visited, houses, cost, target, i + 1, j, neighborCnt - 1));
             }
         }
         f[i][color][neighborCnt] += cost[i][color - 1];   // cost is 0-based
     } else {
         if (houses[i] == color) {
-            f[i][houses[i]][neighborCnt] = minCostHelperII(
-                f, visited, houses, cost, target, i + 1, color, neighborCnt);
+            f[i][houses[i]][neighborCnt] = minCostHelperII(f, visited, houses, cost, target, i + 1, color, neighborCnt);
             for (int j = 1; j <= cost[0].size(); j++) {
                 if (j != color) {
                     f[i][color][neighborCnt] =
                         min(f[i][color][neighborCnt],
-                            minCostHelperII(f, visited, houses, cost, target, i + 1, j,
-                                            neighborCnt - 1));
+                            minCostHelperII(f, visited, houses, cost, target, i + 1, j, neighborCnt - 1));
                 }
             }
         } else {
@@ -1166,15 +1136,114 @@ int minCostHelperII(vector<vector<vector<int>>>& f, vector<vector<vector<bool>>>
  * @return int
  */
 int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target) {
-    vector<vector<vector<int>>> f(
-        m, vector<vector<int>>(n + 1, vector<int>(target + 1, 1e7)));
-    vector<vector<vector<bool>>> visited(
-        m, vector<vector<bool>>(n + 1, vector<bool>(target + 1, false)));
+    vector<vector<vector<int>>> f(m, vector<vector<int>>(n + 1, vector<int>(target + 1, 1e7)));
+    vector<vector<vector<bool>>> visited(m, vector<vector<bool>>(n + 1, vector<bool>(target + 1, false)));
     int ret = 1e7;
     for (int color = 1; color <= n; color++) {
-        ret =
-            min(ret, minCostHelperII(f, visited, houses, cost, target, 0, color, target));
+        ret = min(ret, minCostHelperII(f, visited, houses, cost, target, 0, color, target));
     }
 
     return ret >= 1e7 ? -1 : ret;
+}
+
+int countVowelHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, int n, int i, int vowel) {
+    static int mod = 1e9 + 7;
+    if (i == n - 1) {
+        return 1;
+    }
+
+    if (visited[i][vowel]) {
+        return f[i][vowel];
+    }
+
+    switch (vowel) {
+        case 0:
+            f[i][vowel] = countVowelHelper(f, visited, n, i + 1, 1);
+            break;
+        case 1:
+            f[i][vowel] = (countVowelHelper(f, visited, n, i + 1, 0) + countVowelHelper(f, visited, n, i + 1, 2)) % mod;
+            break;
+        case 2:
+            for (int j = 0; j < 5; j++) {
+                if (j != 2) {
+                    f[i][vowel] = (f[i][vowel] + countVowelHelper(f, visited, n, i + 1, j)) % mod;
+                }
+            }
+            break;
+        case 3:
+            f[i][vowel] = (countVowelHelper(f, visited, n, i + 1, 2) + countVowelHelper(f, visited, n, i + 1, 4)) % mod;
+            break;
+        case 4:
+            f[i][vowel] = countVowelHelper(f, visited, n, i + 1, 0);
+            break;
+        default:
+            break;
+    }
+
+    f[i][vowel] %= mod;
+
+    visited[i][vowel] = true;
+    return f[i][vowel];
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @return int
+ */
+int countVowelPermutation(int n) {
+    static int mod = 1e9 + 7;
+    enum Vowels { a, e, i, o, u };
+    vector<vector<int>> f(n, vector<int>(5, 0));
+    vector<vector<bool>> visited(n, vector<bool>(5, 0));
+    int sum = 0;
+    for (int i = 0; i < 5; i++) {
+        sum = (sum + countVowelHelper(f, visited, n, 0, i)) % mod;
+    }
+
+    return sum;
+}
+
+/**
+ * @brief return the maximum length of common subarray
+ *
+ * @param nums1
+ * @param nums2
+ * @return int
+ */
+int findLength(vector<int>& nums1, vector<int>& nums2) {
+    vector<vector<int>> f(nums1.size() + 1, vector<int>(nums2.size() + 1, 0));   // 1-based
+    int maxLen = 0;
+    for (int i = 1; i <= nums1.size(); i++) {
+        for (int j = 1; j <= nums2.size(); j++) {
+            if (nums1[i - 1] == nums2[j - 1]) {   // 1-based to 0-based
+                f[i][j] = f[i - 1][j - 1] + 1;
+            }
+            maxLen = max(maxLen, f[i][j]);
+        }
+    }
+
+    return maxLen;
+}
+
+/**
+ * @brief return the maximum length of common subsequence
+ *
+ * @param nums1
+ * @param nums2
+ * @return int
+ */
+int findLengthII(vector<int>& nums1, vector<int>& nums2) {
+    vector<vector<int>> f(nums1.size() + 1, vector<int>(nums2.size() + 1, 0));   // 1-based
+    for (int i = 1; i <= nums1.size(); i++) {
+        for (int j = 1; j <= nums2.size(); j++) {
+            f[i][j] = max(f[i][j - 1], f[i - 1][j]);
+            if (nums1[i - 1] == nums2[j - 1]) {   // 1-based to 0-based
+                f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
+            }
+        }
+    }
+
+    return f[nums1.size()][nums2.size()];
 }

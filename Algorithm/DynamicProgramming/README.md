@@ -3320,3 +3320,157 @@ int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int ta
     return ret >= 1e7 ? -1 : ret;
 }
 ```
+
+### Count Vowels Permutation
+
+> Given an integer n, your task is to count how many strings of length n can be formed under the following rules:
+>
+> - Each character is a lower case vowel ('a', 'e', 'i', 'o', 'u')
+> - Each vowel 'a' may only be followed by an 'e'.
+> - Each vowel 'e' may only be followed by an 'a' or an 'i'.
+> - Each vowel 'i' **may not** be followed by another 'i'.
+> - Each vowel 'o' may only be followed by an 'i' or a 'u'.
+> - Each vowel 'u' may only be followed by an 'a'.
+>
+> Since the answer may be too large, return it modulo 10^9 + 7.
+
+Define `f[i][j]` as: top to bottom
+
+- problem sets: all possible combinations of vowels from `i` to end and select `j`th vowel for ith index.
+- property: count.
+
+Deduction:
+
+- all numbers of combination of `s[i...end] = sum of f[i][j] for each j`, and `f[i][j] = sum(f[i+1][k])`, where `k` is valid choice for `i+1`th index.
+
+So, we got `f[i][j] = sum(f[i+1][k]) for each valid k`.
+
+```c++
+int countVowelHelper(vector<vector<int>>& f, vector<vector<bool>>& visited, int n, int i, int vowel) {
+    static int mod = 1e9 + 7;
+    if (i == n - 1) {
+        return 1;
+    }
+
+    if (visited[i][vowel]) {
+        return f[i][vowel];
+    }
+
+    switch (vowel) {
+        case 0:
+            f[i][vowel] = countVowelHelper(f, visited, n, i + 1, 1);
+            break;
+        case 1:
+            f[i][vowel] = (countVowelHelper(f, visited, n, i + 1, 0) + countVowelHelper(f, visited, n, i + 1, 2)) % mod;
+            break;
+        case 2:
+            for (int j = 0; j < 5; j++) {
+                if (j != 2) {
+                    f[i][vowel] = (f[i][vowel] + countVowelHelper(f, visited, n, i + 1, j)) % mod;
+                }
+            }
+            break;
+        case 3:
+            f[i][vowel] = (countVowelHelper(f, visited, n, i + 1, 2) + countVowelHelper(f, visited, n, i + 1, 4)) % mod;
+            break;
+        case 4:
+            f[i][vowel] = countVowelHelper(f, visited, n, i + 1, 0);
+            break;
+        default:
+            break;
+    }
+
+    f[i][vowel] %= mod;
+
+    visited[i][vowel] = true;
+    return f[i][vowel];
+}
+```
+
+```c++
+int countVowelPermutation(int n) {
+    static int mod = 1e9 + 7;
+    enum Vowels { a, e, i, o, u };
+    vector<vector<int>> f(n, vector<int>(5, 0));
+    vector<vector<bool>> visited(n, vector<bool>(5, 0));
+    int sum = 0;
+    for (int i = 0; i < 5; i++) {
+        sum = (sum + countVowelHelper(f, visited, n, 0, i)) % mod;
+    }
+
+    return sum;
+}
+```
+
+### Maximum Length of Repeated Subarray
+
+> Given two integer arrays nums1 and nums2, return the maximum length of a subarray that appears in both arrays.
+
+Note that subarray is **a consecutive sequence**.
+
+Define `f[i][j]` as: (bottom to top)
+
+- problem sets: all common subarray that ends with `nums1[i]` and `nums2[j]`.
+- property: max length.
+
+Deduction:
+
+- Max length of common subarray that ends with `nums1[i]` and `nums2[j]` is `f[i-1][j-1] + 1` if `nums1[i] == nums2[j]`.
+
+So, we got `f[i][j] = f[i-1][j-1] + 1` if `nums1[i] == nums2[j]`, or 0 otherwise.
+
+```c++
+int findLength(vector<int>& nums1, vector<int>& nums2) {
+    vector<vector<int>> f(nums1.size() + 1, vector<int>(nums2.size() + 1, 0));   // 1-based
+    int maxLen = 0;
+    for (int i = 1; i <= nums1.size(); i++) {
+        for (int j = 1; j <= nums2.size(); j++) {
+            if (nums1[i - 1] == nums2[j - 1]) {   // 1-based to 0-based
+                f[i][j] = f[i - 1][j - 1] + 1;
+            }
+            maxLen = max(maxLen, f[i][j]);
+        }
+    }
+
+    return maxLen;
+}
+```
+
+If the problem is going to find subsequence, this problem is a digital version of longest common subsequence.
+
+Define `f[i][j]` as: (bottom to top)
+
+- problem sets: all common subsequence between `nums1[0..i]` and `nums2[0..j]`.
+- property: max length of common subarray.
+
+Deduction:
+
+- if `nums1[i] == nums2[j]`, `f[i][j] = f[i-1][j-1] + 1`.
+- if `nums1[i] != nums2[j]`, `f[i][j] = f[i-1][j-1]`. But there are two cases to increase the common length.
+    - when `nums1[i]` is added, it may contribute to `f[i][j]`. We don't know if `nums1[i]` is good for `f[i][j]`, but it will not bother us, let `f[i][j-1]` to handle that problem. So, `f[i][j] = f[i][j-1]`.
+    - similarly, when `nums2[j]` is added, `f[i][j] = f[i-1][j]`.
+
+So, we got `f[i][j] = max(f[i-1][j-1] + 1 if nums1[i] == nums2[j], f[i][j-1], f[i-1][j]`. In fact, we do not need to care about `f[i-1][j-1]`, since `f[i][j-1]` or `f[i-1][j]` must be equal to or bigger than it.
+
+```c++
+int findLength(vector<int>& nums1, vector<int>& nums2) {
+    vector<vector<int>> f(nums1.size() + 1, vector<int>(nums2.size() + 1, 0));   // 1-based
+    for (int i = 1; i <= nums1.size(); i++) {
+        for (int j = 1; j <= nums2.size(); j++) {
+            f[i][j] = max(f[i][j - 1], f[i - 1][j]);
+            if (nums1[i - 1] == nums2[j - 1]) {   // 1-based to 0-based
+                f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
+            }
+        }
+    }
+
+    return f[nums1.size()][nums2.size()];
+}
+```
+
+### Number of Dice Rolls With Target Sum
+
+> You have n dice and each die has k faces numbered from 1 to k.
+>
+> Given three integers n, k, and target, return the number of possible ways (out of the kn total ways) to roll the dice so the sum of the face-up numbers equals target. Since the answer may be too large, return it modulo 1e9 + 7.
+

@@ -59,4 +59,8 @@ int minPaintCost(vector<vector<int>>& costs);
 int minCostII(vector<vector<int>>& costs);
 int minCost(vector<int>& houses, vector<vector<int>>& cost, int m, int n, int target);
 
+int countVowelPermutation(int n);
+int findLength(vector<int>& nums1, vector<int>& nums2);
+int findLengthII(vector<int>& nums1, vector<int>& nums2);
+
 #endif
