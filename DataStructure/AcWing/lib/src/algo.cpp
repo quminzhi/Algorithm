@@ -1,4 +1,4 @@
-#include "sq.hpp"
+#include "algo.hpp"
 
 vector<int> closestIndex(vector<int>& nums) {
     // init a stack

@@ -10,16 +10,16 @@ add_library(
 target_include_directories(foo PUBLIC "${LIB_INCLUDE_DIR}")
 
 add_library(
-    sq SHARED
-    includes/sq.hpp
-    src/sq.cpp
+    algo SHARED
+    includes/algo.hpp
+    src/algo.cpp
 )
-target_include_directories(sq PUBLIC "${LIB_INCLUDE_DIR}")
+target_include_directories(algo PUBLIC "${LIB_INCLUDE_DIR}")
 
 # TODO: create an interface target for list foo2 foo3...
 add_library(mylib INTERFACE)
 target_link_libraries(
     mylib INTERFACE
-    foo sq  #  foo2, foo3 ...
+    foo algo  #  foo2, foo3 ...
 )
 target_include_directories(mylib INTERFACE "${LIB_INCLUDE_DIR}")

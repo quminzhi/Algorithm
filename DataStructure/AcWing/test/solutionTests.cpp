@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "solution.hpp"
-#include "sq.hpp"
+#include "algo.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 class TestWithContext : public ::testing::Test {
