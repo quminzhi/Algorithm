@@ -410,3 +410,43 @@ TreeNode* deserialize(string stream) {
     return root;
 }
 ```
+
+### Binary Tree Right Side View
+
+> Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+
+There are two ways to solve the problem:
+
+- Level-order traversal and output the last node of each level. (CONS: require O(n) additional space)
+- anti pre-order traversal (right root left) and keep the `n` which indicate all rightmost nodes no deeper than `n` have been found and output. (assumed that depth of root is 1)
+
+We will implement the second algorithm.
+
+```c++
+void rightSideViewHelper(vector<int>& view, TreeNode* root, int depth) {
+    if (root == nullptr) {
+        return;
+    }
+    if (depth > view.size()) {
+        view.push_back(root->val);
+    }
+
+    rightSideViewHelper(view, root->right, depth + 1);
+    rightSideViewHelper(view, root->left, depth + 1);
+
+    return;
+}
+
+/**
+ * @brief define the depth of root as 1.
+ * 
+ * @param root 
+ * @return vector<int> 
+ */
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> res;
+    rightSideViewHelper(res, root, 1);
+
+    return res;
+}
+```

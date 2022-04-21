@@ -101,6 +101,7 @@ class BinaryTree {
 
 string serialize(TreeNode* root);
 TreeNode* deserialize(string data);
+vector<int> rightSideView(TreeNode* root);
 
 void Solution();
 

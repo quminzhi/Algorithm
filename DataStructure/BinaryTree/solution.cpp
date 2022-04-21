@@ -821,5 +821,32 @@ TreeNode* deserialize(string stream) {
     return root;
 }
 
+void rightSideViewHelper(vector<int>& view, TreeNode* root, int depth) {
+    if (root == nullptr) {
+        return;
+    }
+    if (depth > view.size()) {
+        view.push_back(root->val);
+    }
+
+    rightSideViewHelper(view, root->right, depth + 1);
+    rightSideViewHelper(view, root->left, depth + 1);
+
+    return;
+}
+
+/**
+ * @brief define the depth of root as 1.
+ * 
+ * @param root 
+ * @return vector<int> 
+ */
+vector<int> rightSideView(TreeNode* root) {
+    vector<int> res;
+    rightSideViewHelper(res, root, 1);
+
+    return res;
+}
+
 // write your solution here
 void Solution() {}
