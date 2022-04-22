@@ -1,6 +1,8 @@
-# Data Structure I
+# ACWing Data Structure
 
-## Singly Linked List
+## Data Structure I
+
+### Singly Linked List
 
 Define `v[]` as value array and `ne[]` as next (pointer) array, where node is indexed by `v`'s index.
 
@@ -419,5 +421,51 @@ string shortestPalindrome(string s) {
     reverse(revRest.begin(), revRest.end());
     
     return revRest + s;
+}
+```
+
+## Data Structure II
+
+### Trie Tree
+
+Trie tree is a tree-like structure, how to use array to simulate tree structure? Array of nodes, where each node is represented with `child[][]` and `v[]`. `idx` is used to indicate new allocated space in the array.
+
+Define `child[N][26]` to indicate the index of child of current node, and `v[N]` as the value of current node.
+
+```c++
+#define N 100010
+
+class Trie {
+   private:
+    int child[N][26];
+    int v[N];
+    int idx = 0;
+
+   public:
+    void insert(string str);
+    int query(string str);
+};
+
+void Trie::insert(string str) {
+    int p = 0;
+    for (int i = 0; i < str.size(); i++) {   // the last char of string is '\0'
+        int ch = str[i] - 'a';               // map ch to [0, 25]
+        if (!child[p][ch]) {
+            child[p][ch] = ++idx;   // if not exist, create node for char
+        }
+        p = child[p][ch];
+    }
+    v[p]++;   // label the last char
+}
+
+int Trie::query(string str) {
+    int p = 0;
+    for (int i = 0; i < str.size(); i++) {
+        int ch = str[i] - 'a';
+        if (!child[p][ch]) return 0;
+        p = child[p][ch];
+    }
+
+    return v[p];
 }
 ```

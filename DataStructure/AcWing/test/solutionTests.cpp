@@ -20,7 +20,7 @@ TEST(MyTests, MonotonicStackTEST) {
     EXPECT_EQ(closestIndex(nums), res);
 }
 
-TEST(MyTest, KMP_TEST) {
+TEST(MyTests, KMP_TEST) {
     string s = "abababbbabbababa";
     string pattern = "aba";
     vector<int> res = {0, 2, 11, 13};

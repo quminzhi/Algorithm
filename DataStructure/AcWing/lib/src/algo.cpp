@@ -163,11 +163,34 @@ string shortestPalindrome(string s) {
         }
         ne[i] = j;
     }
-    
+
     int lenOfSubPalindrome = ne[pp.size() - 1];
     // shortest palindrome = reverse(rest) + s (subpalindrome + rest)
     string revRest = s.substr(lenOfSubPalindrome);
     reverse(revRest.begin(), revRest.end());
-    
+
     return revRest + s;
+}
+
+void Trie::insert(string str) {
+    int p = 0;
+    for (int i = 0; i < str.size(); i++) {   // the last char of string is '\0'
+        int ch = str[i] - 'a';               // map ch to [0, 25]
+        if (!child[p][ch]) {
+            child[p][ch] = ++idx;   // if not exist, create node for char
+        }
+        p = child[p][ch];
+    }
+    v[p]++;   // label the last char
+}
+
+int Trie::query(string str) {
+    int p = 0;
+    for (int i = 0; i < str.size(); i++) {
+        int ch = str[i] - 'a';
+        if (!child[p][ch]) return 0;
+        p = child[p][ch];
+    }
+
+    return v[p];
 }
