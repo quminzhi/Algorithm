@@ -348,12 +348,7 @@ int LimitedKnapsackII(vector<int> weights, vector<int> values, vector<int> limit
 
 Question: can we optimize `f[i][j]` with `f[i][j-w] + v` as we did in complete knapsack?
 
-```text
-f[i][j]   = max(f[i-1][j], f[i-1][j-w] + v, f[i-1][j-2w] + 2v, ..., f[i-1][j-sw] + sv)
-f[i][j-w] = max(           f[i-1][j-w],     f[i-1][j-2w] + v,  ..., f[i-1][j-sw] + (s-1)v, f[i-1][j-(s+1)w] + sv)
-```
-
-we have an additional item `f[i-1][j-(s+1)w] + sv`, which can be seen as `f[i-1][j-w - sw] + sv`. Given `f[i][j-w]` we cannot get `f[i][j]`, meaning `f[i][j] != max(f[i-1][j], f[i][j-w] + v)`.
+Key difference is that we have to control `maxK` in this case, where we are not able to do with `f[i][j] = max(f[i-1][j], f[i][j-w] + v)`.
 
 ### Optimization for Limited Knapsack
 
