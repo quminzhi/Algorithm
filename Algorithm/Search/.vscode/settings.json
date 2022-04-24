@@ -79,5 +79,9 @@
         "variant": "cpp",
         "vector": "cpp",
         "__bits": "cpp"
-    }
+    },
+    "cSpell.ignoreWords": [
+        "cout",
+        "endl"
+    ]
 }
