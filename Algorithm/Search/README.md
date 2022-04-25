@@ -271,6 +271,7 @@ int centerOfGravity(int n, vector<vector<int>>& graph) {
 int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<bool>& visited, int& min_size,
                   int& gravity_node, int n, int root) {
     if (visited[root]) return 0;
+    visited[root] = true;
 
     int sum = 1;   // root node
     int max_part = 0;
@@ -289,7 +290,6 @@ int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<boo
         gravity_node = root;
     }
 
-    visited[root] = true;
     return sum;
 }
 ```

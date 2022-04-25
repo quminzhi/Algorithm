@@ -82,6 +82,7 @@
     },
     "cSpell.ignoreWords": [
         "cout",
-        "endl"
+        "endl",
+        "topo"
     ]
 }

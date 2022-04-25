@@ -39,3 +39,18 @@ TEST(SearchTests, GravityCases) {
     };
     EXPECT_EQ(centerOfGravity(9, graph), 4);
 }
+
+TEST(SearchTests, TopologicalSeqTEST) {
+    vector<vector<int>> graph = {
+        {0, 1},
+        {0, 6},
+        {0, 3},
+        {1, 7},
+        {1, 4},
+        {3, 2},
+        {2, 8},
+        {3, 5}
+    };
+    vector<int> res = {0, 3, 6, 1, 5, 2, 4, 7, 8};
+    EXPECT_EQ(topologicalSeq(9, graph), res);
+}

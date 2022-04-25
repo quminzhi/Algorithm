@@ -106,11 +106,12 @@ int minPathInMatrix(vector<vector<int>>& matrix) {
 int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<bool>& visited, int& min_size,
                   int& gravity_node, int n, int root) {
     if (visited[root]) return 0;
+    visited[root] = true;
 
     int sum = 1;   // root node
     int max_part = 0;
-    for (int i = head[root]; i != -1; i = ne[i]) {
-        int j = v[i];
+    for (int p = head[root]; p != -1; p = ne[p]) {
+        int j = v[p];
         int size = gravityHelper(head, v, ne, visited, min_size, gravity_node, n, j);
         sum += size;
         max_part = max(max_part, size);
@@ -124,7 +125,6 @@ int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<boo
         gravity_node = root;
     }
 
-    visited[root] = true;
     return sum;
 }
 
@@ -169,4 +169,47 @@ int centerOfGravity(int n, vector<vector<int>>& graph) {
     gravityHelper(head, v, ne, visited, min_size, gravity_node, n, 0);   // assumed starting from vertex with label 0
 
     return min_size;
+}
+
+vector<int> topologicalSeq(int n, vector<vector<int>>& graph) {
+    if (n == 0) return {};
+    int max_n = 1e5 + 10;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<int> ne(max_n, 0);
+    vector<int> v(max_n, 0);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int v1 = graph[i][0];
+        int v2 = graph[i][1];
+        v[idx] = v2;
+        ne[idx] = head[v1];
+        head[v1] = idx++;
+    }
+
+    // topological seq
+    vector<int> topo_result;
+    queue<int> que;
+    vector<bool> visited(n, false);
+    que.push(0);
+    visited[0] = true;
+    while (!que.empty()) {
+        // solve que by level
+        while (!que.empty()) {
+            int cur = que.front();
+            que.pop();
+            topo_result.push_back(cur);
+            // push all adjacent vertexes
+            for (int p = head[cur]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (!visited[j]) {
+                    que.push(j);
+                    visited[j] = true;
+                }
+            }
+        }
+    }
+
+    return topo_result;
 }
