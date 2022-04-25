@@ -93,11 +93,80 @@ int minPathInMatrix(vector<vector<int>>& matrix) {
         }
     }
 
-    // print path in reverse order
-    for (int i = 0; i < path.size(); i++) {
-        cout << "(" << path[i].x << ", " << path[i].y << ")" << endl;
-    }
-    cout << endl;
+    // // print path in reverse order
+    // for (int i = 0; i < path.size(); i++) {
+    //     cout << "(" << path[i].x << ", " << path[i].y << ")" << endl;
+    // }
+    // cout << endl;
 
     return dis[m - 1][n - 1];   // or path.size() - 1 (minus (0, 0))
+}
+
+// return the size of tree with root `root`
+int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<bool>& visited, int& min_size,
+                  int& gravity_node, int n, int root) {
+    if (visited[root]) return 0;
+
+    int sum = 1;   // root node
+    int max_part = 0;
+    for (int i = head[root]; i != -1; i = ne[i]) {
+        int j = v[i];
+        int size = gravityHelper(head, v, ne, visited, min_size, gravity_node, n, j);
+        sum += size;
+        max_part = max(max_part, size);
+    }
+    // upper part
+    max_part = max(max_part, n - sum);
+
+    // update gravity
+    if (max_part < min_size) {
+        min_size = max_part;
+        gravity_node = root;
+    }
+
+    visited[root] = true;
+    return sum;
+}
+
+void edge_insert(vector<int>& head, vector<int>& v, vector<int>& ne, int& idx, int a, int b) {
+    v[idx] = b;
+    ne[idx] = head[a];
+    head[a] = idx++;
+}
+
+/**
+ * @brief return the index of center of gravity.
+ *
+ * When deleting ith node, the number of 3 parts are:
+ *   1. size(left subtree)
+ *   2. size(right subtree)
+ *   3. N - size(i)
+ *
+ * @param n: number of nodes
+ * @param graph
+ * @return int
+ */
+int centerOfGravity(int n, vector<vector<int>>& graph) {
+    if (n == 0) return -1;
+    int max_size = 1e5 + 10;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<bool> visited(n, false);
+    vector<int> v(max_size, 0);
+    vector<int> ne(max_size, 0);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        // no direction
+        edge_insert(head, v, ne, idx, a, b);
+        edge_insert(head, v, ne, idx, b, a);
+    }
+
+    int min_size = 1e5;
+    int gravity_node = -1;
+    gravityHelper(head, v, ne, visited, min_size, gravity_node, n, 0);   // assumed starting from vertex with label 0
+
+    return min_size;
 }

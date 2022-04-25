@@ -25,3 +25,17 @@ TEST(SearchTests, PathInMatrixCases) {
     vector<vector<int>> matrix1 = {{0, 1, 0, 0, 0}, {0, 1, 0, 1, 0}, {0, 0, 0, 0, 0}, {0, 1, 1, 1, 0}, {0, 0, 0, 1, 0}};
     EXPECT_EQ(minPathInMatrix(matrix1), 8);
 }
+
+TEST(SearchTests, GravityCases) {
+    vector<vector<int>> graph = {
+        {0, 1},
+        {0, 6},
+        {0, 3},
+        {1, 7},
+        {1, 4},
+        {3, 2},
+        {2, 8},
+        {3, 5}
+    };
+    EXPECT_EQ(centerOfGravity(9, graph), 4);
+}

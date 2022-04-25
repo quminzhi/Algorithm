@@ -143,3 +143,153 @@ Tricks:
 
 - record path by making a stamp on each point to indicate its previous point.
 - direction vector.
+
+## Graph
+
+### Representation
+
+There are two ways to represent a graph.
+
+- Adjacency Matrix
+
+Store the graph with a N * N matrix, where N is the number of vertexes.
+
+- Adjacency List
+
+Store the graph with N lists, each list represents all adjacent vertexes that directly connect to the head vertex.
+
+Recall that the simplified representation of a single linked list:
+
+- `head = -1`, where `-1` means NULL index.
+- `idx = 0`, which indicate the index of memory waiting to be allocated.
+- `v[]`, represents the value of a node.
+- `ne[]`, represents the next pointer of a node. (all nodes are indexed by index).
+
+```c++
+void head_insert(int val) {
+    v[idx] = val;
+    ne[idx] = head;
+    head = idx++; // head = idx; idx++;
+}
+
+void traverse() {
+    for (int i = head; i != -1; i = ne[i]) {
+        // do something to v[i]
+    }
+}
+```
+
+Array-like linked list shows its power in adjacency list. Since there are N vertexes, we need N heads.
+
+- `head[] = -1`, where `-1` means NULL **index**. Max size of `head[]` is N.
+- `idx = 0`, which indicate the **index** of memory waiting to be allocated.
+- `v[]`, represents the value of a node. (**val**)
+- `ne[]`, represents the next pointer of a node. (all nodes are indexed by **index**).
+
+```c++
+// insert an edge from a to b
+void edge_insert(int a, int b) {
+    v[idx] = b;
+    ne[idx] = head[a];
+    head[a] = idx++;
+}
+```
+
+- DFS for a graph
+
+```c++
+vector<bool> visited;
+void dfs(int root) {
+    if (visited[root]) return;
+
+    for (int i = head[root]; i != -1; i = ne[i]) {
+        int j = v[i];
+        dfs(j);   // where features dfs
+    }
+
+    visited[root] = true;
+}
+```
+
+### Center of Gravity
+
+> Center of gravity of a tree means the node which can divide tree into N parts. Each part has a number of nodes, center of gravity node will divide the tree so that the maximum number of nodes in parts is minimal.
+
+The basic idea is how to calculate the number of nodes in different parts when deleting a node.
+
+One benefit of dfs is that we can calculate the number of nodes of a part. For example, for a tree, the number of nodes equals to the number of left subtree plus the number of right subtree and `1`.
+
+```c++
+void edge_insert(vector<int>& head, vector<int>& v, vector<int>& ne, int& idx, int a, int b) {
+    v[idx] = b;         // val
+    ne[idx] = head[a];  // index
+    head[a] = idx++;    // index
+}
+
+/**
+ * @brief return the index of center of gravity.
+ *
+ * When deleting ith node, the number of 3 parts are:
+ *   1. size(left subtree)
+ *   2. size(right subtree)
+ *   3. N - size(i)
+ *
+ * @param n: number of nodes
+ * @param graph
+ * @return int
+ */
+int centerOfGravity(int n, vector<vector<int>>& graph) {
+    if (n == 0) return -1;
+    int max_size = 1e5 + 10;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<bool> visited(n, false);
+    vector<int> v(max_size, 0);
+    vector<int> ne(max_size, 0);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        // no direction
+        edge_insert(head, v, ne, idx, a, b);
+        edge_insert(head, v, ne, idx, b, a);
+    }
+
+    int min_size = 1e5;
+    int gravity_node = -1;
+    gravityHelper(head, v, ne, visited, min_size, gravity_node, n, 0);   // assumed starting from vertex with label 0
+
+    return min_size;
+}
+```
+
+`gravityHelper` func will return the number of nodes in subtree on `root`, and calculating the max size of parts when deleting that node.
+
+```c++
+// return the size of tree with root `root`
+int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<bool>& visited, int& min_size,
+                  int& gravity_node, int n, int root) {
+    if (visited[root]) return 0;
+
+    int sum = 1;   // root node
+    int max_part = 0;
+    for (int i = head[root]; i != -1; i = ne[i]) {
+        int j = v[i];
+        int size = gravityHelper(head, v, ne, visited, min_size, gravity_node, n, j);
+        sum += size;
+        max_part = max(max_part, size);
+    }
+    // upper part
+    max_part = max(max_part, n - sum);
+
+    // update gravity
+    if (max_part < min_size) {
+        min_size = max_part;
+        gravity_node = root;
+    }
+
+    visited[root] = true;
+    return sum;
+}
+```
