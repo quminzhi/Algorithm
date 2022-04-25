@@ -21,6 +21,7 @@ int minPathInMatrix(vector<vector<int>>& matrix);
 
 /* Graph */
 int centerOfGravity(int n, vector<vector<int>>& graph);
-vector<int> topologicalSeq(int n, vector<vector<int>>& graph);
+vector<int> pseudoTopologicalSeq(int n, vector<vector<int>>& graph);
+vector<int> topoSort(int n, vector<vector<int>>& graph);
 
 #endif

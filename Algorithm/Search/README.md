@@ -293,3 +293,119 @@ int gravityHelper(vector<int>& head, vector<int>& v, vector<int>& ne, vector<boo
     return sum;
 }
 ```
+
+### Topological Sort
+
+Corresponding to topological sort, we will talk about the bfs of a graph from an entry point (which we call pseudo topo traversal).
+
+```c++
+vector<int> pseudoTopologicalSeq(int n, vector<vector<int>>& graph) {
+    if (n == 0) return {};
+    int max_n = 1e5 + 10;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<int> ne(max_n, 0);
+    vector<int> v(max_n, 0);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int v1 = graph[i][0];
+        int v2 = graph[i][1];
+        v[idx] = v2;
+        ne[idx] = head[v1];
+        head[v1] = idx++;
+    }
+
+    // topological seq
+    vector<int> topo_result;
+    queue<int> que;
+    vector<bool> visited(n, false);
+    que.push(0);
+    visited[0] = true;
+    while (!que.empty()) {
+        int cur = que.front();
+        que.pop();
+        topo_result.push_back(cur);
+        // push all adjacent vertexes
+        for (int p = head[cur]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (!visited[j]) {
+                que.push(j);
+                visited[j] = true;
+            }
+        }
+    }
+
+    return topo_result;
+}
+```
+
+- Topo Sort
+
+The basic algorithm is:
+
+- find all nodes with input degree of 0.
+- delete those nodes and update input degree of nodes being affected by the operation above.
+- repeat step 1.
+
+```c++
+/**
+ * @brief topological sort
+ *
+ * @param n
+ * @param graph
+ * @return vector<int>
+ */
+vector<int> topoSort(int n, vector<vector<int>>& graph) {
+    int max_n = 1e5 + 10;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<int> id(n, 0);   // id: input degree
+    vector<int> ne(max_n, -1);
+    vector<int> v(max_n, 0);
+
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        v[idx] = b;
+        ne[idx] = head[a];
+        head[a] = idx++;
+        id[b]++;
+    }
+
+    queue<int> que;
+    vector<int> topo;
+    // topo: push all nodes with input degree of 0
+    for (int i = 0; i < n; i++) {
+        if (id[i] == 0) {
+            que.push(i);
+        }
+    }
+
+    while (!que.empty()) {
+        // solve by level
+        int sz = que.size();
+        for (int i = 0; i < sz; i++) {
+            int cur = que.front();
+            que.pop();
+            topo.push_back(cur);
+            // update;
+            for (int p = head[cur]; p != -1; p = ne[p]) {
+                int j = v[p];
+                id[j]--;
+                if (id[j] == 0) {
+                    que.push(j);
+                }
+            }
+        }
+    }
+
+    if (topo.size() < n) {
+        // if it is not a valid topo sort seq
+        return {-1};
+    } else {
+        return topo;
+    }
+}
+```
+

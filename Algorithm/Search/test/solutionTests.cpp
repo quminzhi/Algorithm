@@ -52,5 +52,28 @@ TEST(SearchTests, TopologicalSeqTEST) {
         {3, 5}
     };
     vector<int> res = {0, 3, 6, 1, 5, 2, 4, 7, 8};
-    EXPECT_EQ(topologicalSeq(9, graph), res);
+    EXPECT_EQ(pseudoTopologicalSeq(9, graph), res);
+}
+
+TEST(SearchTests, TopoSortTEST) {
+    vector<vector<int>> graph = {
+        {0, 1},
+        {0, 6},
+        {0, 3},
+        {1, 7},
+        {1, 4},
+        {3, 2},
+        {2, 8},
+        {3, 5}
+    };
+    vector<int> res = {0, 3, 6, 1, 5, 2, 4, 7, 8};
+    EXPECT_EQ(topoSort(9, graph), res);
+
+    vector<vector<int>> graph2 = {
+        {0, 1},
+        {1, 2},
+        {0, 2}
+    };
+    vector<int> res2 = {0, 1, 2};
+    EXPECT_EQ(topoSort(3, graph2), res2);
 }
