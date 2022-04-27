@@ -458,3 +458,56 @@ int Skating(vector<vector<int> > h) {
 
     return res;
 }
+
+/**
+ * @brief return the idx of the first element less or equal than x
+ * 
+ * we can achieve it with binary search since monotonic of f[].
+ * 
+ * @param f 
+ * @param x 
+ * @return int 
+ */
+int biSearch(vector<int>& f, int x) {
+    int l = 0;
+    int r = f.size() - 1;
+    while (l < r) {
+        int mid = l + ((r - l + 1) >> 1);
+        if (f[mid] >= x) {
+            r = mid - 1;
+        } else {
+            l = mid;
+        }
+    }
+
+    return l;
+}
+
+/**
+ * @brief define f[i] as the minimum ending element of subsequence with length of i.
+ * 
+ * @param nums 
+ * @return int 
+ */
+int lengthOfLISII(vector<int>& nums) {
+    vector<int> f(nums.size() + 1, 1e6);
+    f[0] = -1e6;
+
+    for (int i = 0; i < nums.size(); i++) {
+        // find max length of subsequence nums[i] can be connect with.
+        // i.e. find the first numbers less than nums[i] in f[]
+        int idx = biSearch(f, nums[i]);
+        // update f[idx + 1]
+        f[idx + 1] = min(f[idx + 1], nums[i]);
+    }
+
+    int maxLen = 0;
+    for (int i = nums.size(); i >= 0; i--) {
+        if (f[i] != 1e6) {
+            maxLen = i;
+            break;
+        }
+    }
+
+    return maxLen;
+}

@@ -64,6 +64,11 @@ TEST(MyTests, TrackPathTEST) {
     EXPECT_EQ(ZeroOneKnapsackWithTracking(weights, values, 5), result);
 }
 
+TEST(LinearDPTests, LengthOfLISIITEST) {
+    vector<int> nums = {1, 2, 5, 3, 7, 9, 4};
+    EXPECT_EQ(lengthOfLISII(nums), 5);
+}
+
 TEST(LinearDPTests, NonDescendingSubsequenceTEST) {
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abcd"), 4);
     EXPECT_EQ(MaxLengthOfNonDescendingSubsequence("abed"), 3);

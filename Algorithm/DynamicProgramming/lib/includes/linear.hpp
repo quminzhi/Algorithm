@@ -6,6 +6,7 @@
 using namespace std;
 
 int MaxLengthOfNonDescendingSubsequence(string s);
+int lengthOfLISII(vector<int>& nums);
 string MaxLengthOfNonDescendingSubsequenceII(string s);
 int MaxLengthOfNonDescendingSubsequenceIII(string s);
 
