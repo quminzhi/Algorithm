@@ -935,6 +935,21 @@ Therefore, our algorithm is:
 - update `f[m+1]` with `nums[i]`, since `nums[i] < f[m+1]` (if not, `f[m+1]` will be the best choice to concatenate).
 
 ```c++
+int biSearch(vector<int>& f, int x) {
+    int l = 0;
+    int r = f.size() - 1;
+    while (l < r) {
+        int mid = l + ((r - l + 1) >> 1);
+        if (f[mid] > x) {
+            r = mid - 1;
+        } else {
+            l = mid;
+        }
+    }
+
+    return l;
+}
+
 /**
  * @brief f[i] is the minimum last number of the sequence with the same length
  * 
@@ -942,27 +957,26 @@ Therefore, our algorithm is:
  * @return int 
  */
 int MaxLengthOfNonDescendingSubsequenceIII(string s) {
-    vector<int> f(s.size() + 1, INT_MAX);   // the last number of subsequence with length i
-    f[0] = 0;
+    vector<int> f(nums.size() + 1, 1e6);
+    f[0] = -1e6;
 
-    int len = 0;   // track solved range
-    for (int i = 0; i < s.size(); i++) {
-        // binary search the last one less than or equal to s[i]
-        int left = 0, right = len;
-        while (left < right) {
-            int mid = left + ((right - left) >> 1) + 1;
-            if (f[mid] <= s[i]) {
-                left = mid;
-            } else {
-                right = mid - 1;
-            }
-        }
-
-        len = max(len, left + 1);
-        f[left + 1] = s[i];
+    for (int i = 0; i < nums.size(); i++) {
+        // find max length of subsequence nums[i] can be connect with.
+        // i.e. find the first numbers less than nums[i] in f[]
+        int idx = biSearch(f, nums[i]);
+        // update f[idx + 1]
+        f[idx + 1] = min(f[idx + 1], nums[i]);
     }
 
-    return len;
+    int maxLen = 0;
+    for (int i = nums.size(); i >= 0; i--) {
+        if (f[i] != 1e6) {
+            maxLen = i;
+            break;
+        }
+    }
+
+    return maxLen;
 }
 ```
 
