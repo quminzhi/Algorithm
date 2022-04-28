@@ -85,6 +85,8 @@
         "Unival",
         "Univalue",
         "inorder",
+        "isdigit",
+        "preorder",
         "stoi"
     ]
 }

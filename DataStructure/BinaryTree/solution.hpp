@@ -102,7 +102,6 @@ class BinaryTree {
 string serialize(TreeNode* root);
 TreeNode* deserialize(string data);
 vector<int> rightSideView(TreeNode* root);
-
-void Solution();
+bool isValidSerialization(string preorder);
 
 #endif /* SOLUTION_HPP */

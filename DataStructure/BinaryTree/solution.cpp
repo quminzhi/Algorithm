@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <ctype.h>
 using namespace std;
 
 /**
@@ -778,9 +779,9 @@ TreeNode* deserialize(string stream) {
     }
     tokens.push_back(stream);   // the last token
 
-    for (string& token: tokens) {
-        std::cout << token << std::endl;
-    }
+    // for (string& token: tokens) {
+    //     std::cout << token << std::endl;
+    // }
 
     if (tokens.size() == 0) return nullptr;   // no token in stream
 
@@ -848,5 +849,48 @@ vector<int> rightSideView(TreeNode* root) {
     return res;
 }
 
-// write your solution here
-void Solution() {}
+/**
+ * @brief collapse known leave node with the help of stack.
+ * 
+ * @param preorder 
+ * @return true 
+ * @return false 
+ */
+bool isValidSerialization(string preorder) {
+    vector<int> s(preorder.size(), 0);
+    int top1 = -1;
+    int top2 = -2;
+    int top3 = -3;
+    int i = preorder.size() - 1;
+    while (i >= 0) {
+        // if it is ',', jump over.
+        if (preorder[i] == ',') {
+            i--;
+            continue;
+        }
+        // read until next ','
+        string t = "";
+        while (i >= 0 && preorder[i] != ',') {
+            t += preorder[i];
+            i--;
+        }
+        // treat continuous digit as the first digit.
+        assert(preorder[i + 1] == '#' || isdigit(preorder[i + 1]));
+        s[++top1] = preorder[i + 1];
+        top2++; top3++;
+
+        if (top3 >= 0) {
+            // check if meeting the condition of collapsion
+            if (isdigit(s[top1]) && s[top2] == '#' && s[top3] == '#') {
+                top1 -= 2;
+                top2 -= 2;
+                top3 -= 2;
+                s[top1] = '#';
+            }
+        }
+    }
+
+    if (top1 == -1) return true;
+    if (top1 == 0 && s[top1] == '#') return true;   // add # in the last round
+    return false;
+}
