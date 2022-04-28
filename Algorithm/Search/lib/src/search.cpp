@@ -269,3 +269,112 @@ vector<int> topoSort(int n, vector<vector<int>>& graph) {
         return topo;
     }
 }
+
+/**
+ * @brief naive dijkstra
+ *
+ * @param n
+ * @param graph
+ * @return int
+ */
+int minPathDijkstra(int n, vector<vector<int>>& graph) {
+    vector<vector<int>> mat(n, vector<int>(n, -1));
+
+    // construct adjacency matrix
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        int w = graph[i][2];
+        mat[a][b] = mat[b][a] = w;
+    }
+
+    vector<int> dist(n, INT_MAX);
+    vector<bool> st(n, false);
+    dist[0] = 0;
+    // iteration
+    for (int i = 0; i < n; i++) {
+        // find idx of min of dist[] not in 'st[]'
+        int idx = -1;
+        int minPath = INT_MAX;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && dist[j] < minPath) {
+                minPath = dist[j];
+                idx = j;
+            }
+        }
+        if (idx == -1) {   // the vertex must not be in the given subgraph
+            return -1;
+        }
+        assert(idx >= 0 && idx < n);
+
+        // fix the min of dist[idx]
+        st[idx] = true;
+
+        // update all vertexes which are directly connected to idx
+        for (int j = 0; j < n; j++) {
+            if (mat[idx][j] != -1) {
+                dist[j] = min(dist[j], dist[idx] + mat[idx][j]);
+            }
+        }
+    }
+
+    return dist[n - 1] == INT_MAX ? -1 : dist[n - 1];
+}
+
+/**
+ * @brief use a heap to maintain the min of `nst[]`
+ *
+ * @param n
+ * @param graph
+ * @return int
+ */
+int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
+    int max_m = 1e5 + 10;
+    int inf = 0x3f;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<int> v(max_m, 0);
+    vector<int> w(max_m, 0);
+    vector<int> ne(max_m, -1);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        int weight = graph[i][2];
+        v[idx] = b;
+        w[idx] = weight;
+        ne[idx] = head[a];
+        head[a] = idx++;
+    }
+
+    // iteration
+    vector<int> dist(n, inf);
+    vector<bool> st(n, false);
+    dist[0] = 0;
+    typedef pair<int, int> PII;   // {dist[i], i}
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    pq.push({0, 0});
+    while (!pq.empty()) {
+        PII cur = pq.top();
+        pq.pop();
+        int ver = cur.second;
+        int dis = cur.first;
+        // trick for finding min vertex in nst[]
+        if (!st[ver]) {
+            // update connected vertexes
+            for (int p = head[ver]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (dis + w[p] < dist[j]) {
+                    dist[j] = dis + w[p];
+                    pq.push({dist[j], j});   // may cause redundancy
+                                             // like many {4, inf}, {4, inf} may in pq in the same time
+                                             // but it is not a big deal, since we will pop it in 'if (!st[ver])'
+                }
+            }
+            st[ver] = true;
+        }
+    }
+
+    return dist[n - 1] == inf ? -1 : dist[n - 1];
+}

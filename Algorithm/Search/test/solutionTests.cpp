@@ -77,3 +77,19 @@ TEST(SearchTests, TopoSortTEST) {
     vector<int> res2 = {0, 1, 2};
     EXPECT_EQ(topoSort(3, graph2), res2);
 }
+
+TEST(MinPathTests, NaiveDijkstraTEST) {
+    vector<vector<int>> graph = {
+        {0, 1, 2},
+        {1, 2, 1},
+        {0, 2, 4}
+    };
+    EXPECT_EQ(minPathDijkstra(3, graph), 3);
+    EXPECT_EQ(minPathDijkstraHeap(3, graph), 3);
+
+    vector<vector<int>> graph2 = {
+        {0, 1, 2},
+    };
+    EXPECT_EQ(minPathDijkstra(3, graph2), -1);
+    EXPECT_EQ(minPathDijkstraHeap(3, graph2), -1);
+}

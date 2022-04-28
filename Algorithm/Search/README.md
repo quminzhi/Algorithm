@@ -409,3 +409,280 @@ vector<int> topoSort(int n, vector<vector<int>>& graph) {
 }
 ```
 
+## Min Path
+
+### Overview
+
+`n` is the number of vertexes, and `m` is the number of edges.
+
+- Single Origin
+    - all weights are positive:
+        1. naive dijkstra algorithm (for dense graph, O(n^2))
+        2. heapfied dijkstra (for sparse graph, O(m * logn)).
+    - otherwise:
+        1. bellman-ford (O(n*m))
+        2. SPFA (avg. O(m), worst O(n*m))
+- Multiple Origin
+    - floyd algorithm (O(n^3))
+
+Note: dense graph: `m ~ n^2` (adjacency matrix), sparse graph: `m ~ n` (adjacency list), where `~` represents the magnitude of `m`.
+
+The core idea here is to model the problem, i.e. how to abstract the problem as a graph problem.
+
+### Dijkstra Algo
+
+Dijkstra algorithm is a greedy algorithm. The idea of the algorithm is the min path from origin to `i` has two possibles: 1. direct connection from origin to path (may not exist, `-inf`), 2. the min path of `i`s neighbors plus the distance from `i`s neighbor to `i`.
+
+- `dist[i]` represents the minimum path from origin to `i`.
+- `st[]` represents all vertexes whose min path have been ensured (selected), and `nst[]` represents all vertexes whose min path have not been ensured (`nst[]` can be ignored since `whole - st[] = nst[]`).
+
+```text
+1. dist[0] = 0; dist[v] = inf
+2. for v : 0 ~ n-1
+        t <- v not in st[] and dist[v] is the minimum  O(n)
+        st <- t   // put the vertex into st, this vertex is ensured  O(1)
+        dist[i] = min(dist[i], dist[v] + edge[v][i])   // update dist[i], where vertex i is directly connected to t, O(m)
+
+each loop, one vertex will be ensured.
+```
+
+```c++
+int minPathDijkstra(int n, vector<vector<int>>& graph) {
+    vector<vector<int>> mat(n, vector<int>(n, -1));
+
+    // construct adjacency matrix
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        int w = graph[i][2];
+        mat[a][b] = mat[b][a] = w;
+    }
+
+    vector<int> dist(n, INT_MAX);
+    vector<bool> st(n, false);
+    dist[0] = 0;
+    // iteration
+    for (int i = 0; i < n; i++) {
+        // find idx of min of dist[] not in 'st[]'
+        int idx = -1;
+        int minPath = INT_MAX;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && dist[j] < minPath) {
+                minPath = dist[j];
+                idx = j;
+            }
+        }
+        if (idx == -1) {   // the vertex must not be in the given subgraph
+            return -1;
+        }
+        assert(idx >= 0 && idx < n);
+        assert(st[idx] == false);
+
+        // fix the min of dist[idx]
+        st[idx] = true;
+
+        // update all vertexes which are directly connected to idx
+        for (int j = 0; j < n; j++) {
+            if (mat[idx][j] != -1) {
+                dist[j] = min(dist[j], dist[idx] + mat[idx][j]);
+            }
+        }
+    }
+
+    return dist[n - 1] == INT_MAX ? -1 : dist[n - 1];
+}
+```
+
+- Heap Optimization
+
+For the algorithm above:
+
+```text
+1. dist[0] = 0; dist[v] = inf
+2. for v : 0 ~ n-1
+        t <- v not in st[] and dist[v] is the minimum  O(n * n)
+        st <- t   // put the vertex into st, this vertex is ensured  O(n * 1)
+        dist[i] = min(dist[i], dist[v] + edge[v][i])   // update dist[i], where vertex i is directly connected to t, O(n * m), where m ~ n^2
+
+each loop, one vertex will be ensured.
+
+notice that: traverse edges of each vertexes is equal to traverse all edges.
+```
+
+where first `n` is caused by outer loop. In a dense graph, `m ~ n^2` and so the total time complexity is `O(n^3)`.
+
+If we save `nst[]` with a heap and find min vertex with heap, then the time complexity will be:
+
+```text
+1. dist[0] = 0; dist[v] = inf
+2. for v : 0 ~ n-1
+        t <- v not in st[] and dist[v] is the minimum  O(n * 1)
+        st <- t   // put the vertex into st, this vertex is ensured  O(n * 1)
+        dist[i] = min(dist[i], dist[v] + edge[v][i])   // update dist[i], where vertex i is directly connected to t, O(n * mlogn), where m ~ n
+
+each loop, one vertex will be ensured.
+```
+
+In a sparse graph, `m ~ n`, so the total time complexity will be `O(n^2*logn)`. Note since it is a sparse graph, we will use adjacency list to represent the graph.
+
+A trick for priority queue: the elements in priority queue will be ordered by `pair.first`.
+
+```c++
+// max heap
+#include <queue>
+#include <stdio.h>
+#include <algorithm>
+using namespace std;
+
+typedef pair<int, int> PII;
+
+int main(int argc, char *argv[]) {
+    priority_queue<PII> pq;   // max heap
+    // priority_queue<PII, vector<PII>, greater<PII>> pq;   // min heap: greater means children are greater than the parent
+    pq.push({2, 0});
+    pq.push({5, 1});
+    pq.push({3, 2});
+    pq.push({1, 3});
+    while (!pq.empty()) {
+        PII cur = pq.top();
+        pq.pop();
+        printf("%d\n", cur.first);
+    }
+    
+    return 0;
+}
+```
+
+The code of optimized Dijkstra:
+
+```c++
+int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
+    int max_m = 1e5 + 10;
+    int inf = 0x3f;
+    int idx = 0;
+    vector<int> head(n, -1);
+    vector<int> v(max_m, 0);
+    vector<int> w(max_m, 0);
+    vector<int> ne(max_m, -1);
+
+    // construct adjacency list
+    for (int i = 0; i < graph.size(); i++) {
+        int a = graph[i][0];
+        int b = graph[i][1];
+        int weight = graph[i][2];
+        v[idx] = b;
+        w[idx] = weight;
+        ne[idx] = head[a];
+        head[a] = idx++;
+    }
+
+    // iteration
+    vector<int> dist(n, inf);
+    vector<bool> st(n, false);
+    dist[0] = 0;
+    typedef pair<int, int> PII;   // {dist[i], i}
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    pq.push({0, 0});
+
+    while (!pq.empty()) {
+        PII cur = pq.top();
+        pq.pop();
+        int ver = cur.second;
+        int dis = cur.first;
+        // trick for finding min vertex in nst[]
+        if (!st[ver]) {
+            // update connected vertexes
+            for (int p = head[ver]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (dis + w[p] < dist[j]) {
+                    dist[j] = dis + w[p];
+                    pq.push({dist[j], j});   // may cause redundancy
+                                             // like many {4, inf}, {4, inf} may in pq in the same time
+                                             // but it is not a big deal, since we will pop it in 'if (!st[ver])'
+                }
+            }
+            st[ver] = true;
+        }
+    }
+
+    return dist[n - 1] == inf ? -1 : dist[n - 1];
+}
+```
+
+- TRICK: a general way to use priority queue.
+
+The first is as shown in `Heap` section. We will define greater function by ourselves.
+
+```c++
+class Word {
+    public:
+    Word(int _freq, string _word)
+    : freq(_freq), word(_word) {};
+    
+    int freq;
+    string word;
+};
+
+int main(int argc, char *argv[]) {
+    vector<Word> dict;
+    dict.push_back(Word{5, "hello"});
+    dict.push_back(Word{3, "world"});
+    dict.push_back(Word{7, "minzhi"});
+    
+    // lhs and rhs have the type of Word
+    auto cmp = [&dict](auto lhs, auto rhs) {
+        return lhs.freq > rhs.freq;
+    };
+    priority_queue<Word, vector<Word>, decltype(cmp)> pq(cmp);
+    
+    for (int i = 0; i < dict.size(); i++) {
+        pq.push(dict[i]);   // push Word it self
+    }
+    
+    while (!pq.empty()) {
+        auto cur = pq.top();
+        pq.pop();
+        cout << cur.word << " " << cur.freq << endl;
+    }
+    
+    return 0;
+}
+```
+
+The second implementation is used in heapified Dijkstra algorithm, where we create a pair for `{val_to_compare, idx}`. We do not need to put all members of a type into a priority queue but put two key values: 1. value to compare, 2. correlated index. We will use `idx` to index the element of a special type. `pair` is ordered by `pair.first` by default.
+
+```c++
+class Word {
+    public:
+    Word(int _freq, string _word)
+    : freq(_freq), word(_word) {};
+    
+    int freq;
+    string word;
+};
+
+typedef pair<int, int> PII;
+
+int main(int argc, char *argv[]) {
+    vector<Word> dict;
+    dict.push_back(Word{5, "hello"});
+    dict.push_back(Word{3, "world"});
+    dict.push_back(Word{7, "minzhi"});
+    
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    
+    for (int i = 0; i < dict.size(); i++) {
+        pq.push({dict[i].freq, i});   // push pair
+    }
+    
+    while (!pq.empty()) {
+        auto cur = pq.top();
+        pq.pop();
+        int idx = cur.second;
+        int freq = cur.first;
+        cout << dict[idx].word << " " << freq << endl;
+    }
+    
+    return 0;
+}
+```

@@ -81,8 +81,15 @@
         "__bits": "cpp"
     },
     "cSpell.ignoreWords": [
+        "SPFA",
         "cout",
+        "decltype",
         "endl",
+        "heapfied",
+        "heapified",
+        "logn",
+        "mlogn",
+        "nlogn",
         "topo"
     ]
 }

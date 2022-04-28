@@ -24,4 +24,8 @@ int centerOfGravity(int n, vector<vector<int>>& graph);
 vector<int> pseudoTopologicalSeq(int n, vector<vector<int>>& graph);
 vector<int> topoSort(int n, vector<vector<int>>& graph);
 
+/* Min Path */
+int minPathDijkstra(int n, vector<vector<int>>& graph);
+int minPathDijkstraHeap(int n, vector<vector<int>>& graph);
+
 #endif
