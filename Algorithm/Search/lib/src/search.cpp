@@ -378,3 +378,41 @@ int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
 
     return dist[n - 1] == inf ? -1 : dist[n - 1];
 }
+
+/**
+ * @brief min path from 0 to i with at most k edges.
+ * 
+ * backup: backup the result of dist[] when updated last time.
+ *     To keep each loop, every vertex can add only one edge, we will use a backup array to prevent continuous update from happening.
+ * 
+ * why 'dist[n - 1] >= (inf >> 1)', but not 'dist[n - 1] == inf'?
+ *     Since negative edge exists, say dist[3] and dist[5] are all inf, and distance from 3 to 5 is -1. Each time, dist[5] will be 
+ * relaxed by vertex 3. Eventually, dist[5] may be an infinite, but not as large as 'inf' we defined before.
+ * 
+ * 
+ * @param n 
+ * @param edges 
+ * @param k 
+ * @return int 
+ */
+int minPathBellman(int n, vector<vector<int>>& edges, int k) {
+    int inf = 1e5;
+    vector<int> dist(n, inf);
+    dist[0] = 0;
+
+    for (int i = 0; i < k; i++) {
+        vector<int> backup(dist.begin(), dist.end());  // prevent continuous update
+        for (int j = 0; j < edges.size(); j++) {
+            int a = edges[i][0];
+            int b = edges[i][1];
+            int w = edges[i][2];
+            dist[b] = min(backup[b], backup[a] + w);
+        }
+    }
+
+    if (dist[n - 1] >= (inf >> 1)) {   // weird!
+        return -1;
+    } else {
+        return dist[n - 1];
+    }
+}

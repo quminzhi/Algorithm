@@ -27,5 +27,6 @@ vector<int> topoSort(int n, vector<vector<int>>& graph);
 /* Min Path */
 int minPathDijkstra(int n, vector<vector<int>>& graph);
 int minPathDijkstraHeap(int n, vector<vector<int>>& graph);
+int minPathBellman(int n, vector<vector<int>>& edges, int k);
 
 #endif

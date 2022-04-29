@@ -429,12 +429,33 @@ Note: dense graph: `m ~ n^2` (adjacency matrix), sparse graph: `m ~ n` (adjacenc
 
 The core idea here is to model the problem, i.e. how to abstract the problem as a graph problem.
 
-### Dijkstra Algo
+### Dijkstra Algorithm
 
 Dijkstra algorithm is a greedy algorithm. The idea of the algorithm is the min path from origin to `i` has two possibles: 1. direct connection from origin to path (may not exist, `-inf`), 2. the min path of `i`s neighbors plus the distance from `i`s neighbor to `i`.
 
 - `dist[i]` represents the minimum path from origin to `i`.
 - `st[]` represents all vertexes whose min path have been ensured (selected), and `nst[]` represents all vertexes whose min path have not been ensured (`nst[]` can be ignored since `whole - st[] = nst[]`).
+
+One short tip: why choose the minimum of `dist[i]` where `i` from uncertain sets `nst[]` each loop? Because the minimum vertex of uncertain set can not be optimized further.
+
+```text
+all nodes have been divided into two parts
+
+st[]:  1  5  8  3  0
+nst[]: 4  7  3  9
+where st[i] and nst[i] are label of a vertex.
+
+say vertex labeled with 4 is the minimum distance in nst[].
+```
+
+We have some facts worth being discussed:
+
+- `dist[4], dist[7], dist[3], dist[9]` are the minimum distance currently (even though they may be not the ultimate shortest distance), meaning minimum distance after optimization of vertexes `1, 5, 8, 3, 0`.
+- `dist[4]` is the minimum one (assumed). Since it is the minimum one in `ust[]`, other vertexes in `ust[]` cannot be used to optimize `dist[4]`. For example, `dist[7] + distance[7][4] > dist[4]` since `dist[7] >= dist[4]` and `distance[7][4] > 0`.
+
+So, the ultimate minimal distance of vertex 4 can be ensured in this round.
+
+Pseudo code for Dijkstra algorithm is:
 
 ```text
 1. dist[0] = 0; dist[v] = inf
@@ -684,5 +705,65 @@ int main(int argc, char *argv[]) {
     }
     
     return 0;
+}
+```
+
+### Bellman-Ford Algorithm
+
+Notice that negative path is allowed in Bellman-Ford algorithm. But when using it, we need to detect if there is a negative loop on the path from origin to end. If so, the min distance from origin to end becomes `-inf`, meaning it does not exist.
+
+How to understand Bellman-Ford Algorithm?
+
+```text
+for v in all vertexes
+    for e in all edges   // e: a -> b with weight w
+        dist[b] = min(dist[b], dist[a] + w)   // relax
+
+dist[i] represents the min path from origin to ith vertex so far.
+```
+
+**IMPORTANT: after kth outmost loop, we got the min path from origin to ith vertex through at most k edges.** Each time we relax a vertex with an edge, then number of the edge on the min path add `1` if relaxation successes (`dist[b] > dist[a] + w`, so the min path must include `edge[a][b]`).
+
+- Min Path with at most K edges
+
+> return the min distance from origin to target vertex with at most k edges. (weight may be negative and there may be negative loop)
+
+```c++
+/**
+ * @brief min path from 0 to i with at most k edges.
+ * 
+ * backup: backup the result of dist[] when updated last time.
+ *     To keep each loop, every vertex can add only one edge, we will use a backup array to prevent continuous update from happening.
+ * 
+ * why 'dist[n - 1] >= (inf >> 1)', but not 'dist[n - 1] == inf'?
+ *     Since negative edge exists, say dist[3] and dist[5] are all inf, and distance from 3 to 5 is -1. Each time, dist[5] will be 
+ * relaxed by vertex 3. Eventually, dist[5] may be an infinite, but not as large as 'inf' we defined before.
+ * 
+ * 
+ * @param n 
+ * @param edges 
+ * @param k 
+ * @return int 
+ */
+int minPathBellman(int n, vector<vector<int>>& edges, int k) {
+    int inf = 1e5;
+    vector<int> dist(n, inf);
+    dist[0] = 0;
+
+    for (int i = 0; i < k; i++) {
+        vector<int> backup(dist.begin(), dist.end());  // prevent continuous update
+        for (int j = 0; j < edges.size(); j++) {
+            int a = edges[i][0];
+            int b = edges[i][1];
+            int w = edges[i][2];
+            dist[b] = min(backup[b], backup[a] + w);
+        }
+    }
+
+    if (dist[n - 1] >= (inf >> 1)) {   // weird!
+        return -1;
+    } else {
+        return dist[n - 1];
+    }
 }
 ```
