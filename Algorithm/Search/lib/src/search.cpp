@@ -381,19 +381,21 @@ int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
 
 /**
  * @brief min path from 0 to i with at most k edges.
- * 
+ *
  * backup: backup the result of dist[] when updated last time.
- *     To keep each loop, every vertex can add only one edge, we will use a backup array to prevent continuous update from happening.
- * 
+ *     To keep each loop, every vertex can add only one edge, we will use a backup array to prevent continuous update
+ * from happening.
+ *
  * why 'dist[n - 1] >= (inf >> 1)', but not 'dist[n - 1] == inf'?
- *     Since negative edge exists, say dist[3] and dist[5] are all inf, and distance from 3 to 5 is -1. Each time, dist[5] will be 
- * relaxed by vertex 3. Eventually, dist[5] may be an infinite, but not as large as 'inf' we defined before.
- * 
- * 
- * @param n 
- * @param edges 
- * @param k 
- * @return int 
+ *     Since negative edge exists, say dist[3] and dist[5] are all inf, and distance from 3 to 5 is -1. Each time,
+ * dist[5] will be relaxed by vertex 3. Eventually, dist[5] may be an infinite, but not as large as 'inf' we defined
+ * before.
+ *
+ *
+ * @param n
+ * @param edges
+ * @param k
+ * @return int
  */
 int minPathBellman(int n, vector<vector<int>>& edges, int k) {
     int inf = 1e5;
@@ -401,7 +403,7 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
     dist[0] = 0;
 
     for (int i = 0; i < k; i++) {
-        vector<int> backup(dist.begin(), dist.end());  // prevent continuous update
+        vector<int> backup(dist.begin(), dist.end());   // prevent continuous update
         for (int j = 0; j < edges.size(); j++) {
             int a = edges[i][0];
             int b = edges[i][1];
@@ -412,7 +414,67 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
 
     if (dist[n - 1] >= (inf >> 1)) {   // weird!
         return -1;
-    } else {
-        return dist[n - 1];
     }
+    return dist[n - 1];
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @param k
+ * @return int
+ */
+int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
+    int m = edges.size() + 10;
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;   // weight of a -> b
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
+    queue<int> que;
+    // push origin vertex into queue
+    dist[1] = 0;
+    que.push(1);
+    st[1] = true;
+    int i = 0;
+    while (!que.empty()) {
+        i++; if (i > limit) break;   // control path length
+        int sz = que.size();
+        for (int k = 0; k < sz; k++) {   // solve by level
+            int ver = que.front();
+            que.pop();
+            st[ver] = false;
+            // relaxation
+            for (int p = h[ver]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (dist[ver] + w[p] < dist[j]) {
+                    dist[j] = dist[ver] + w[p];
+                    if (!st[j]) {
+                        que.push(j);
+                        st[j] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // no chance in SPFA that inf vertex relaxes inf vertex
+    if (dist[n] == inf) return -1;
+    return dist[n];
 }

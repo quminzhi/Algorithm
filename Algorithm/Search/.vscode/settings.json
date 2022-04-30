@@ -78,7 +78,8 @@
         "utility": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "__bits": "cpp"
+        "__bits": "cpp",
+        "queue": "cpp"
     },
     "cSpell.ignoreWords": [
         "SPFA",
@@ -88,6 +89,7 @@
         "heapfied",
         "heapified",
         "logn",
+        "minzhi",
         "mlogn",
         "nlogn",
         "topo"

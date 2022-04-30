@@ -715,7 +715,7 @@ Notice that negative path is allowed in Bellman-Ford algorithm. But when using i
 How to understand Bellman-Ford Algorithm?
 
 ```text
-for v in all vertexes
+for v in all vertexes   // iterate n times
     for e in all edges   // e: a -> b with weight w
         dist[b] = min(dist[b], dist[a] + w)   // relax
 
@@ -723,6 +723,8 @@ dist[i] represents the min path from origin to ith vertex so far.
 ```
 
 **IMPORTANT: after kth outmost loop, we got the min path from origin to ith vertex through at most k edges.** Each time we relax a vertex with an edge, then number of the edge on the min path add `1` if relaxation successes (`dist[b] > dist[a] + w`, so the min path must include `edge[a][b]`).
+
+**This (Controlling K) is how Bellman-Ford algorithm solves negative edges.**
 
 - Min Path with at most K edges
 
@@ -767,3 +769,123 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
     }
 }
 ```
+
+- SPFA for min path with at most k edges (ONLY WORKS FOR POSITIVE GRAPH)
+
+Notice SPFA update in a heuristic way, meaning update those should be updated, whereas Bellman-Ford relaxes vertexes without any constraint, which may causing vertex(a) update vertex(b) when there is a negative edge between them even though both `dist[a]` and `dist[b]` are `inf`.
+
+```text
+dist[a] = inf
+   +------- a
+origin      | -10
+   +------- b
+dist[b] = inf
+
+for each loop, dist[b] = dist[a] - 10 = inf - 10
+it is even worth when there is a edge from b to a with weight -10 (meaning negative loop), in that case, dist[a] or dist[b] may be go down to a negative number. Bellman-Ford algorithm prevent that from happening.
+```
+
+### SPFA
+
+Shortest Path Faster Algorithm (SPFA) is an optimized Bellman-Ford algorithm.
+
+First, let's see where can be optimized in Bellman-Ford algorithm.
+
+```text
+for v in all vertexes
+    for e in all edges   // <-- trivial
+        dist[b] = min(dist[b], dist[a] + w)   // relax
+
+dist[i] represents the min path from origin to ith vertex so far.
+```
+
+We do not need to traverse all edges. Recall from Dijkstra algorithm, we just need to update correlated vertexes with newly-updated vertexes (correlated means directly connection or adjacent vertex).
+
+With this idea in mind, we will use a `queue` to store those newly-updated vertex which will be used to update their adjacent vertexes.
+
+```text
+for v in all vertexes   // update at most v.size time
+    while queue not empty
+        for v in queue   // solve by level (round)
+            for e in adjacent edges of v   // like bfs
+                dist[adjacent vertex] = min(dist[adjacent vertex], dist[v] + w)
+                queue <-- adjacent vertex if dist[adjacent vertex] is updated
+```
+
+```c++
+int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
+    int m = edges.size() + 10;
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;   // weight of a -> b
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
+    queue<int> que;
+    // push origin vertex into queue
+    dist[1] = 0;
+    que.push(1);
+    st[1] = true;
+    int i = 0;
+    while (!que.empty()) {
+        i++; if (i > limit) break;   // control path length
+        int sz = que.size();
+        for (int k = 0; k < sz; k++) {   // solve by level
+            int ver = que.front();
+            que.pop();
+            st[ver] = false;
+            // relaxation
+            for (int p = h[ver]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (dist[ver] + w[p] < dist[j]) {
+                    dist[j] = dist[ver] + w[p];
+                    if (!st[j]) {
+                        que.push(j);
+                        st[j] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // no chance in SPFA that inf vertex relaxes inf vertex
+    if (dist[n] == inf) return -1;
+    return dist[n];
+}
+```
+
+Why use `st[]` to track if a vertex is in the queue, i.e. it can be used to update adjacent vertexes?
+
+Imagine following case:
+
+```text
+vertex: 1  2  3
+ edges:      weight
+        1  2  2
+        1  2  5
+        1  2  6
+        1  2  7
+        ...
+        1  2  100000
+        1  3  5
+        2  3  1
+
+answer: 4
+
+When using vertex 1 to relax 2, 2 will be pushed into queue nearly 100000 times horribly.
+```
+
+Without `st[]` to track if vertex 1 is in the queue, nearly 100000 repeated 1 will be in the queue. The time complexity is `O(mul(k[i]))`, `k[i]` is the number of adjacent edges (including repeats) vertex `i` has. With `st[]`, we can reduce repeats to unique path.

@@ -93,3 +93,19 @@ TEST(MinPathTests, NaiveDijkstraTEST) {
     EXPECT_EQ(minPathDijkstra(3, graph2), -1);
     EXPECT_EQ(minPathDijkstraHeap(3, graph2), -1);
 }
+
+TEST(MinPathTests, SPFATEST) {
+    vector<vector<int>> edges = {
+        {1, 2, 5},
+        {2, 3, -3},
+        {1, 3, 4}
+    };
+    EXPECT_EQ(minPathSPFA(3, edges, 3), 2);
+
+    vector<vector<int>> edges2 = {
+        {1, 2, 1},
+        {2, 3, 1},
+        {1, 3, 3}
+    };
+    EXPECT_EQ(minPathSPFA(3, edges2, 1), 3);
+}
