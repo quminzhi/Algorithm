@@ -812,8 +812,10 @@ for v in all vertexes   // update at most v.size time
                 queue <-- adjacent vertex if dist[adjacent vertex] is updated
 ```
 
+- Basic SPFA
+
 ```c++
-int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
+int minPathSPFA(int n, vector<vector<int>>& edges) {
     int m = edges.size() + 10;
     int idx = 0;
     vector<int> h(n + 1, -1);
@@ -839,23 +841,18 @@ int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
     dist[1] = 0;
     que.push(1);
     st[1] = true;
-    int i = 0;
     while (!que.empty()) {
-        i++; if (i > limit) break;   // control path length
-        int sz = que.size();
-        for (int k = 0; k < sz; k++) {   // solve by level
-            int ver = que.front();
-            que.pop();
-            st[ver] = false;
-            // relaxation
-            for (int p = h[ver]; p != -1; p = ne[p]) {
-                int j = v[p];
-                if (dist[ver] + w[p] < dist[j]) {
-                    dist[j] = dist[ver] + w[p];
-                    if (!st[j]) {
-                        que.push(j);
-                        st[j] = true;
-                    }
+        int ver = que.front();
+        que.pop();
+        st[ver] = false;
+        // relaxation
+        for (int p = h[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (dist[ver] + w[p] < dist[j]) {
+                dist[j] = dist[ver] + w[p];
+                if (!st[j]) {
+                    que.push(j);
+                    st[j] = true;
                 }
             }
         }
@@ -889,3 +886,120 @@ When using vertex 1 to relax 2, 2 will be pushed into queue nearly 100000 times 
 ```
 
 Without `st[]` to track if vertex 1 is in the queue, nearly 100000 repeated 1 will be in the queue. The time complexity is `O(mul(k[i]))`, `k[i]` is the number of adjacent edges (including repeats) vertex `i` has. With `st[]`, we can reduce repeats to unique path.
+
+- SPFA with negative loop check
+
+If `num of edges of a path > num of total vertexes`, there exists a negative loop in the graph.
+
+NOTE: the negative loop may be not connected with vertex 1, so we have to try all vertexes, and we do not care about the value of `dist[]`, so we do not need initialize min distance of origin point as we did before.
+
+```c++
+bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);
+    vector<int> counter(n + 1, 0);   // count how many edges on the min path of a vertex
+    queue<int> q;
+    // since negative loop may start from any vertex, not necessary to be 1
+    for (int i = 1; i <= n; i++) {
+        q.push(i);
+        st[i] = true;
+    };
+    while (!q.empty()) {
+        int ver = q.front();
+        q.pop();
+        st[ver] = false;
+        // relax adjacent vertexes
+        for (int p = head[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (dist[ver] + w[p] < dist[j]) {
+                dist[j] = dist[ver] + w[p];
+                counter[j] = counter[ver] + 1;
+                if (counter[j] >= n) return true;   <== check
+                if (!st[j]) {
+                    q.push(j);
+                    st[j] = true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+```
+
+- SPFA with edge control
+
+In queue, we solve the vertexes by level to control the relaxation (like bfs).
+
+```c++
+int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
+    int m = edges.size() + 10;
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;   // weight of a -> b
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
+    queue<int> que;
+    // push origin vertex into queue
+    dist[1] = 0;
+    que.push(1);
+    st[1] = true;
+    int i = 0;
+    while (!que.empty()) {
+        i++;
+        if (i > limit) break;   // control path length
+        int sz = que.size();
+        for (int k = 0; k < sz; k++) {   // solve by level
+            int ver = que.front();
+            que.pop();
+            st[ver] = false;
+            // relaxation
+            for (int p = h[ver]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (dist[ver] + w[p] < dist[j]) {
+                    dist[j] = dist[ver] + w[p];
+                    if (!st[j]) {
+                        que.push(j);
+                        st[j] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    // no chance in SPFA that inf vertex relaxes inf vertex
+    if (dist[n] == inf) return -1;
+    return dist[n];
+}
+```

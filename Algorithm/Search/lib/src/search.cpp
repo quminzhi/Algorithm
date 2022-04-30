@@ -397,12 +397,12 @@ int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
  * @param k
  * @return int
  */
-int minPathBellman(int n, vector<vector<int>>& edges, int k) {
+int minPathBellman(int n, vector<vector<int>>& edges, int limit) {
     int inf = 1e5;
     vector<int> dist(n, inf);
     dist[0] = 0;
 
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < limit; i++) {
         vector<int> backup(dist.begin(), dist.end());   // prevent continuous update
         for (int j = 0; j < edges.size(); j++) {
             int a = edges[i][0];
@@ -423,10 +423,122 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
  *
  * @param n
  * @param edges
+ * @return int
+ */
+int minPathSPFA(int n, vector<vector<int>>& edges) {
+    int m = edges.size() + 10;
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;   // weight of a -> b
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
+    queue<int> que;
+    // push origin vertex into queue
+    dist[1] = 0;
+    que.push(1);
+    st[1] = true;
+    while (!que.empty()) {
+        int ver = que.front();
+        que.pop();
+        st[ver] = false;
+        // relaxation
+        for (int p = h[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (dist[ver] + w[p] < dist[j]) {
+                dist[j] = dist[ver] + w[p];
+                if (!st[j]) {
+                    que.push(j);
+                    st[j] = true;
+                }
+            }
+        }
+    }
+
+    // no chance in SPFA that inf vertex relaxes inf vertex
+    if (dist[n] == inf) return -1;
+    return dist[n];
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @return true
+ * @return false
+ */
+bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n + 1, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, 0);
+    vector<int> ne(m, -1);
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        v[idx] = b;
+        w[idx] = weight;
+        ne[idx] = h[a];
+        h[a] = idx++;
+    }
+
+    int inf = 1e6;
+    vector<int> dist(n + 1, inf);
+    vector<bool> st(n + 1, false);
+    vector<int> counter(n + 1, 0);   // count how many edges on the min path of a vertex
+    queue<int> q;
+    // negative loop may start from any vertex
+    for (int i = 1; i <= n; i++) {
+        q.push(i);
+        st[i] = true;
+    }
+    while (!q.empty()) {
+        int ver = q.front();
+        q.pop();
+        st[ver] = false;
+        // relax adjacent vertexes
+        for (int p = h[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (dist[ver] + w[p] < dist[j]) {
+                dist[j] = dist[ver] + w[p];
+                counter[j] = counter[ver] + 1;
+                if (counter[j] >= n) return true;
+                if (!st[j]) {
+                    q.push(j);
+                    st[j] = true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @brief with path length control
+ *
+ * @param n
+ * @param edges
  * @param k
  * @return int
  */
-int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
+int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
     int m = edges.size() + 10;
     int idx = 0;
     vector<int> h(n + 1, -1);
@@ -454,7 +566,8 @@ int minPathSPFA(int n, vector<vector<int>>& edges, int limit) {
     st[1] = true;
     int i = 0;
     while (!que.empty()) {
-        i++; if (i > limit) break;   // control path length
+        i++;
+        if (i > limit) break;   // control path length
         int sz = que.size();
         for (int k = 0; k < sz; k++) {   // solve by level
             int ver = que.front();

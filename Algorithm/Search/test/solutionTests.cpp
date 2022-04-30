@@ -100,12 +100,19 @@ TEST(MinPathTests, SPFATEST) {
         {2, 3, -3},
         {1, 3, 4}
     };
-    EXPECT_EQ(minPathSPFA(3, edges, 3), 2);
+    EXPECT_EQ(minPathSPFA(3, edges), 2);
+
+    vector<vector<int>> edges1= {
+        {1, 2, -1},
+        {2, 3, 4},
+        {3, 1, -4}
+    };
+    EXPECT_TRUE(checkNegativeLoopWithSPFA(3, edges1));
 
     vector<vector<int>> edges2 = {
         {1, 2, 1},
         {2, 3, 1},
         {1, 3, 3}
     };
-    EXPECT_EQ(minPathSPFA(3, edges2, 1), 3);
+    EXPECT_EQ(minPathSPFAWithControl(3, edges2, 1), 3);
 }
