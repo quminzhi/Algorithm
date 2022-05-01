@@ -591,3 +591,95 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
     if (dist[n] == inf) return -1;
     return dist[n];
 }
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @return int
+ */
+int minPathFloyd(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int inf = 1e6;
+    vector<vector<int>> d(N, vector<int>(N, inf));
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        d[a][b] = min(d[a][b], weight);   // avoid repeated weights on the same edge
+    }
+
+    // floyd
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+            }
+        }
+    }
+
+    // same problem with bellman, brute-force relaxation may cause inf relaxes inf
+    if (d[1][n] > (inf >> 1)) return -1;
+    return d[1][n];
+}
+
+/**
+ * @brief return the total length of the spinning graph
+ * 
+ * for (int i = 0; i < n; i++) {
+ *     ...
+ *     if (i)
+ *     ...
+ * }
+ * 
+ * if (i) is a trick to treat the first iteration (i == 0).
+ * 
+ * @param n
+ * @param edges
+ * @return int
+ */
+int minSpinningGraphPrim(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int inf = 1e6;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        int wt = edges[i][2];
+        g[aa][bb] = g[bb][aa] = min(g[aa][bb], wt);
+    }
+
+    // Prim
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);   // in spinning graph?
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        // find t
+        int ver = 0;
+        for (int j = 1; j <= n; j++) {
+            // skip ver == 0 in first loop
+            if (!st[j] && (ver == 0 || dist[j] < dist[ver])) {
+                ver = j;
+            }
+        }
+
+        // if (i) skip the first vertex (iteration)
+        // no connection from ver to spinning graph
+        if (i && dist[ver] == inf) return -1;
+
+        // add into the spinning graph
+        st[ver] = true;
+        if (i) res += dist[ver];
+
+        // update adjacent vertexes
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && g[ver][j] < dist[j]) {
+                dist[j] = g[ver][j];
+            }
+        }
+    }
+
+    return res;
+}

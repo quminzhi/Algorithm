@@ -82,6 +82,7 @@
         "queue": "cpp"
     },
     "cSpell.ignoreWords": [
+        "Kruskal's",
         "SPFA",
         "SPFATEST",
         "cout",
@@ -91,6 +92,7 @@
         "heapified",
         "logn",
         "minzhi",
+        "mlog",
         "mlogn",
         "nlogn",
         "topo"

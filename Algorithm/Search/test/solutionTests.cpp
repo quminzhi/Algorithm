@@ -78,7 +78,7 @@ TEST(SearchTests, TopoSortTEST) {
     EXPECT_EQ(topoSort(3, graph2), res2);
 }
 
-TEST(MinPathTests, NaiveDijkstraTEST) {
+TEST(MinPathTests, DijkstraTEST) {
     vector<vector<int>> graph = {
         {0, 1, 2},
         {1, 2, 1},
@@ -115,4 +115,38 @@ TEST(MinPathTests, SPFATEST) {
         {1, 3, 3}
     };
     EXPECT_EQ(minPathSPFAWithControl(3, edges2, 1), 3);
+}
+
+TEST(MinPathTests, FloydTEST) {
+    vector<vector<int>> edges = {
+        {1, 2, 1},
+        {2, 3, 2},
+        {1, 3, 1}
+    };
+    EXPECT_EQ(minPathFloyd(3, edges), 1);
+}
+
+TEST(SpinningGraphTests, PrimTEST) {
+    vector<vector<int>> edges = {
+        {1, 2, 1},
+        {1, 3, 2},
+        {1, 4, 3},
+        {2, 3, 2},
+        {3, 4, 4}
+    };
+    // EXPECT_EQ(minSpinningGraphPrim(4, edges), 6);
+
+    vector<vector<int>> edges1 = {
+        {1, 2, 8},
+        {2, 2, 7},
+        {2, 1, 1},
+        {3, 4, 3},
+        {4, 4, -10},
+        {1, 3, -9},
+        {5, 2, -4},
+        {3, 1, 0},
+        {1, 4, 8},
+        {4, 4, 7}
+    };
+    EXPECT_EQ(minSpinningGraphPrim(5, edges1), -9);
 }

@@ -25,11 +25,15 @@ vector<int> pseudoTopologicalSeq(int n, vector<vector<int>>& graph);
 vector<int> topoSort(int n, vector<vector<int>>& graph);
 
 /* Min Path */
-int minPathDijkstra(int n, vector<vector<int>>& graph);
-int minPathDijkstraHeap(int n, vector<vector<int>>& graph);
+int minPathDijkstra(int n, vector<vector<int>>& edges);
+int minPathDijkstraHeap(int n, vector<vector<int>>& edges);
 int minPathBellman(int n, vector<vector<int>>& edges, int limit);   // positive or negative graph
 int minPathSPFA(int n, vector<vector<int>>& edges);
 bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges);
 int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit);   // positive graph
+int minPathFloyd(int n, vector<vector<int>>& edges);
+
+/* Spinning Graph */
+int minSpinningGraphPrim(int n, vector<vector<int>>& edges);
 
 #endif

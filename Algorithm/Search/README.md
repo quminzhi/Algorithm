@@ -173,7 +173,7 @@ void head_insert(int val) {
 }
 
 void traverse() {
-    for (int i = head; i != -1; i = ne[i]) {
+    for (int p = head; p != -1; p = ne[p]) {
         // do something to v[i]
     }
 }
@@ -240,7 +240,7 @@ void edge_insert(vector<int>& head, vector<int>& v, vector<int>& ne, int& idx, i
  */
 int centerOfGravity(int n, vector<vector<int>>& graph) {
     if (n == 0) return -1;
-    int max_size = 1e5 + 10;
+    int max_size = 1e5 + 10;   // or 2 * m (graph.size())
     int idx = 0;
     vector<int> head(n, -1);
     vector<bool> visited(n, false);
@@ -1003,3 +1003,193 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
     return dist[n];
 }
 ```
+
+### Floyd Algorithm
+
+Floyd algorithm is used for calculate the minimum path of multi-origin problem. It applies brute-force relaxation for each vertex.
+
+```text
+for through in all vertexes
+    for src in all vertexes
+        for dst in all vertexes
+            // relax dist[src][dst] with dist[src][trough]
+            dist[src][dst] = min(dist[src][dst], dist[src][through] + w[through][dst])
+```
+
+The basic idea is from dynamic programming.
+
+Define `f[k][i][j]` as
+
+- problem sets: all paths from `i` to `j` through first `k` vertexes (some or all).
+- property: min path.
+
+Deduction:
+
+- the minimum path from `i` to `j` through first `k` vertexes is minimum of
+    - the min path from `i` to `j` through first `k - 1` vertexes, `f[k-1][i][j]`. (without passing through `k`th vertex)
+    - the min path from `i` to `k` trough first `k - 1` vertexes plus min path from `k` to `j` through first `k - 1` vertexes, `f[k-1][i][k] + f[k-1][k][j]` (passing through `k`th vertex).
+
+So we got `f[k][i][j] = min(f[k-1][i][j], f[k-1][i][k] + f[k-1][k][j]`. After optimizing with rotated array, we got `f[i][j] = min(f[i][j], f[i][k] + f[k][j])`.
+
+```c++
+int minPathFloyd(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int inf = 1e6;
+    vector<vector<int>> d(N, vector<int>(N, inf));
+    for (int i = 0; i < edges.size(); i++) {
+        int a = edges[i][0];
+        int b = edges[i][1];
+        int weight = edges[i][2];
+        d[a][b] = min(d[a][b], weight);   // avoid repeated weights on the same edge
+    }
+
+    // floyd
+    for (int k = 1; k <= n; k++) {
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                d[i][j] = min(d[i][j], d[i][k] + d[k][j]);
+            }
+        }
+    }
+
+    // same problem with bellman, brute-force relaxation may cause inf relaxes inf
+    if (d[1][n] > (inf >> 1)) return -1;
+    return d[1][n];
+}
+```
+
+## Min Spinning Graph
+
+In general min spinning graph is undirected graph. There are two classic algorithms: Prim algorithm and Kruskal's algorithm.
+
+- Prim algorithm
+    - Naive Prim: dense graph O(n^2) (*)
+    - Heap Optimized Prim: sparse graph O(mlog(n)) (x)
+- Kruskal's algorithm: sparse graph O(mlog(m)) (*)
+
+### Prim Algorithm
+
+Prim algorithm is very similar to Dijkstra algorithm.
+
+- Naive Prim
+
+The basic idea is to select a vertex from `ust[]` with MINIMUM distance to spinning graph for each iteration. The edge between vertex and spinning graph is the minimum edge we can choose for this iteration.
+
+DEFINE: `dist[]` as the distance between a vertex and a spinning graph, which is different from Dijkstra algorithm. The distance between a vertex and a spinning graph is defined as the min distance from the vertex to the vertexes in the spinning graph.
+
+```text
+dist[] = inf
+for v in vertexes
+    select a vertex t not in `st[]` with min dist
+    update dist[] of candidate vertexes with t
+    st[] <-- t
+
+*candidate vertexes means those not in `st[]` (the spinning graph)
+```
+
+The implementation is:
+
+```c++
+/**
+ * @brief return the total length of the spinning graph
+ * 
+ * for (int i = 0; i < n; i++) {
+ *     ...
+ *     if (i)
+ *     ...
+ * }
+ * 
+ * if (i) is a trick to treat the first iteration (i == 0).
+ * 
+ * @param n
+ * @param edges
+ * @return int
+ */
+int minSpinningGraphPrim(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int inf = 1e6;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        int wt = edges[i][2];
+        g[aa][bb] = g[bb][aa] = min(g[aa][bb], wt);
+    }
+
+    // Prim
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);   // in spinning graph?
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        // find t
+        int ver = 0;
+        for (int j = 1; j <= n; j++) {
+            // skip ver == 0 in first loop
+            if (!st[j] && (ver == 0 || dist[j] < dist[ver])) {
+                ver = j;
+            }
+        }
+
+        // if (i) skip the first vertex (iteration)
+        // no connection from ver to spinning graph
+        if (i && dist[ver] == inf) return -1;
+
+        // add into the spinning graph
+        st[ver] = true;
+        if (i) res += dist[ver];
+
+        // update adjacent vertexes
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && g[ver][j] < dist[j]) {
+                dist[j] = g[ver][j];
+            }
+        }
+    }
+
+    return res;
+}
+```
+
+IMPORTANT: We use adjacency list in directed graph (sparse) and adjacency matrix in undirected graph (dense). **Traverse adjacent vertexes of a vertex in Adjacency List is dangerous when self loop exists**
+
+If we want to use adjacency list to represent an undirected graph, buffer should be `2 * m`, where `m` is the size of edges.
+
+```c++
+vector<int> h(N, -1);
+vector<int> v(2 * m, 0);
+vector<int> w(2 * m, 0);
+vector<int> ne(2 * m, -1);
+
+for (int i = 0; i < m; i++) {
+    int aa = ...
+    int bb = ...
+    int wt = ...
+    // add aa -> bb
+    v[idx] = bb;
+    w[idx] = wt;
+    ne[idx] = h[aa];
+    h[aa] = idx++;
+    // add bb -> aa
+    v[idx] = aa;
+    w[idx] = wt;
+    ne[idx] = h[bb];
+    h[bb] = idx++;
+}
+```
+
+### Kruskal's Algorithm
+
+
+
+## Bipartite Graph
+
+We will talk about: 1. how to check if a graph is a bipartite, and 2. match problem (Hungarian algorithm).
+
+### Check Bipartite
+
+
+
+### Hungarian Algorithm
+
+
