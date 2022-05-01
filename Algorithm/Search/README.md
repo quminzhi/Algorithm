@@ -469,48 +469,42 @@ each loop, one vertex will be ensured.
 
 ```c++
 int minPathDijkstra(int n, vector<vector<int>>& graph) {
-    vector<vector<int>> mat(n, vector<int>(n, -1));
+    int N = n + 1;
+    int inf = 1e6;
+    vector<vector<int>> g(N, vector<int>(N, inf));
 
     // construct adjacency matrix
     for (int i = 0; i < graph.size(); i++) {
-        int a = graph[i][0];
-        int b = graph[i][1];
-        int w = graph[i][2];
-        mat[a][b] = mat[b][a] = w;
+        int aa = graph[i][0];
+        int bb = graph[i][1];
+        int wt = graph[i][2];
+        g[aa][bb] = min(g[aa][bb], wt);   // avoid repeat weight
     }
 
-    vector<int> dist(n, INT_MAX);
-    vector<bool> st(n, false);
-    dist[0] = 0;
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);
+    dist[1] = 0;
     // iteration
     for (int i = 0; i < n; i++) {
         // find idx of min of dist[] not in 'st[]'
-        int idx = -1;
-        int minPath = INT_MAX;
-        for (int j = 0; j < n; j++) {
-            if (!st[j] && dist[j] < minPath) {
-                minPath = dist[j];
-                idx = j;
+        int ver = -1;
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && (ver == -1 || dist[j] < dist[ver])) {
+                ver = j;
             }
         }
-        if (idx == -1) {   // the vertex must not be in the given subgraph
-            return -1;
-        }
-        assert(idx >= 0 && idx < n);
-        assert(st[idx] == false);
 
-        // fix the min of dist[idx]
-        st[idx] = true;
-
-        // update all vertexes which are directly connected to idx
-        for (int j = 0; j < n; j++) {
-            if (mat[idx][j] != -1) {
-                dist[j] = min(dist[j], dist[idx] + mat[idx][j]);
+        // update all vertexes which are directly connected to ver
+        for (int j = 1; j <= n; j++) {
+            if (g[ver][j] != inf) {
+                dist[j] = min(dist[j], dist[ver] + g[ver][j]);
             }
         }
+
+        st[ver] = true;
     }
 
-    return dist[n - 1] == INT_MAX ? -1 : dist[n - 1];
+    return dist[n] == inf ? -1 : dist[n];
 }
 ```
 
@@ -577,56 +571,56 @@ int main(int argc, char *argv[]) {
 The code of optimized Dijkstra:
 
 ```c++
-int minPathDijkstraHeap(int n, vector<vector<int>>& graph) {
-    int max_m = 1e5 + 10;
-    int inf = 0x3f;
+int minPathDijkstraHeap(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int m = edges.size();
+    int inf = 1e6;
     int idx = 0;
-    vector<int> head(n, -1);
-    vector<int> v(max_m, 0);
-    vector<int> w(max_m, 0);
-    vector<int> ne(max_m, -1);
+    vector<int> head(N, -1);
+    vector<int> v(m, 0);
+    vector<int> w(m, inf);
+    vector<int> ne(m, -1);
 
     // construct adjacency list
-    for (int i = 0; i < graph.size(); i++) {
-        int a = graph[i][0];
-        int b = graph[i][1];
-        int weight = graph[i][2];
-        v[idx] = b;
-        w[idx] = weight;
-        ne[idx] = head[a];
-        head[a] = idx++;
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        int wt = edges[i][2];
+        v[idx] = bb;
+        w[idx] = wt;
+        ne[idx] = head[aa];
+        head[aa] = idx++;
     }
 
     // iteration
-    vector<int> dist(n, inf);
-    vector<bool> st(n, false);
-    dist[0] = 0;
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);
+    dist[1] = 0;
     typedef pair<int, int> PII;   // {dist[i], i}
     priority_queue<PII, vector<PII>, greater<PII>> pq;
-    pq.push({0, 0});
+    pq.push({dist[1], 1});
 
     while (!pq.empty()) {
-        PII cur = pq.top();
+        PII t = pq.top();
         pq.pop();
-        int ver = cur.second;
-        int dis = cur.first;
-        // trick for finding min vertex in nst[]
-        if (!st[ver]) {
-            // update connected vertexes
-            for (int p = head[ver]; p != -1; p = ne[p]) {
-                int j = v[p];
-                if (dis + w[p] < dist[j]) {
-                    dist[j] = dis + w[p];
-                    pq.push({dist[j], j});   // may cause redundancy
-                                             // like many {4, inf}, {4, inf} may in pq in the same time
-                                             // but it is not a big deal, since we will pop it in 'if (!st[ver])'
-                }
+        int ver = t.second;
+
+        if (st[ver]) continue;   // if ver has been selected, continue
+        st[ver] = true;
+        
+        // update connected vertexes
+        for (int p = head[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (!st[j] && dist[ver] + w[p] < dist[j]) {
+                dist[j] = dist[ver] + w[p];
+                pq.push({dist[j], j});   // may cause redundancy
+                                         // like many {4, inf}, {4, inf} may in pq in the same time
+                                         // but it is not a big deal, since we will pop it in 'if (!st[ver])'
             }
-            st[ver] = true;
         }
     }
 
-    return dist[n - 1] == inf ? -1 : dist[n - 1];
+    return dist[n] == inf ? -1 : dist[n];
 }
 ```
 
@@ -654,6 +648,7 @@ int main(int argc, char *argv[]) {
     auto cmp = [&dict](auto lhs, auto rhs) {
         return lhs.freq > rhs.freq;
     };
+    // l and r children greater than parent
     priority_queue<Word, vector<Word>, decltype(cmp)> pq(cmp);
     
     for (int i = 0; i < dict.size(); i++) {
@@ -753,7 +748,7 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
     dist[0] = 0;
 
     for (int i = 0; i < k; i++) {
-        vector<int> backup(dist.begin(), dist.end());  // prevent continuous update
+        vector<int> backup(dist.begin(), dist.end());  // prevent continuous update which breaks our control on k
         for (int j = 0; j < edges.size(); j++) {
             int a = edges[i][0];
             int b = edges[i][1];
@@ -776,9 +771,9 @@ Notice SPFA update in a heuristic way, meaning update those should be updated, w
 
 ```text
 dist[a] = inf
-   +------- a
-origin      | -10
-   +------- b
+   +--...--- a
+origin       | -10
+   +--...--- b
 dist[b] = inf
 
 for each loop, dist[b] = dist[a] - 10 = inf - 10
@@ -816,6 +811,7 @@ for v in all vertexes   // update at most v.size time
 
 ```c++
 int minPathSPFA(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
     int m = edges.size() + 10;
     int idx = 0;
     vector<int> h(n + 1, -1);
@@ -824,18 +820,18 @@ int minPathSPFA(int n, vector<vector<int>>& edges) {
     vector<int> ne(m, -1);
 
     for (int i = 0; i < edges.size(); i++) {
-        int a = edges[i][0];
-        int b = edges[i][1];
-        int weight = edges[i][2];
-        v[idx] = b;
-        w[idx] = weight;   // weight of a -> b
-        ne[idx] = h[a];
-        h[a] = idx++;
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        int wt = edges[i][2];
+        v[idx] = bb;
+        w[idx] = wt;   // weight of a -> b
+        ne[idx] = h[aa];
+        h[aa] = idx++;
     }
 
     int inf = 1e6;
-    vector<int> dist(n + 1, inf);
-    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);   // prevent there are multiple edges on two adjacent vertexes.
     queue<int> que;
     // push origin vertex into queue
     dist[1] = 0;
@@ -880,7 +876,7 @@ vertex: 1  2  3
         1  3  5
         2  3  1
 
-answer: 4
+answer: dist[3] = 4
 
 When using vertex 1 to relax 2, 2 will be pushed into queue nearly 100000 times horribly.
 ```
@@ -895,9 +891,10 @@ NOTE: the negative loop may be not connected with vertex 1, so we have to try al
 
 ```c++
 bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
     int m = edges.size();
     int idx = 0;
-    vector<int> h(n + 1, -1);
+    vector<int> h(N, -1);
     vector<int> v(m, 0);
     vector<int> w(m, 0);
     vector<int> ne(m, -1);
@@ -912,9 +909,9 @@ bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
     }
 
     int inf = 1e6;
-    vector<int> dist(n + 1, inf);
-    vector<bool> st(n + 1, false);
-    vector<int> counter(n + 1, 0);   // count how many edges on the min path of a vertex
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);
+    vector<int> counter(N, 0);   // count how many edges on the min path of a vertex
     queue<int> q;
     // since negative loop may start from any vertex, not necessary to be 1
     for (int i = 1; i <= n; i++) {

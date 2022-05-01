@@ -80,18 +80,18 @@ TEST(SearchTests, TopoSortTEST) {
 
 TEST(MinPathTests, DijkstraTEST) {
     vector<vector<int>> graph = {
-        {0, 1, 2},
-        {1, 2, 1},
-        {0, 2, 4}
+        {1, 2, 2},
+        {2, 3, 1},
+        {1, 3, 4}
     };
     EXPECT_EQ(minPathDijkstra(3, graph), 3);
     EXPECT_EQ(minPathDijkstraHeap(3, graph), 3);
 
     vector<vector<int>> graph2 = {
-        {0, 1, 2},
+        {1, 2, 2},
     };
-    EXPECT_EQ(minPathDijkstra(3, graph2), -1);
-    EXPECT_EQ(minPathDijkstraHeap(3, graph2), -1);
+    EXPECT_EQ(minPathDijkstra(2, graph2), 2);
+    EXPECT_EQ(minPathDijkstraHeap(2, graph2), 2);
 }
 
 TEST(MinPathTests, SPFATEST) {
