@@ -3733,3 +3733,53 @@ bool isInterleave(string s1, string s2, string s3) {
     return f[s1.size()][s2.size()];
 }
 ```
+
+### Count Distinct
+
+> Given an integer array nums and two integers k and p, return the number of distinct subarrays which have at most k elements divisible by p.
+>
+> Two arrays nums1 and nums2 are said to be distinct if:
+>
+> - They are of different lengths, or
+> - There exists at least one index `i` where `nums1[i] != nums2[i]`.
+>
+> A subarray is defined as a non-empty contiguous sequence of elements in an array.
+
+Define `f[i]` as:
+
+- problem sets: all subarrays that meet the requirement (has at most `k` divisible elements (`nums[i] % p == 0`)) in first `i` nums.
+- property: count.
+
+Derivation:
+
+- `f[i] = f[i - 1] + t`, where `t` is the number all subarrays ending with `nums[i]` that meets the requirement and not appeared before.
+
+```c++
+int countDistinct(vector<int>& nums, int k, int p) {
+    unordered_set<string> memo;
+    int N = nums.size() + 1;
+    vector<int> f(N, 0);
+    vector<bool> dv(N, false);
+    for (int i = 1; i <= nums.size(); i++) {
+        dv[i - 1] = nums[i - 1] % p == 0;
+        string subarr = "";
+        int cntN = 0;
+        int cntP = 0;
+        int ptr = i - 1;
+        while (ptr >= 0 && cntP <= k) {
+            if (dv[ptr]) cntP++;
+            if (cntP <= k) {
+                subarr = to_string(nums[ptr]) + ',' + subarr;
+                if (memo.find(subarr) == memo.end()) {
+                    memo.insert(subarr);
+                    cntN++;
+                }
+            }
+            ptr--;
+        }
+        f[i] = f[i - 1] + cntN;
+    }
+
+    return f[nums.size()];
+}
+```

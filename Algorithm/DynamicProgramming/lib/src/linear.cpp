@@ -511,3 +511,39 @@ int lengthOfLISII(vector<int>& nums) {
 
     return maxLen;
 }
+
+/**
+ * @brief 
+ * 
+ * @param nums 
+ * @param k 
+ * @param p 
+ * @return int 
+ */
+int countDistinct(vector<int>& nums, int k, int p) {
+    unordered_set<string> memo;
+    int N = nums.size() + 1;
+    vector<int> f(N, 0);
+    vector<bool> dv(N, false);
+    for (int i = 1; i <= nums.size(); i++) {
+        dv[i - 1] = nums[i - 1] % p == 0;
+        string subarr = "";
+        int cntN = 0;
+        int cntP = 0;
+        int ptr = i - 1;
+        while (ptr >= 0 && cntP <= k) {
+            if (dv[ptr]) cntP++;
+            if (cntP <= k) {
+                subarr = to_string(nums[ptr]) + ',' + subarr;
+                if (memo.find(subarr) == memo.end()) {
+                    memo.insert(subarr);
+                    cntN++;
+                }
+            }
+            ptr--;
+        }
+        f[i] = f[i - 1] + cntN;
+    }
+
+    return f[nums.size()];
+}

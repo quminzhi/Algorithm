@@ -38,6 +38,8 @@
         "memset",
         "nums",
         "onestep",
+        "subarr",
+        "subarrays",
         "substr",
         "tromino",
         "twosteps"
