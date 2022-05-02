@@ -150,3 +150,13 @@ TEST(SpinningGraphTests, PrimTEST) {
     };
     EXPECT_EQ(minSpinningGraphPrim(5, edges1), -9);
 }
+
+TEST(BipartiteGraphTests, HungarianTEST) {
+    vector<vector<int>> edges = {
+        {1, 1},
+        {1, 2},
+        {2, 1},
+        {2, 2}
+    };
+    EXPECT_EQ(maxBipartiteGraph(2, 2, edges), 2);
+}

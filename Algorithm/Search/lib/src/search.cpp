@@ -791,3 +791,54 @@ bool isBipartiteGraph(int n, vector<vector<int>>& edges) {
 
     return true;
 }
+
+bool find(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& match, vector<bool>& st, int ver) {
+    for (int p = h[ver]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!st[j]) {
+            st[j] = true;
+            if (match[j] == -1 || find(h, v, ne, match, st, match[j])) {
+                match[j] = ver;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @brief
+ *
+ * @param n1
+ * @param n2
+ * @param edges
+ * @return int
+ */
+int maxBipartiteGraph(int n1, int n2, vector<vector<int>>& edges) {
+    int N1 = n1 + 1;
+    int N2 = n2 + 1;
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(N1, -1);   // left set points to right set
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+    }
+
+    vector<int> match(N2, -1);   // match[i] means right i's match vertex on the left
+    int res = 0;
+    for (int i = 1; i <= n1; i++) {
+        vector<bool> st(N2, false);
+        if (find(h, v, ne, match, st, i)) {
+            res++;
+        }
+    }
+
+    return res;
+}
