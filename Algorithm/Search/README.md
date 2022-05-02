@@ -1177,15 +1177,152 @@ for (int i = 0; i < m; i++) {
 
 ### Kruskal's Algorithm
 
+Kruskal's algorithm is a greedy algorithm.
 
+```text
+sort all edges in ascending order
+for e in edges:
+    if vertexes of the edge is not connected (union-disjoint set)
+        add edge to the graph
+
+check if the graph includes all vertexes
+```
+
+We will implement Kruskal's algorithm with the help of Union-disjoint Set (a tree with ONLY parent pointer).
+
+```c++
+class UDSet {
+    public:
+    int p[N];
+    UDSet(int n) {
+        // 1-based
+        for (int i = 1; i <= n; i++) {
+            p[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (p[x] != x) {
+            p[x] = find(p[x]);
+        }
+        return p[x];
+    }
+
+    void join(int x, int y) {
+        p[find(x)] = find(y);
+    }
+};
+```
+
+The code is:
+
+```c++
+int minSpinningGraphKruskal(int n, vector<vector<int>>& edges) {
+    int m = edges.size();
+    struct Edge {
+        int a, b, w;
+        // overwrite less sign
+        bool operator<(const Edge& e) const { return w < e.w; }
+    } e[m];
+
+    // sort
+    sort(e, e + m);
+
+    UDSet uds(n);
+    int res = 0;
+    int cnt_edges = 0;
+    // enumerate all edges from shortest to longest
+    for (int i = 0; i < m; i++) {
+        int aa = e[i].a;
+        int bb = e[i].b;
+        int wt = e[i].w;
+        if (uds.find(aa) != uds.find(bb)) {
+            // not connected
+            uds.join(aa, bb);
+            res += wt;
+            cnt_edges++;
+        }
+    }
+
+    if (cnt_edges < n - 1) return -1;
+    return res;
+}
+```
 
 ## Bipartite Graph
 
 We will talk about: 1. how to check if a graph is a bipartite, and 2. match problem (Hungarian algorithm).
 
+a bipartite graph (or bigraph) is a graph whose vertices can be divided into two disjoint and independent sets `U` and `V`, that is every edge connects a vertex in `U` to one in `V`. Vertex sets `U` and `V` are usually called the parts of the graph. Equivalently, a bipartite graph is a graph that does not contain any odd-length cycles.
+
 ### Check Bipartite
 
+We check bipartite graph by colorizing vertexes.
 
+```text
+for v in all vertexes:   // graph may be not a full connected graph
+    if v not colored
+        dfs(paint v with color)
+        if fail
+            not partite
+
+if painting succeed, partite graph
+```
+
+```c++
+bool colorize(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& color, int ver, int col) {
+    color[ver] = col;
+    bool suc = true;
+    for (int p = h[ver]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!color[j]) {
+            suc = colorize(h, v, ne, color, j, 3 - col);
+            if (!suc) {
+                return false;
+            }
+        } else {
+            // if colorized and it cannot be same color as ver
+            if (color[j] == col) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool isBipartiteGraph(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    vector<int> color(N, 0);   // 0: no color, 1: color 1, 2: color 2
+    int suc = true;
+    for (int i = 1; i <= n; i++) {
+        if (!color[i]) {
+            suc = colorize(h, v, ne, color, i, 1);
+            if (!suc) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+```
 
 ### Hungarian Algorithm
 

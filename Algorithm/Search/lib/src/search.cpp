@@ -359,7 +359,7 @@ int minPathDijkstraHeap(int n, vector<vector<int>>& edges) {
 
         if (st[ver]) continue;   // if ver has been selected, continue
         st[ver] = true;
-        
+
         // update connected vertexes
         for (int p = head[ver]; p != -1; p = ne[p]) {
             int j = v[p];
@@ -678,4 +678,116 @@ int minSpinningGraphPrim(int n, vector<vector<int>>& edges) {
     }
 
     return res;
+}
+
+const int MAX_N = 1e5;
+class UDSet {
+   public:
+    int p[MAX_N];
+    UDSet(int m) {
+        // 1-based
+        for (int i = 1; i <= m; i++) {
+            p[i] = i;
+        }
+    }
+
+    int find(int x) {
+        if (p[x] != x) {
+            p[x] = find(p[x]);
+        }
+        return p[x];
+    }
+
+    void join(int x, int y) { p[find(x)] = find(y); }
+};
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @return int: weight of min spinning graph
+ */
+int minSpinningGraphKruskal(int n, vector<vector<int>>& edges) {
+    int m = edges.size();
+    struct Edge {
+        int a, b, w;
+        // overwrite less sign
+        bool operator<(const Edge& e) const { return w < e.w; }
+    } e[m];
+
+    // sort
+    sort(e, e + m);
+
+    UDSet uds(m);
+    int res = 0;
+    int cnt_edges = 0;
+    // enumerate all edges from shortest to longest
+    for (int i = 0; i < m; i++) {
+        int aa = e[i].a;
+        int bb = e[i].b;
+        int wt = e[i].w;
+        if (uds.find(aa) != uds.find(bb)) {
+            // not connected
+            uds.join(aa, bb);
+            res += wt;
+            cnt_edges++;
+        }
+    }
+
+    if (cnt_edges < n - 1) return -1;
+    return res;
+}
+
+bool colorize(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& color, int ver, int col) {
+    color[ver] = col;
+    bool suc = true;
+    for (int p = h[ver]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!color[j]) {
+            suc = colorize(h, v, ne, color, j, 3 - col);
+            if (!suc) {
+                return false;
+            }
+        } else {
+            // if colorized and it cannot be same color as ver
+            if (color[j] == col) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool isBipartiteGraph(int n, vector<vector<int>>& edges) {
+    int N = n + 1;
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    vector<int> color(N, 0);   // 0: no color, 1: color 1, 2: color 2
+    int suc = true;
+    for (int i = 1; i <= n; i++) {
+        if (!color[i]) {
+            suc = colorize(h, v, ne, color, i, 1);
+            if (!suc) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }

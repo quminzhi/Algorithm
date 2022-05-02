@@ -82,9 +82,11 @@
         "queue": "cpp"
     },
     "cSpell.ignoreWords": [
+        "Kruskal",
         "Kruskal's",
         "SPFA",
         "SPFATEST",
+        "bigraph",
         "cout",
         "decltype",
         "endl",
@@ -95,6 +97,7 @@
         "mlog",
         "mlogn",
         "nlogn",
+        "struct",
         "topo"
     ]
 }
