@@ -180,3 +180,14 @@ TEST(ProblemsTests, NumberOfProvinceTEST) {
     EXPECT_EQ(findCircleNum(g2), 1);
     EXPECT_EQ(findCircleNumII(g), 2);
 }
+
+TEST(ProblemsTests, ValidTreeTEST) {
+    vector<vector<int>> edges = {
+        {0, 1},
+        {1, 2},
+        {2, 3},
+        {1, 3},
+        {1, 4}
+    };
+    EXPECT_TRUE(!validTree(5, edges));
+}

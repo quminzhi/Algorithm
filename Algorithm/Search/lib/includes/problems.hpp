@@ -17,5 +17,6 @@ class DisjointSet {
 
 int findCircleNum(vector<vector<int>>& isConnected);
 int findCircleNumII(vector<vector<int>>& isConnected);
+bool validTree(int n, vector<vector<int>>& edges);
 
 #endif

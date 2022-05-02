@@ -74,3 +74,33 @@ int findCircleNumII(vector<vector<int>>& isConnected) {
     return c;
 }
 
+/**
+ * @brief 
+ * 
+ * @param n 
+ * @param edges 
+ * @return true 
+ * @return false 
+ */
+bool validTree(int n, vector<vector<int>>& edges) {
+    DisjointSet uds(n);
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        if (uds.find(aa) == uds.find(bb)) {
+            return false;
+        } else {
+            uds.merge(aa, bb);
+        }
+    }
+
+    unordered_set<int> note;
+    for (int i = 0; i < n; i++) {
+        int t = uds.find(i);
+        if (note.find(t) == note.end()) {
+            note.insert(t);
+        }
+    }
+
+    return note.size() == 1;
+}

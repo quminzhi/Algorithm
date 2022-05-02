@@ -1441,7 +1441,9 @@ int DisjointSet::find(int x) {
 
     return p[x];
 }
+```
 
+```c++
 /**
  * @brief time complexity O(n^2)
  * 
@@ -1500,5 +1502,51 @@ int findCircleNumII(vector<vector<int>>& isConnected) {
     }
 
     return c;
+}
+```
+
+### Graph Valid Tree
+
+> You have a graph of n nodes labeled from 0 to n - 1. You are given an integer n and a list of edges where `edges[i] = [ai, bi]` indicates that there is an undirected edge between nodes `ai` and `bi` in the graph.
+>
+> Return true if the edges of the given graph make up a valid tree, and false otherwise.
+
+We can check if a graph has simple cycle with disjoint set. How?
+
+Notice that a tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, any connected graph without simple cycles is a tree.
+
+- disjoint set
+
+Given two vertexes (`a` and `b`) are in a set connected by other vertexes, a simple cycle exists when an edge `a -> b` occurs.
+
+So, a valid tree has two property:
+
+- full connected: size of disjoint set should be 1.
+- no simple circle: no additional edge exist between two vertexes within a set.
+
+```c++
+bool validTree(int n, vector<vector<int>>& edges) {
+    DisjointSet uds(n);
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        // no additional edge
+        if (uds.find(aa) == uds.find(bb)) {
+            return false;
+        } else {
+            uds.merge(aa, bb);
+        }
+    }
+
+    // full connected
+    unordered_set<int> note;
+    for (int i = 0; i < n; i++) {
+        int t = uds.find(i);
+        if (note.find(t) == note.end()) {
+            note.insert(t);
+        }
+    }
+
+    return note.size() == 1;
 }
 ```
