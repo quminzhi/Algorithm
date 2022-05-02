@@ -13,7 +13,7 @@ vector<int> kmp(string s, string pattern);
 int strStr(string haystack, string needle);
 string shortestPalindrome(string s);
 
-#define N 100010
+const int N = 100010;
 
 class Trie {
    private:
@@ -24,6 +24,16 @@ class Trie {
    public:
     void insert(string str);
     int query(string str);
+};
+
+class DisjointSet {
+   private:
+    int p[N];
+
+   public:
+    DisjointSet(int n);
+    int find(int x);   // return set label of val x
+    void merge(int x, int y);
 };
 
 #endif

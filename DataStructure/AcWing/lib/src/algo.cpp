@@ -194,3 +194,25 @@ int Trie::query(string str) {
 
     return v[p];
 }
+
+/**
+ * @brief Construct a new Disjoint Set:: Disjoint Set object
+ * 
+ * @param n: the number of unique elements
+ */
+DisjointSet::DisjointSet(int n) {
+    for (int i = 0; i < n; i++) {
+        p[i] = i;
+    }
+}
+
+int DisjointSet::find(int x) {
+    if (p[x] != x) {   // if not root
+        p[x] = find(p[x]);   // path compression
+    }
+    return p[x];
+}
+
+void DisjointSet::merge(int x, int y) {
+    p[find(x)] = find(y);
+}

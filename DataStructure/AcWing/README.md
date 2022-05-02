@@ -469,3 +469,46 @@ int Trie::query(string str) {
     return v[p];
 }
 ```
+
+### Disjoint Set
+
+ A disjoint-set data structure, also called a union–find data structure or merge–find set, is a data structure that stores a collection of disjoint (non-overlapping) sets. It provides operations for adding new sets, merging sets (replacing them by their union), and finding a representative member of a set. The last operation makes it possible to find out efficiently if any two elements are in the same or different sets.
+
+The key problem is how to represent which set a element belongs to.
+
+- set label: we use root of a tree to represent a set, all nodes in the tree belong to this set. (assuming the parent of root is root itself)
+- joint: point the root of a set to the root of another set.
+- query: find root. O(log(h)), where `h` is the height of the tree.
+- optimization for query: since the time complexity of query operation is proportional to the height of the tree, we will collapse it into a tree as low as possible (path compression).
+
+Notice that we operation on unique identity of each element (index in general, not value).
+
+```c++
+class DisjointSet {
+   private:
+    int p[N];
+
+   public:
+    DisjointSet(int n);  // @n: number of unique elements
+    int find(int x);   // return set label of val x
+    void merge(int x, int y);
+};
+
+DisjointSet::DisjointSet(int n) {
+    for (int i = 0; i < n; i++) {
+        p[i] = i;
+    }
+}
+
+int DisjointSet::find(int x) {
+    if (p[x] != x) {   // if not root
+        p[x] = find(p[x]);   // path compression
+    }
+    return p[x];
+}
+
+void DisjointSet::merge(int x, int y) {
+    p[find(x)] = find(y);
+}
+```
+
