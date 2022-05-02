@@ -2,6 +2,7 @@
 
 #include "search.hpp"
 #include "solution.hpp"
+#include "problems.hpp"
 
 // If there is a set of tests that share same context, we can encapsulate it in to a class.
 class TestWithContext : public ::testing::Test {
@@ -159,4 +160,23 @@ TEST(BipartiteGraphTests, HungarianTEST) {
         {2, 2}
     };
     EXPECT_EQ(maxBipartiteGraph(2, 2, edges), 2);
+}
+
+TEST(ProblemsTests, NumberOfProvinceTEST) {
+    vector<vector<int>> g = {
+        {1, 1, 0},
+        {1, 1, 0},
+        {0, 0, 1}
+    };
+    EXPECT_EQ(findCircleNum(g), 2);
+    EXPECT_EQ(findCircleNumII(g), 2);
+
+    vector<vector<int>> g2 = {
+        {1, 0, 0, 1},
+        {0, 1, 1, 0},
+        {0, 1, 1, 1},
+        {1, 0, 1, 1}
+    };
+    EXPECT_EQ(findCircleNum(g2), 1);
+    EXPECT_EQ(findCircleNumII(g), 2);
 }

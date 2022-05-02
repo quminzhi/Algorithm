@@ -1395,3 +1395,110 @@ int maxBipartiteGraph(int n1, int n2, vector<vector<int>>& edges) {
 ```
 
 Note: `st[]` is for each round in finding match right vertex for left `i` vertex. `st[j]` records if right `j` vertex has been occupied by a left vertex.
+
+## Graph Problems
+
+### Number of Province
+
+> There are `n` cities. Some of them are connected, while some are not. If city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c.
+>
+> A province is a group of directly or indirectly connected cities and no other cities outside of the group.
+>
+> You are given an `n x n` matrix `isConnected` where `isConnected[i][j] = 1` if the ith city and the jth city are directly connected, and `isConnected[i][j] = 0` otherwise.
+>
+> Return the total number of provinces.
+
+- disjoint set
+
+This is a problem for disjoint set.
+
+```c++
+const int N = 210;
+
+class DisjointSet {
+   public:
+    DisjointSet(int n);
+    void merge(int x, int y);
+    int find(int x);
+
+    int p[N];
+};
+
+DisjointSet::DisjointSet(int n) {
+    for (int i = 0; i < n; i++) {
+        p[i] = i;
+    }
+}
+
+void DisjointSet::merge(int x, int y) {
+    p[find(x)] = find(y);
+}
+
+int DisjointSet::find(int x) {
+    if (p[x] != x) {
+        p[x] = find(p[x]);
+    }
+
+    return p[x];
+}
+
+/**
+ * @brief time complexity O(n^2)
+ * 
+ * @param isConnected: an adjacency matrix
+ * @return int: the number of connected graphs
+ */
+int findCircleNum(vector<vector<int>>& isConnected) {
+    int n = isConnected.size();
+    DisjointSet uds(n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (i != j && isConnected[i][j] == 1) {
+                if (uds.find(i) != uds.find(j)) {
+                    uds.merge(i, j);
+                }
+            }
+        }
+    }
+
+    unordered_set<int> note;
+    for (int i = 0; i < n; i++) {
+        int t = uds.find(i);
+        if (note.find(t) == note.end()) {
+            note.insert(t);
+        }
+    }
+
+    return note.size();
+}
+```
+
+- depth first search
+
+Depth first search and color to find different connected graphs.
+
+```c++
+void dfs(vector<vector<int>>& isConnected, vector<int>& color, int i, int c) {
+    color[i] = c;
+    for (int j = 0; j < isConnected.size(); j++) {
+        if (isConnected[i][j] == 1 && color[j] == 0) {
+            dfs(isConnected, color, j, c);
+        }
+    }
+}
+
+int findCircleNumII(vector<vector<int>>& isConnected) {
+    int n = isConnected.size();
+    // 0: no color, 1: first color, 2: second color ...
+    vector<int> color(n, 0);
+    int c = 0;
+    for (int i = 0; i < n; i++) {
+        if (color[i] == 0) {
+            c++;
+            dfs(isConnected, color, i, c);
+        }
+    }
+
+    return c;
+}
+```
