@@ -191,3 +191,14 @@ TEST(ProblemsTests, ValidTreeTEST) {
     };
     EXPECT_TRUE(!validTree(5, edges));
 }
+
+TEST(ProblemsTests, earlistAcqTEST) {
+    vector<vector<int>> logs = {
+        {0, 2, 0},
+        {1, 0, 1},
+        {3, 0, 3},
+        {4, 1, 2},
+        {7, 3, 1}
+    };
+    EXPECT_EQ(earliestAcq(logs, 4), 3);
+}

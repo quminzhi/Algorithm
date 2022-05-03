@@ -1396,7 +1396,7 @@ int maxBipartiteGraph(int n1, int n2, vector<vector<int>>& edges) {
 
 Note: `st[]` is for each round in finding match right vertex for left `i` vertex. `st[j]` records if right `j` vertex has been occupied by a left vertex.
 
-## Graph Problems
+## Disjoint Set
 
 ### Number of Province
 
@@ -1422,6 +1422,7 @@ class DisjointSet {
     int find(int x);
 
     int p[N];
+    int size;   // # of subgraphs
 };
 
 DisjointSet::DisjointSet(int n) {
@@ -1432,6 +1433,7 @@ DisjointSet::DisjointSet(int n) {
 
 void DisjointSet::merge(int x, int y) {
     p[find(x)] = find(y);
+    size--;
 }
 
 int DisjointSet::find(int x) {
@@ -1463,15 +1465,7 @@ int findCircleNum(vector<vector<int>>& isConnected) {
         }
     }
 
-    unordered_set<int> note;
-    for (int i = 0; i < n; i++) {
-        int t = uds.find(i);
-        if (note.find(t) == note.end()) {
-            note.insert(t);
-        }
-    }
-
-    return note.size();
+    return uds.size;
 }
 ```
 
@@ -1538,15 +1532,75 @@ bool validTree(int n, vector<vector<int>>& edges) {
         }
     }
 
-    // full connected
-    unordered_set<int> note;
-    for (int i = 0; i < n; i++) {
-        int t = uds.find(i);
-        if (note.find(t) == note.end()) {
-            note.insert(t);
+    return uds.size == 1;
+}
+```
+
+### Number of Connected Components in an Undirected Graph
+
+> You have a graph of n nodes. You are given an integer n and an array edges where `edges[i] = [ai, bi]` indicates that there is an edge between `ai` and `bi` in the graph.
+>
+> Return the number of connected components in the graph.
+
+Again, disjoint set.
+
+```c++
+int countComponents(int n, vector<vector<int>>& edges) {
+    DisjointSet uds(n);
+    for (int i = 0; i < edges.size(); i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        if (uds.find(aa) != uds.find(bb)) {
+            uds.merge(aa, bb);
         }
     }
 
-    return note.size() == 1;
+    return uds.size;
+}
+```
+
+### The Earliest Moment When Everyone Become Friends
+
+> There are n people in a social group labeled from 0 to n - 1. You are given an array logs where `logs[i] = [timestamp_i, xi, yi]` indicates that `xi` and `yi` will be friends at the time `timestamp_i`.
+>
+> Friendship is symmetric. That means if a is friends with b, then b is friends with a. Also, person a is acquainted with a person b if a is friends with b, or a is a friend of someone acquainted with b.
+>
+> Return the earliest time for which every person became acquainted with every other person. If there is no such earliest time, return -1.
+
+Similar to Kruskal's algorithm.
+
+```c++
+int earliestAcq(vector<vector<int>>& logs, int n) {
+    int m = logs.size();
+    struct Edge {
+        int log;
+        int aa;
+        int bb;
+        bool operator< (const Edge& e) const {
+            return log < e.log;
+        }
+    } edges[m];
+
+    for (int i = 0; i < m; i++) {
+        edges[i].log = logs[i][0];
+        edges[i].aa = logs[i][1];
+        edges[i].bb = logs[i][2];
+    }
+
+    sort(edges, edges + m);
+
+    DisjointSet uds(n);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i].aa;
+        int bb = edges[i].bb;
+        if (uds.find(aa) != uds.find(bb)) {
+            uds.merge(aa, bb);
+            if (uds.size == 1) {
+                return edges[i].log;
+            }
+        }
+    }
+
+    return -1;
 }
 ```
