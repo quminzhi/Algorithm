@@ -1191,12 +1191,11 @@ check if the graph includes all vertexes
 We will implement Kruskal's algorithm with the help of Union-disjoint Set (a tree with ONLY parent pointer).
 
 ```c++
-class UDSet {
+class DisjointSet {
     public:
     int p[N];
-    UDSet(int n) {
-        // 1-based
-        for (int i = 1; i <= n; i++) {
+    DisjointSet(int n) {
+        for (int i = 0; i <= n; i++) {
             p[i] = i;
         }
     }
@@ -1228,7 +1227,7 @@ int minSpinningGraphKruskal(int n, vector<vector<int>>& edges) {
     // sort
     sort(e, e + m);
 
-    UDSet uds(n);
+    DisjointSet dsu(n);
     int res = 0;
     int cnt_edges = 0;
     // enumerate all edges from shortest to longest
@@ -1236,9 +1235,9 @@ int minSpinningGraphKruskal(int n, vector<vector<int>>& edges) {
         int aa = e[i].a;
         int bb = e[i].b;
         int wt = e[i].w;
-        if (uds.find(aa) != uds.find(bb)) {
+        if (dsu.find(aa) != dsu.find(bb)) {
             // not connected
-            uds.join(aa, bb);
+            dsu.join(aa, bb);
             res += wt;
             cnt_edges++;
         }
@@ -1454,18 +1453,18 @@ int DisjointSet::find(int x) {
  */
 int findCircleNum(vector<vector<int>>& isConnected) {
     int n = isConnected.size();
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (i != j && isConnected[i][j] == 1) {
-                if (uds.find(i) != uds.find(j)) {
-                    uds.merge(i, j);
+                if (dsu.find(i) != dsu.find(j)) {
+                    dsu.merge(i, j);
                 }
             }
         }
     }
 
-    return uds.size;
+    return dsu.size;
 }
 ```
 
@@ -1520,19 +1519,19 @@ So, a valid tree has two property:
 
 ```c++
 bool validTree(int n, vector<vector<int>>& edges) {
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < edges.size(); i++) {
         int aa = edges[i][0];
         int bb = edges[i][1];
         // no additional edge
-        if (uds.find(aa) == uds.find(bb)) {
+        if (dsu.find(aa) == dsu.find(bb)) {
             return false;
         } else {
-            uds.merge(aa, bb);
+            dsu.merge(aa, bb);
         }
     }
 
-    return uds.size == 1;
+    return dsu.size == 1;
 }
 ```
 
@@ -1546,16 +1545,16 @@ Again, disjoint set.
 
 ```c++
 int countComponents(int n, vector<vector<int>>& edges) {
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < edges.size(); i++) {
         int aa = edges[i][0];
         int bb = edges[i][1];
-        if (uds.find(aa) != uds.find(bb)) {
-            uds.merge(aa, bb);
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
         }
     }
 
-    return uds.size;
+    return dsu.size;
 }
 ```
 
@@ -1589,18 +1588,81 @@ int earliestAcq(vector<vector<int>>& logs, int n) {
 
     sort(edges, edges + m);
 
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < m; i++) {
         int aa = edges[i].aa;
         int bb = edges[i].bb;
-        if (uds.find(aa) != uds.find(bb)) {
-            uds.merge(aa, bb);
-            if (uds.size == 1) {
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            if (dsu.size == 1) {
                 return edges[i].log;
             }
         }
     }
 
     return -1;
+}
+```
+
+### Smallest String With Swaps
+
+> You are given a string `s`, and an array of pairs of indices in the string pairs where `pairs[i] = [a, b]` indicates 2 indices (0-indexed) of the string.
+>
+> You can swap the characters at any pair of indices in the given pairs any number of times.
+>
+> Return the lexicographically smallest string that s can be changed to after using the swaps.
+
+```text
+Given s = 'dcab', and pairs = {{0, 3}, {1, 2}, {0, 2}}.
+```
+
+How to change it into a lexicographically smallest string by swapping.
+
+One important point to note is that given pairs `{1, 2}` and `{0, 2}`, we can swap `{0, 1}` even such pair does not exist. So indices within a connected component (graph) can be swapped arbitrarily.
+
+With this idea in mind, the solution can be broken down into 4 steps:
+
+- find connected components with disjoint set.
+- rearrange indices within a component in lexicon order.
+- reconstruct string with ordered indices.
+
+```c++
+string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
+    int n = s.size();
+    int m = pairs.size();
+    DisjointSet dsu(n);
+    for (int i = 0; i < m; i++) {
+        int aa = pairs[i][0];
+        int bb = pairs[i][1];
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            if (dsu.size == 1) break;   // optimize
+        }
+    }
+
+    // group
+    unordered_map<int, vector<int>> groups;
+    for (int i = 0; i < n; i++) {
+        int gid = dsu.find(i);
+        groups[gid].push_back(i);   // ascending order
+    }
+
+    // sort each group and reconstruct min string
+    string res(n, ' ');
+    for (auto group : groups) {
+        // indices to substring
+        vector<char> ss;
+        for (int i = 0; i < group.second.size(); i++) {
+            int idx = group.second[i];
+            ss.push_back(s[idx]);
+        }
+        sort(ss.begin(), ss.end());
+        // add sorted substring to res, note that indices in group are in ascending order
+        for (int i = 0; i < group.second.size(); i++) {
+            res[group.second[i]] = ss[i];
+        }
+    }
+    
+    return res;
 }
 ```

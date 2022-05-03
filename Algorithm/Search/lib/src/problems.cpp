@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include <unordered_set>
+#include <unordered_map>
 
 DisjointSet::DisjointSet(int n) {
     size = n;
@@ -31,18 +32,18 @@ int DisjointSet::find(int x) {
  */
 int findCircleNum(vector<vector<int>>& isConnected) {
     int n = isConnected.size();
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             if (i != j && isConnected[i][j] == 1) {
-                if (uds.find(i) != uds.find(j)) {
-                    uds.merge(i, j);
+                if (dsu.find(i) != dsu.find(j)) {
+                    dsu.merge(i, j);
                 }
             }
         }
     }
 
-    return uds.size;
+    return dsu.size;
 }
 
 void dfs(vector<vector<int>>& isConnected, vector<int>& color, int i, int c) {
@@ -78,18 +79,18 @@ int findCircleNumII(vector<vector<int>>& isConnected) {
  * @return false 
  */
 bool validTree(int n, vector<vector<int>>& edges) {
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < edges.size(); i++) {
         int aa = edges[i][0];
         int bb = edges[i][1];
-        if (uds.find(aa) == uds.find(bb)) {
+        if (dsu.find(aa) == dsu.find(bb)) {
             return false;
         } else {
-            uds.merge(aa, bb);
+            dsu.merge(aa, bb);
         }
     }
 
-    return uds.size == 1;
+    return dsu.size == 1;
 }
 
 /**
@@ -100,16 +101,16 @@ bool validTree(int n, vector<vector<int>>& edges) {
  * @return int 
  */
 int countComponents(int n, vector<vector<int>>& edges) {
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < edges.size(); i++) {
         int aa = edges[i][0];
         int bb = edges[i][1];
-        if (uds.find(aa) != uds.find(bb)) {
-            uds.merge(aa, bb);
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
         }
     }
 
-    return uds.size;
+    return dsu.size;
 }
 
 int earliestAcq(vector<vector<int>>& logs, int n) {
@@ -131,17 +132,63 @@ int earliestAcq(vector<vector<int>>& logs, int n) {
 
     sort(edges, edges + m);
 
-    DisjointSet uds(n);
+    DisjointSet dsu(n);
     for (int i = 0; i < m; i++) {
         int aa = edges[i].aa;
         int bb = edges[i].bb;
-        if (uds.find(aa) != uds.find(bb)) {
-            uds.merge(aa, bb);
-            if (uds.size == 1) {
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            if (dsu.size == 1) {
                 return edges[i].log;
             }
         }
     }
 
     return -1;
+}
+
+/**
+ * @brief 
+ * 
+ * @param s 
+ * @param pairs 
+ * @return string 
+ */
+string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
+    int n = s.size();
+    int m = pairs.size();
+    DisjointSet dsu(n);
+    for (int i = 0; i < m; i++) {
+        int aa = pairs[i][0];
+        int bb = pairs[i][1];
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            if (dsu.size == 1) break;   // optimize
+        }
+    }
+
+    // group
+    unordered_map<int, vector<int>> groups;
+    for (int i = 0; i < n; i++) {
+        int gid = dsu.find(i);
+        groups[gid].push_back(i);   // ascending order
+    }
+
+    // sort each group and reconstruct min string
+    string res(n, ' ');
+    for (auto group : groups) {
+        // indices to substring
+        vector<char> ss;
+        for (int i = 0; i < group.second.size(); i++) {
+            int idx = group.second[i];
+            ss.push_back(s[idx]);
+        }
+        sort(ss.begin(), ss.end());
+        // add sorted substring to res, note that indices in group are in ascending order
+        for (int i = 0; i < group.second.size(); i++) {
+            res[group.second[i]] = ss[i];
+        }
+    }
+    
+    return res;
 }

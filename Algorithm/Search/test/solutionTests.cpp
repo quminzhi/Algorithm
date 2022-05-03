@@ -202,3 +202,12 @@ TEST(ProblemsTests, earlistAcqTEST) {
     };
     EXPECT_EQ(earliestAcq(logs, 4), 3);
 }
+
+TEST(ProblemTests, smallStringTEST) {
+    vector<vector<int>> pairs = {
+        {0, 3},
+        {1, 2},
+        {0, 2}
+    };
+    EXPECT_EQ(smallestStringWithSwaps("dcab", pairs), "abcd");
+}

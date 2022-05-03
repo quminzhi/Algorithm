@@ -21,5 +21,6 @@ int findCircleNumII(vector<vector<int>>& isConnected);
 bool validTree(int n, vector<vector<int>>& edges);
 int countComponents(int n, vector<vector<int>>& edges);
 int earliestAcq(vector<vector<int>>& logs, int n);
+string smallestStringWithSwaps(string s, vector<vector<int>>& pairs);
 
 #endif
