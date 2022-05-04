@@ -1666,3 +1666,119 @@ string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
     return res;
 }
 ```
+
+### Evaluate Division
+
+> You are given an array of variable pairs equations and an array of real numbers values, where `equations[i] = [Ai, Bi]` and `values[i]` represent the equation `Ai / Bi = values[i]`. Each Ai or Bi is a string that represents a single variable.
+>
+> You are also given some queries, where `queries[j] = [Cj, Dj]` represents the jth query where you must find the answer for `Cj / Dj =` ?.
+>
+> Return the answers to all queries. If a single answer cannot be determined, return -1.0.
+
+To make the problem clear, here is an example
+
+```text
+equations = [["a","b"],["b","c"]], values = [2.0,3.0],
+queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
+
+Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
+```
+
+Note that with the knowledge of `a / b = 2.0` and `b / c = 3.0`, `a / c` can be calculated with `a / b * b / c = 2.0 * 3.0 = 6.0`
+
+Actually, those objects with the property of transition can be modeled with graph. Imagine the equation as a directed graph:
+
+```text
+graph from equation:
+a -> b = 2.0  b -> a = 1 / 2.0 = 0.5
+b -> c = 3.0  c -> b = 1 / 3.0 = 0.3
+```
+
+For queries, if two characters are in a connected graph, it can be calculated. If not, the answer cannot be determined.
+
+The algorithm is:
+
+- map string to int for creating disjoint set.
+- create adjacency list and disjoint set.
+- if two strings in the same graph, calculate the value (dfs).
+
+```c++
+double calcHelper(vector<int>& h, vector<int>& v, vector<double>& w, vector<int>& ne, vector<bool>& visited, int aa,
+                  int bb) {
+    if (aa == bb) {
+        return 1;
+    }
+
+    visited[aa] = true;
+    for (int p = h[aa]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (visited[j]) continue;
+        double t = calcHelper(h, v, w, ne, visited, j, bb);
+        if (t != 0) {
+            return w[p] * t;   // w[p]: weight of aa -> j
+        }
+    }
+
+    return 0;   // indicate fail on this path
+}
+
+vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values,
+                            vector<vector<string>>& queries) {
+    // map string to int for constructing disjoint set
+    unordered_map<string, int> toInt;
+    // adjacency list: m ~ n
+    int m = equations.size();
+    int n = 2 * m;   // at most 2 * m vertexes
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);   // undirected
+    vector<double> w(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    DisjointSet dsu(n);
+    int cntN = 0;   // 0-based
+    for (int i = 0; i < m; i++) {
+        // map to int
+        if (toInt.find(equations[i][0]) == toInt.end()) {
+            toInt[equations[i][0]] = cntN++;
+        }
+        if (toInt.find(equations[i][1]) == toInt.end()) {
+            toInt[equations[i][1]] = cntN++;
+        }
+        // adjacency list
+        int aa = toInt[equations[i][0]];
+        int bb = toInt[equations[i][1]];
+        // a -> b
+        v[idx] = bb;
+        w[idx] = values[i];
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        // b -> a
+        v[idx] = aa;
+        w[idx] = 1 / values[i];
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+        // update dsu
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+        }
+    }
+
+    vector<double> res;
+    for (int i = 0; i < queries.size(); i++) {
+        if (toInt.find(queries[i][0]) == toInt.end() || toInt.find(queries[i][1]) == toInt.end()) {
+            res.push_back(-1);
+            continue;
+        }
+        int aa = toInt[queries[i][0]];
+        int bb = toInt[queries[i][1]];
+        if (dsu.find(aa) != dsu.find(bb)) {
+            res.push_back(-1);
+        } else {
+            vector<bool> visited(n, false);
+            res.push_back(calcHelper(h, v, w, ne, visited, aa, bb));   // dfs in graph
+        }
+    }
+
+    return res;
+}
+```

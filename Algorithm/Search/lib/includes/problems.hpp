@@ -22,5 +22,6 @@ bool validTree(int n, vector<vector<int>>& edges);
 int countComponents(int n, vector<vector<int>>& edges);
 int earliestAcq(vector<vector<int>>& logs, int n);
 string smallestStringWithSwaps(string s, vector<vector<int>>& pairs);
+vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values, vector<vector<string>>& queries);
 
 #endif

@@ -1,8 +1,9 @@
 #include "problems.hpp"
-#include <iostream>
+
 #include <algorithm>
-#include <unordered_set>
+#include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 
 DisjointSet::DisjointSet(int n) {
     size = n;
@@ -26,7 +27,7 @@ int DisjointSet::find(int x) {
 
 /**
  * @brief
- * 
+ *
  * @param isConnected: an adjacency matrix
  * @return int: the number of connected graphs
  */
@@ -71,12 +72,12 @@ int findCircleNumII(vector<vector<int>>& isConnected) {
 }
 
 /**
- * @brief 
- * 
- * @param n 
- * @param edges 
- * @return true 
- * @return false 
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @return true
+ * @return false
  */
 bool validTree(int n, vector<vector<int>>& edges) {
     DisjointSet dsu(n);
@@ -94,11 +95,11 @@ bool validTree(int n, vector<vector<int>>& edges) {
 }
 
 /**
- * @brief 
- * 
- * @param n 
- * @param edges 
- * @return int 
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @return int
  */
 int countComponents(int n, vector<vector<int>>& edges) {
     DisjointSet dsu(n);
@@ -119,9 +120,7 @@ int earliestAcq(vector<vector<int>>& logs, int n) {
         int log;
         int aa;
         int bb;
-        bool operator< (const Edge& e) const {
-            return log < e.log;
-        }
+        bool operator<(const Edge& e) const { return log < e.log; }
     } edges[m];
 
     for (int i = 0; i < m; i++) {
@@ -148,11 +147,11 @@ int earliestAcq(vector<vector<int>>& logs, int n) {
 }
 
 /**
- * @brief 
- * 
- * @param s 
- * @param pairs 
- * @return string 
+ * @brief
+ *
+ * @param s
+ * @param pairs
+ * @return string
  */
 string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
     int n = s.size();
@@ -189,6 +188,94 @@ string smallestStringWithSwaps(string s, vector<vector<int>>& pairs) {
             res[group.second[i]] = ss[i];
         }
     }
-    
+
+    return res;
+}
+
+// calculate the result from aa to bb
+double calcHelper(vector<int>& h, vector<int>& v, vector<double>& w, vector<int>& ne, vector<bool>& visited, int aa,
+                  int bb) {
+    if (aa == bb) {
+        return 1;
+    }
+
+    visited[aa] = true;
+    for (int p = h[aa]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (visited[j]) continue;
+        double t = calcHelper(h, v, w, ne, visited, j, bb);
+        if (t != 0) {
+            return w[p] * t;   // w[p]: weight of aa -> j
+        }
+    }
+
+    return 0;   // indicate fail on this path
+}
+
+/**
+ * @brief disjoint set union
+ *
+ * @param equations
+ * @param values
+ * @param queries
+ * @return vector<double>
+ */
+vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& values,
+                            vector<vector<string>>& queries) {
+    // map string to int for constructing disjoint set
+    unordered_map<string, int> toInt;
+    // adjacency list: m ~ n
+    int m = equations.size();
+    int n = 2 * m;   // at most 2 * m vertexes
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);   // undirected
+    vector<double> w(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    DisjointSet dsu(n);
+    int cntN = 0;   // 0-based
+    for (int i = 0; i < m; i++) {
+        // map to int
+        if (toInt.find(equations[i][0]) == toInt.end()) {
+            toInt[equations[i][0]] = cntN++;
+        }
+        if (toInt.find(equations[i][1]) == toInt.end()) {
+            toInt[equations[i][1]] = cntN++;
+        }
+        // adjacency list
+        int aa = toInt[equations[i][0]];
+        int bb = toInt[equations[i][1]];
+        // a -> b
+        v[idx] = bb;
+        w[idx] = values[i];
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        // b -> a
+        v[idx] = aa;
+        w[idx] = 1 / values[i];
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+        // update dsu
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+        }
+    }
+
+    vector<double> res;
+    for (int i = 0; i < queries.size(); i++) {
+        if (toInt.find(queries[i][0]) == toInt.end() || toInt.find(queries[i][1]) == toInt.end()) {
+            res.push_back(-1);
+            continue;
+        }
+        int aa = toInt[queries[i][0]];
+        int bb = toInt[queries[i][1]];
+        if (dsu.find(aa) != dsu.find(bb)) {
+            res.push_back(-1);
+        } else {
+            vector<bool> visited(n, false);
+            res.push_back(calcHelper(h, v, w, ne, visited, aa, bb));   // dfs in graph
+        }
+    }
+
     return res;
 }
