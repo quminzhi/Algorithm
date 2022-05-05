@@ -279,3 +279,104 @@ vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& v
 
     return res;
 }
+
+/**
+ * @brief
+ *
+ * @param n: 1-based
+ * @param wells: 0-based
+ * @param pipes
+ * @return int
+ */
+int minCostToSupplyWater(int n, vector<int>& wells, vector<vector<int>>& pipes) {
+    int N = n + 1;
+    int m = pipes.size();
+    int inf = 1e5;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = pipes[i][0];
+        int bb = pipes[i][1];
+        int cost = pipes[i][2];
+        g[aa][bb] = g[bb][aa] = min(g[aa][bb], cost);
+    }
+
+    vector<int> dist(N, inf);
+    vector<int> st(N, false);
+    for (int i = 1; i <= n; i++) {
+        dist[i] = wells[i - 1];
+    }
+
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        // find min dist
+        int t = -1;
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && (t == -1 || dist[t] > dist[j])) {
+                t = j;
+            }
+        }
+
+        if (i && dist[t] == inf) return inf;
+
+        // update
+        for (int j = 1; j <= n; j++) {
+            if (!st[j]) {
+                dist[j] = min(dist[j], g[t][j]);
+            }
+        }
+
+        res += dist[t];
+        st[t] = true;
+    }
+
+    return res;
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param wells
+ * @param pipes
+ * @return int
+ */
+int minCostToSupplyWaterII(int n, vector<int>& wells, vector<vector<int>>& pipes) {
+    int N = n + 1;
+    int m = pipes.size();
+    struct Edge {
+        int aa, bb, cost;
+        bool operator<(const Edge& e) const { return cost < e.cost; }
+    } edges[m + n];   // pipe edges + well edges
+
+    for (int i = 0; i < m; i++) {
+        int aa = pipes[i][0];
+        int bb = pipes[i][1];
+        int cost = pipes[i][2];
+        edges[i].aa = aa;
+        edges[i].bb = bb;
+        edges[i].cost = cost;
+    }
+
+    // i points to well, j points to edges
+    for (int i = 1, j = m; i <= n; i++, j++) {
+        edges[j].aa = 0;   // virtual endpoint of well edge
+        edges[j].bb = i;
+        edges[j].cost = wells[i - 1];   // well is 0-based
+    }
+
+    sort(edges, edges + m + n);
+
+    DisjointSet dsu(N);
+    int res = 0;
+    for (int i = 0; i < m + n; i++) {
+        int aa = edges[i].aa;
+        int bb = edges[i].bb;
+        int cost = edges[i].cost;
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            res += cost;
+        }
+    }
+
+    return res;
+}

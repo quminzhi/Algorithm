@@ -1782,3 +1782,116 @@ vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& v
     return res;
 }
 ```
+
+### Optimize Water Distribution in a Village
+
+> There are n houses in a village. We want to supply water for all the houses by building wells and laying pipes.
+>
+> For each house i, we can either build a well inside it directly with cost `wells[i - 1]` (note the -1 due to 0-indexing), or pipe in water from another well to it. The costs to lay pipes between houses are given by the array `pipes` where each `pipes[j] = [house1j, house2j, costj]` represents the cost to connect `house1j` and `house2j` together using a pipe. Connections are bidirectional, and there could be multiple valid connections between the same two houses with different costs.
+>
+> Return the minimum total cost to supply water to all houses.
+
+This is a problem for minimum spinning tree (Prim Algorithm).
+
+We will maintain a vector `minCostPipe[]`, which indicates the min cost for piping in water for `house[i]` from any other houses.
+
+- Prim algorithm
+
+The basic algorithm is :
+
+- there are two kind of ways: building a well inside and laying pipes, where the former can be seen as a special edge (self to self).
+- `dist[]` maintains the min cost of put `house[i]` into the spinning graph.
+- `st[]` check if `house[i]` is selected.
+
+```c++
+int minCostToSupplyWater(int n, vector<int>& wells, vector<vector<int>>& pipes) {
+    int N = n + 1;
+    int m = pipes.size();
+    int inf = 1e5;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = pipes[i][0];
+        int bb = pipes[i][1];
+        int cost = pipes[i][2];
+        g[aa][bb] = g[bb][aa] = min(g[aa][bb], cost);
+    }
+
+    vector<int> dist(N, inf);
+    vector<int> st(N, false);
+    for (int i = 1; i <= n; i++) {
+        dist[i] = wells[i - 1];
+    }
+
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        // find min dist
+        int t = -1;
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && (t == -1 || dist[t] > dist[j])) {
+                t = j;
+            }
+        }
+
+        if (i && dist[t] == inf) return inf;
+
+        // update
+        for (int j = 1; j <= n; j++) {
+            if (!st[j]) {
+                dist[j] = min(dist[j], g[t][j]);
+            }
+        }
+
+        res += dist[t];
+        st[t] = true;
+    }
+
+    return res;
+}
+```
+
+- Kruskal's algorithm
+
+The trick here for self-to-self edge (well edge) is: we treat it as a edge from `0 -> i` rather than `i -> i` (AWESOME).
+
+```c++
+int minCostToSupplyWaterII(int n, vector<int>& wells, vector<vector<int>>& pipes) {
+    int N = n + 1;
+    int m = pipes.size();
+    struct Edge {
+        int aa, bb, cost;
+        bool operator<(const Edge& e) const { return cost < e.cost; }
+    } edges[m + n];   // pipe edges + well edges
+
+    for (int i = 0; i < m; i++) {
+        int aa = pipes[i][0];
+        int bb = pipes[i][1];
+        int cost = pipes[i][2];
+        edges[i].aa = aa;
+        edges[i].bb = bb;
+        edges[i].cost = cost;
+    }
+
+    // i points to well, j points to edges
+    for (int i = 1, j = m; i <= n; i++, j++) {
+        edges[j].aa = 0;   // virtual endpoint of well edge
+        edges[j].bb = i;
+        edges[j].cost = wells[i - 1];   // well is 0-based
+    }
+
+    sort(edges, edges + m + n);
+
+    DisjointSet dsu(N);
+    int res = 0;
+    for (int i = 0; i < m + n; i++) {
+        int aa = edges[i].aa;
+        int bb = edges[i].bb;
+        int cost = edges[i].cost;
+        if (dsu.find(aa) != dsu.find(bb)) {
+            dsu.merge(aa, bb);
+            res += cost;
+        }
+    }
+
+    return res;
+}
+```

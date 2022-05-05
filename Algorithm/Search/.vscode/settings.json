@@ -87,6 +87,7 @@
         "SPFA",
         "SPFATEST",
         "bigraph",
+        "costj",
         "cout",
         "dcab",
         "decltype",

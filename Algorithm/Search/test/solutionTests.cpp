@@ -128,3 +128,15 @@ TEST(ProblemTests, calcEquationTEST) {
     vector<double> res1 = {3.75, 0.4, 5.0, 0.2};
     EXPECT_EQ(calcEquation(equations1, values1, queries1), res1);
 }
+
+TEST(ProblemTests, WaterDistributionTEST) {
+    vector<vector<int>> pipes = {
+        {1, 2, 1},
+        {2, 3, 1}
+    };
+    vector<int> wells = {
+        1, 2, 2
+    };
+    EXPECT_EQ(minCostToSupplyWater(3, wells, pipes), 3);
+    EXPECT_EQ(minCostToSupplyWaterII(3, wells, pipes), 3);
+}
