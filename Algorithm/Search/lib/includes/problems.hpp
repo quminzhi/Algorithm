@@ -26,4 +26,8 @@ vector<double> calcEquation(vector<vector<string>>& equations, vector<double>& v
 int minCostToSupplyWater(int n, vector<int>& wells, vector<vector<int>>& pipes);
 int minCostToSupplyWaterII(int n, vector<int>& wells, vector<vector<int>>& pipes);
 
+/* DFS */
+bool validPath(int n, vector<vector<int>>& edges, int source, int destination);
+vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph);
+
 #endif

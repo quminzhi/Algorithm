@@ -72,6 +72,95 @@ vector<vector<string>> solveNQueens(int n) {
 }
 ```
 
+### Find if Path Exists in Graph
+
+> There is a bi-directional graph with `n` vertices, where each vertex is labeled from `0` to `n - 1` (inclusive). The edges in the graph are represented as a 2D integer array edges, where each `edges[i] = [ui, vi]` denotes a bi-directional edge between vertex `ui` and vertex `vi`. Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+>
+> You want to determine if there is a valid path that exists from vertex source to vertex destination.
+>
+> Given edges and the integers `n`, source, and destination, return true if there is a valid path from source to destination, or false otherwise.
+
+DFS to find path. Label visited vertexes if it has been tried.
+
+```c++
+bool findPathHelper(vector<int>& h, vector<int>& v, vector<int>& ne, vector<bool>& st, int src, int dst) {
+    if (src == dst) {
+        return true;
+    }
+
+    st[src] = true;
+    for (int p = h[src]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!st[j] && findPathHelper(h, v, ne, st, j, dst)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    vector<bool> st(n, false);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    if (findPathHelper(h, v, ne, st, source, destination)) {
+        return true;
+    }
+    return false;
+}
+```
+
+### All Paths From Source to Target
+
+> Given a directed acyclic graph (DAG) of `n` nodes labeled from `0` to `n - 1`, find all possible paths from node `0` to node `n - 1` and return them in any order.
+>
+> The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node `i` (i.e., there is a directed edge from node `i` to node `graph[i][j]`).
+
+Notice that `graph` is actually a adjacency list.
+
+```c++
+void pathSearch(vector<vector<int>>& graph, int src, int dst, vector<bool>& st, vector<int>& path, vector<vector<int>>& res) {
+    if (src == dst) {
+        res.push_back(path);
+        return;
+    }
+
+    st[src] = true;   // label
+    for (auto v : graph[src]) {
+        if (!st[v]) {
+            path.push_back(v);
+            pathSearch(graph, v, dst, st, path, res);
+            path.pop_back();   // restore
+        }
+    }
+    st[src] = false;   // undo label
+
+    return;
+}
+
+vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
+    vector<vector<int>> res;
+    vector<int> path = {0};
+    vector<bool> st(graph.size(), false);
+    pathSearch(graph, 0, graph.size() - 1, st, path, res);
+    return res;
+}
+```
+
 ## Breadth First Search
 
 ### Find Min Path

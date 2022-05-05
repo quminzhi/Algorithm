@@ -380,3 +380,76 @@ int minCostToSupplyWaterII(int n, vector<int>& wells, vector<vector<int>>& pipes
 
     return res;
 }
+
+bool findPathHelper(vector<int>& h, vector<int>& v, vector<int>& ne, vector<bool>& st, int src, int dst) {
+    if (src == dst) {
+        return true;
+    }
+
+    st[src] = true;
+    for (int p = h[src]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!st[j] && findPathHelper(h, v, ne, st, j, dst)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    vector<bool> st(n, false);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    if (findPathHelper(h, v, ne, st, source, destination)) {
+        return true;
+    }
+    return false;
+}
+
+void pathSearch(vector<vector<int>>& graph, int src, int dst, vector<bool>& st, vector<int>& path, vector<vector<int>>& res) {
+    if (src == dst) {
+        res.push_back(path);
+        return;
+    }
+
+    st[src] = true;
+    for (auto v : graph[src]) {
+        if (!st[v]) {
+            path.push_back(v);
+            pathSearch(graph, v, dst, st, path, res);
+            path.pop_back();
+        }
+    }
+    st[src] = false;
+
+    return;
+}
+
+/**
+ * @brief 
+ * 
+ * @param graph 
+ * @return vector<vector<int>> 
+ */
+vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
+    vector<vector<int>> res;
+    vector<int> path = {0};
+    vector<bool> st(graph.size(), false);
+    pathSearch(graph, 0, graph.size() - 1, st, path, res);
+    return res;
+}

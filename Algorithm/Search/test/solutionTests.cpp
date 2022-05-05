@@ -140,3 +140,21 @@ TEST(ProblemTests, WaterDistributionTEST) {
     EXPECT_EQ(minCostToSupplyWater(3, wells, pipes), 3);
     EXPECT_EQ(minCostToSupplyWaterII(3, wells, pipes), 3);
 }
+
+TEST(DFSTests, findPathTEST) {
+    vector<vector<int>> edges = {
+        {0, 1}, {1, 2}, {2, 0}
+    };
+
+    EXPECT_TRUE(validPath(3, edges, 0, 2));
+}
+
+TEST(DFSTests, findAllPathTEST) {
+    vector<vector<int>> graph = {
+        {1, 2}, {3}, {3}, {}
+    };
+    vector<vector<int>> res = {
+        {0, 1, 3}, {0, 2, 3}
+    };
+    EXPECT_EQ(allPathsSourceTarget(graph), res);
+}
