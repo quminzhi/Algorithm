@@ -421,7 +421,8 @@ bool validPath(int n, vector<vector<int>>& edges, int source, int destination) {
     return false;
 }
 
-void pathSearch(vector<vector<int>>& graph, int src, int dst, vector<bool>& st, vector<int>& path, vector<vector<int>>& res) {
+void pathSearch(vector<vector<int>>& graph, int src, int dst, vector<bool>& st, vector<int>& path,
+                vector<vector<int>>& res) {
     if (src == dst) {
         res.push_back(path);
         return;
@@ -441,10 +442,10 @@ void pathSearch(vector<vector<int>>& graph, int src, int dst, vector<bool>& st, 
 }
 
 /**
- * @brief 
- * 
- * @param graph 
- * @return vector<vector<int>> 
+ * @brief
+ *
+ * @param graph
+ * @return vector<vector<int>>
  */
 vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
     vector<vector<int>> res;
@@ -452,4 +453,35 @@ vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
     vector<bool> st(graph.size(), false);
     pathSearch(graph, 0, graph.size() - 1, st, path, res);
     return res;
+}
+
+Node* cloneGraphHelper(unordered_map<Node*, Node*>& copyOf, Node* node) {
+    if (node == nullptr) return nullptr;
+    if (copyOf.find(node) != copyOf.end()) {
+        return copyOf[node];
+    }
+
+    Node* clone = new Node(node->val);
+    copyOf[node] = clone;   // same effect: st[val] = true;
+
+    for (int i = 0; i < node->neighbors.size(); i++) {
+        Node* neighborClone = cloneGraphHelper(copyOf, node->neighbors[i]);
+        clone->neighbors.push_back(neighborClone);
+    }
+
+    return clone;
+}
+
+/**
+ * @brief
+ *
+ * @param node
+ * @return Node*
+ */
+Node* cloneGraph(Node* node) {
+    int N = 110;
+    unordered_map<Node*, Node*> copyOf;
+    Node* clone = cloneGraphHelper(copyOf, node);
+
+    return clone;
 }

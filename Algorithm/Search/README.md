@@ -161,6 +161,86 @@ vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
 }
 ```
 
+Tricks:
+
+- `st[]` only needed in undirected graph.
+
+### Clone Graph
+
+> Given a reference of a node in a connected undirected graph.
+>
+> Return a deep copy (clone) of the graph.
+>
+> Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+
+Following code explains why `st[]` is not sufficient in cloning a graph, since when a vertex has been cloned, we have no idea where it is (pointer) and get lost.
+
+```c++
+// BAD CODE
+Node* cloneGraphHelper(vector<bool>& st, Node* node) {
+    if (node == nullptr) return nullptr;
+    if (st[node->val]) return ???;   // <---
+    st[node->val] = true;   // if the node has been cloned
+
+    Node* clone = new Node(node->val);
+
+    for (int i = 0; i < node->neighbors.size(); i++) {
+        Node* neighborClone = cloneGraphHelper(st, node->neighbors[i]);
+        clone->neighbors.push_back(neighborClone);
+    }
+
+    return clone;
+}
+
+/**
+ * @brief
+ *
+ * @param node
+ * @return Node*
+ */
+Node* cloneGraph(Node* node) {
+    int N = 110;
+    vector<bool> st(N, false);
+    Node* clone = cloneGraphHelper(st, node);
+
+    return clone;
+}
+```
+
+To store the corresponding clone vertex, we will create a map `copyOf` to replace `st`, mapping from node in graph to node in clone graph.
+
+```c++
+Node* cloneGraphHelper(unordered_map<Node*, Node*>& copyOf, Node* node) {
+    if (node == nullptr) return nullptr;
+    if (copyOf.find(node) != copyOf.end()) {
+        return copyOf[node];
+    }
+
+    Node* clone = new Node(node->val);
+    copyOf[node] = clone;   // same effect: st[val] = true;
+
+    for (int i = 0; i < node->neighbors.size(); i++) {
+        Node* neighborClone = cloneGraphHelper(copyOf, node->neighbors[i]);
+        clone->neighbors.push_back(neighborClone);
+    }
+
+    return clone;
+}
+
+Node* cloneGraph(Node* node) {
+    int N = 110;
+    unordered_map<Node*, Node*> copyOf;
+    Node* clone = cloneGraphHelper(copyOf, node);
+
+    return clone;
+}
+```
+
+### Reconstruct Itinerary
+
+
+
+
 ## Breadth First Search
 
 ### Find Min Path

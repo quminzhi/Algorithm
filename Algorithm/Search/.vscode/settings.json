@@ -99,6 +99,7 @@
         "mlog",
         "mlogn",
         "nlogn",
+        "nullptr",
         "struct",
         "topo"
     ]
