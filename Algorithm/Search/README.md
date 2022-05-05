@@ -236,10 +236,78 @@ Node* cloneGraph(Node* node) {
 }
 ```
 
-### Reconstruct Itinerary
+### All Paths from Source Lead to Destination
 
+> Given the edges of a directed graph where `edges[i] = [ai, bi]` indicates there is an edge between nodes `ai` and `bi`, and two nodes source and destination of this graph, determine whether or not all paths starting from source eventually end at destination, that is:
+>
+> - At least one path exists from the source node to the destination node.
+> - If a path exists from the source node to a node with no outgoing edges, then that node is equal to destination.
+> - The number of possible paths from source to destination is a finite number.
+>
+> Return true if and only if all roads from source lead to destination.
 
+DFS finds all paths. If there is a path not ending with destination, return false.
 
+```c++
+bool allPathsToDst(vector<int>& h, vector<int>& v, vector<int>& ne, vector<bool>& st, int src, int dst) {
+    // destination and target
+    if (h[src] == -1 && src == dst) {
+        return true;
+    }
+    // destination but not target
+    if (h[src] == -1) {
+        return false;
+    }
+
+    st[src] = true;
+    for (int p = h[src]; p != -1; p = ne[p]) {
+        int j = v[p];
+        if (!st[j] && allPathsToDst(h, v, ne, st, j, dst)) {
+            continue;
+        } else {
+            return false;   // bad path found
+        }
+    }
+    st[src] = false;
+
+    return true;
+}
+
+/**
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @param source
+ * @param destination
+ * @return true
+ * @return false
+ */
+bool leadsToDestination(int n, vector<vector<int>>& edges, int source, int destination) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+    }
+
+    vector<bool> st(n, false);
+    if (allPathsToDst(h, v, ne, st, source, destination)) {
+        return true;
+    }
+    return false;
+}
+```
+
+Tricks:
+
+- Check if a vertex (node) is a destination (out degree is zero).
 
 ## Breadth First Search
 

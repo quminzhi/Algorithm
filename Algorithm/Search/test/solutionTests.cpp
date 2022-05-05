@@ -158,3 +158,30 @@ TEST(DFSTests, findAllPathTEST) {
     };
     EXPECT_EQ(allPathsSourceTarget(graph), res);
 }
+
+TEST(DFSTests, leadsToDestinationTEST) {
+    vector<vector<int>> edges = {
+        {0, 1}, {0, 2}
+    };
+    EXPECT_FALSE(leadsToDestination(3, edges, 0, 2));
+
+    vector<vector<int>> edges1 = {
+        {0, 1}, {1, 1}
+    };
+    EXPECT_FALSE(leadsToDestination(2, edges1, 0, 1));
+
+    vector<vector<int>> edges2 = {
+        {0, 1}, {0, 3}, {1, 2}, {2, 1}
+    };
+    EXPECT_FALSE(leadsToDestination(4, edges2, 0, 3));
+
+    vector<vector<int>> edges3 = {
+        {0, 1}, {0, 2}, {1, 3}, {2, 3}
+    };
+    EXPECT_TRUE(leadsToDestination(4, edges3, 0, 3));
+
+    vector<vector<int>> edges4 = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 4}
+    };
+    EXPECT_FALSE(leadsToDestination(5, edges4, 0, 3));
+}
