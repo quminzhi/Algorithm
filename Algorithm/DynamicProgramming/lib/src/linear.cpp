@@ -3,6 +3,7 @@
 #include <iostream>
 #include <queue>
 #include <string>
+#include <unordered_set>
 
 /**
  * @brief f[i] = max(f[j] if i < j or f[j] + 1 if i >= j), where 0 <= j < i
@@ -103,7 +104,7 @@ int LongestCommonSubsequence(string sl, string sr) {
     for (int i = 1; i <= sl.size(); i++) {
         for (int j = 1; j <= sr.size(); j++) {
             f[i][j] = max(f[i - 1][j], f[i][j - 1]);
-            if (sl[i - 1] == sr[j - 1]) { // 1-based
+            if (sl[i - 1] == sr[j - 1]) {   // 1-based
                 f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
             }
         }
@@ -361,8 +362,7 @@ int ShortestHamiltonPath(vector<vector<int> > graph) {
                     for (int k = 0; k < graph.size(); k++) {
                         if ((state - (1 << j)) >> k & 1) {
                             // find all possible k directely connected to the j
-                            f[state][j] =
-                                min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
+                            f[state][j] = min(f[state][j], f[state - (1 << j)][k] + graph[k][j]);
                         }
                     }
                 }
@@ -429,8 +429,7 @@ int dfs_skating(vector<vector<int> >& f, vector<vector<int> >& h, int x, int y) 
     for (int i = 0; i < 4; i++) {
         int nx = x + dir_x[i];
         int ny = y + dir_y[i];
-        if (nx >= 0 && nx < h.size() && ny >= 0 && ny < h[0].size() &&
-            h[x][y] > h[nx][ny]) {
+        if (nx >= 0 && nx < h.size() && ny >= 0 && ny < h[0].size() && h[x][y] > h[nx][ny]) {
             f[x][y] = max(f[x][y], dfs_skating(f, h, nx, ny) + 1);
         }
     }
@@ -461,12 +460,12 @@ int Skating(vector<vector<int> > h) {
 
 /**
  * @brief return the idx of the first element less or equal than x
- * 
+ *
  * we can achieve it with binary search since monotonic of f[].
- * 
- * @param f 
- * @param x 
- * @return int 
+ *
+ * @param f
+ * @param x
+ * @return int
  */
 int biSearch(vector<int>& f, int x) {
     int l = 0;
@@ -485,9 +484,9 @@ int biSearch(vector<int>& f, int x) {
 
 /**
  * @brief define f[i] as the minimum ending element of subsequence with length of i.
- * 
- * @param nums 
- * @return int 
+ *
+ * @param nums
+ * @return int
  */
 int lengthOfLISII(vector<int>& nums) {
     vector<int> f(nums.size() + 1, 1e6);
@@ -513,12 +512,12 @@ int lengthOfLISII(vector<int>& nums) {
 }
 
 /**
- * @brief 
- * 
- * @param nums 
- * @param k 
- * @param p 
- * @return int 
+ * @brief
+ *
+ * @param nums
+ * @param k
+ * @param p
+ * @return int
  */
 int countDistinct(vector<int>& nums, int k, int p) {
     unordered_set<string> memo;
@@ -546,4 +545,31 @@ int countDistinct(vector<int>& nums, int k, int p) {
     }
 
     return f[nums.size()];
+}
+
+/**
+ * @brief
+ *
+ * @param nums
+ * @return int
+ */
+int maxProduct(vector<int>& nums) {
+    int n = nums.size();
+    int mmax = nums[0];
+    int mmin = nums[0];
+    int res = nums[0];
+    for (int i = 1; i < n; i++) {
+        int lastmax = mmax;
+        int lastmin = mmin;
+        if (nums[i] > 0) {
+            mmax = max(nums[i], nums[i] * lastmax);
+            mmin = min(nums[i], nums[i] * lastmin);
+        } else {
+            mmax = max(nums[i], nums[i] * lastmin);
+            mmin = min(nums[i], nums[i] * lastmax);
+        }
+        res = max(res, mmax);
+    }
+
+    return res;
 }

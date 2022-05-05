@@ -1165,6 +1165,96 @@ Tricks:
 
 - Range deduction
 
+### Maximum Product Subarray
+
+> Given an integer array `nums`, find a contiguous non-empty subarray within the array that has the largest product, and return the product.
+>
+> The test cases are generated so that the answer will fit in a 32-bit integer.
+>
+> A subarray is a contiguous subsequence of the array.
+
+Define `f[i]` as the max product of subarray ending with `i`.
+
+Deduction:
+    - when `nums[i]` is a positive number, `f[i] = nums[i] * f[i-1]`
+    - when `nums[i]` is a negative number, `f[i] = nums[i] * (min negative ending with i)`. So we need define a new function `g` for min product.
+
+- basic
+
+```c++
+int n = nums.size();
+    vector<int> mmax(n, 0);
+    vector<int> mmin(n, 0);
+    mmax[0] = mmin[0] = nums[0];
+    for (int i = 1; i < n; i++) {
+        if (nums[i] > 0) {
+            mmax[i] = max(nums[i], nums[i] * mmax[i - 1]);
+            mmin[i] = min(nums[i], nums[i] * mmin[i - 1]);
+        } else {
+            mmax[i] = max(nums[i], nums[i] * mmin[i - 1]);
+            mmin[i] = min(nums[i], nums[i] * mmax[i - 1]);
+        }
+    }
+
+    int res = -1e6;
+    for (int i = 0; i < n; i++) {
+        res = max(res, mmax[i]);
+    }
+
+    return res;
+```
+
+- state compression
+
+If we do not care about the middle calculation, we can use two variables to replace two arrays.
+
+```c++
+int maxProduct(vector<int>& nums) {
+    int n = nums.size();
+    int mmax = nums[0];
+    int mmin = nums[0];
+    int res = nums[0];
+    for (int i = 1; i < n; i++) {
+        int lastmax = mmax;
+        int lastmin = mmin;
+        if (nums[i] > 0) {
+            mmax = max(nums[i], nums[i] * lastmax);
+            mmin = min(nums[i], nums[i] * lastmin);
+        } else {
+            mmax = max(nums[i], nums[i] * lastmin);
+            mmin = min(nums[i], nums[i] * lastmax);   // <-- rely on old mmax
+        }
+        res = max(res, mmax);
+    }
+
+    return res;
+}
+```
+
+IMPORTANT NOTE: Why `lastmin` and `lastmax` rather than using `mmax` and `mmin` directly? Because update for `mmin` relies on the old value of `mmax`. If we update `mmax` first without storing the old value, the derivation is invalid. Following code implies the nature of this fact.
+
+```c++
+int maxProduct(vector<int>& nums) {
+    int n = nums.size();
+    int mmax = nums[0];
+    int mmin = nums[0];
+    int res = nums[0];
+    for (int i = 1; i < n; i++) {
+        int lastmax = mmax;
+        if (nums[i] > 0) {
+            mmax = max(nums[i], nums[i] * mmax);
+            mmin = min(nums[i], nums[i] * mmin);
+        } else {
+            mmax = max(nums[i], nums[i] * mmin);
+            mmin = min(nums[i], nums[i] * lastmax);   // <-- special
+        }
+        res = max(res, mmax);
+    }
+
+    return res;
+}
+```
+
 ## Count Dynamic Programming
 
 ### Integer Division
