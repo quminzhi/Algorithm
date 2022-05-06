@@ -661,3 +661,84 @@ int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
 
     return -1;
 }
+
+/**
+ * @brief 
+ * 
+ * @param root 
+ * @return vector<vector<int>> 
+ */
+vector<vector<int>> levelOrder(Node* root) {
+    if (root == nullptr) return {};
+    vector<vector<int>> res;
+    queue<Node*> que;
+    que.push(root);
+    res.push_back({root->val});
+    while (!que.empty()) {
+        int sz = que.size();
+        vector<int> levelNodes;
+        for (int i = 0; i < sz; i++) {
+            Node* cur = que.front();
+            que.pop();
+            for (Node* child : cur->neighbors) {
+                if (child != nullptr) {
+                    que.push(child);
+                    levelNodes.push_back(child->val);
+                }
+            }
+        }
+    }
+
+    return res;
+}
+
+/**
+ * @brief 
+ * 
+ * @param grid 
+ * @return int 
+ */
+int orangesRotting(vector<vector<int>>& grid) {
+    int m = grid.size();
+    int n = grid[0].size();
+    const vector<int> dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+    typedef pair<int, int> PII;
+    queue<PII> que;
+    int freshTotal = 0;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == 2) {
+                que.push({i, j});
+            }
+            if (grid[i][j] == 1) freshTotal++;
+        }
+    }
+
+    // if no oranges, return 0
+    if (que.size() == 0 && freshTotal == 0) return 0;
+
+    int timeElapsed = 0;
+    while (!que.empty()) {
+        timeElapsed++;
+        int sz = que.size();
+        for (int i = 0; i < sz; i++) {
+            PII cur = que.front();
+            que.pop();
+            int x = cur.first, y = cur.second;
+            for (int i = 0; i < dx.size(); i++) {
+                int nx = x + dx[i], ny = y + dy[i];
+                if (nx >= 0 && nx < m && ny >= 0 && ny < n && grid[nx][ny] == 1) {
+                    freshTotal--;
+                    grid[nx][ny] = 2;
+                    que.push({nx, ny});
+                }
+            }
+        }
+    }
+
+    if (freshTotal == 0) {   // no fresh orange available
+        return timeElapsed - 1;
+    }
+    return -1;
+}

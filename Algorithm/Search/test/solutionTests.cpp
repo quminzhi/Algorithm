@@ -200,3 +200,12 @@ TEST(BFSTests, shortestBinaryMatrixTEST) {
     };
     EXPECT_EQ(shortestPathBinaryMatrix(grid1), -1);
 }
+
+TEST(BFSTests, rottingOrangeTEST) {
+    vector<vector<int>> grid {
+        {2, 1, 1},
+        {1, 1, 0},
+        {0, 1, 1}
+    };
+    EXPECT_EQ(orangesRotting(grid), 4);
+}

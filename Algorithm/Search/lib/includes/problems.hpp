@@ -56,5 +56,7 @@ bool leadsToDestination(int n, vector<vector<int>>& edges, int source, int desti
 bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination);
 vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph);
 int shortestPathBinaryMatrix(vector<vector<int>>& grid);
+vector<vector<int>> levelOrder(Node* root);
+int orangesRotting(vector<vector<int>>& grid);
 
 #endif

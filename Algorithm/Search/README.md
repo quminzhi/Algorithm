@@ -551,6 +551,101 @@ int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
 }
 ```
 
+### N-ary Tree Level Order Traversal
+
+> Given an n-ary tree, return the level order traversal of its nodes' values.
+>
+> Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+
+Output the level order traversal of N-ary tree.
+
+```c++
+vector<vector<int>> levelOrder(Node* root) {
+    if (root == nullptr) return {};
+    vector<vector<int>> res;
+    queue<Node*> que;
+    que.push(root);
+    res.push_back({root->val});
+    while (!que.empty()) {
+        int sz = que.size();
+        vector<int> levelNodes;
+        for (int i = 0; i < sz; i++) {
+            Node* cur = que.front();
+            que.pop();
+            for (Node* child : cur->children) {
+                if (child != nullptr) {
+                    que.push(child);
+                    levelNodes.push_back(child->val);
+                }
+            }
+        }
+    }
+
+    return res;
+}
+```
+
+### Rotting Oranges
+
+> You are given an m x n grid where each cell can have one of three values:
+>
+> - 0 representing an empty cell,
+> - 1 representing a fresh orange, or
+> - 2 representing a rotten orange.
+>
+> Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
+>
+> Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.
+
+BFS labels each level (minute).
+
+```c++
+int orangesRotting(vector<vector<int>>& grid) {
+    int m = grid.size();
+    int n = grid[0].size();
+    const vector<int> dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+    typedef pair<int, int> PII;
+    queue<PII> que;
+    int freshTotal = 0;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == 2) {
+                que.push({i, j});
+            }
+            if (grid[i][j] == 1) freshTotal++;
+        }
+    }
+
+    // if no oranges, return 0
+    if (que.size() == 0 && freshTotal == 0) return 0;
+
+    int timeElapsed = 0;
+    while (!que.empty()) {
+        timeElapsed++;
+        int sz = que.size();
+        for (int i = 0; i < sz; i++) {
+            PII cur = que.front();
+            que.pop();
+            int x = cur.first, y = cur.second;
+            for (int i = 0; i < dx.size(); i++) {
+                int nx = x + dx[i], ny = y + dy[i];
+                if (nx >= 0 && nx < m && ny >= 0 && ny < n && grid[nx][ny] == 1) {
+                    freshTotal--;
+                    grid[nx][ny] = 2;
+                    que.push({nx, ny});
+                }
+            }
+        }
+    }
+
+    if (freshTotal == 0) {   // no fresh orange available
+        return timeElapsed - 1;
+    }
+    return -1;
+}
+```
+
 ## Graph
 
 ### Representation
