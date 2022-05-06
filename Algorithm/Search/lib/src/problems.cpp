@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <queue>
 
 DisjointSet::DisjointSet(int n) {
     size = n;
@@ -537,4 +538,84 @@ bool leadsToDestination(int n, vector<vector<int>>& edges, int source, int desti
         return true;
     }
     return false;
+}
+
+/**
+ * @brief 
+ * 
+ * @param n 
+ * @param edges 
+ * @param source 
+ * @param destination 
+ * @return true 
+ * @return false 
+ */
+bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    queue<int> que;
+    vector<bool> st(n, false);
+    que.push(source);
+    bool found = false;
+    while (!que.empty()) {
+        int cur = que.front();
+        que.pop();
+        st[cur] = true;
+
+        if (cur == destination) {
+            found = true;
+            break;
+        }
+
+        for (int p = h[cur]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (st[j]) continue;
+            que.push(j);
+        }
+    }
+
+    return found;
+}
+
+/**
+ * @brief 
+ * 
+ * @param graph 
+ * @return vector<vector<int>> 
+ */
+vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph) {
+    queue<vector<int>> que;   // push path
+    vector<vector<int>> paths;
+    int dst = graph.size() - 1;
+    que.push({0});
+    while (!que.empty()) {
+        vector<int> cur = que.front();
+        que.pop();
+        int last = cur[cur.size() - 1];
+        for (int ver : graph[last]) {
+            cur.push_back(ver);
+            if (ver == dst) {
+                paths.push_back(cur);   // found
+            } else {
+                que.push(cur);
+            }
+            cur.pop_back();
+        }
+    }
+
+    return paths;
 }

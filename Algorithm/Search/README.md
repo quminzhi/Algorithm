@@ -165,6 +165,10 @@ Tricks:
 
 - `st[]` only needed in undirected graph.
 
+IMPORTANT: DIFFERENCE between finding all paths and one path.
+
+- `st[]` is used for preventing infinite loop in the case of bi-directional graph for both cases. But we need restore the state of `st[]` in finding all paths. If not, we cannot use nodes in found path for finding new path.
+
 ### Clone Graph
 
 > Given a reference of a node in a connected undirected graph.
@@ -247,6 +251,8 @@ Node* cloneGraph(Node* node) {
 > Return true if and only if all roads from source lead to destination.
 
 DFS finds all paths. If there is a path not ending with destination, return false.
+
+The basic idea is: all paths from `source` to `destination` is true if all paths from source's neighbors to `destination` are true, and false otherwise.
 
 ```c++
 bool allPathsToDst(vector<int>& h, vector<int>& v, vector<int>& ne, vector<bool>& st, int src, int dst) {
@@ -380,6 +386,92 @@ Tricks:
 
 - record path by making a stamp on each point to indicate its previous point.
 - direction vector.
+
+### Find if Path Exists in Graph BFS
+
+> There is a bi-directional graph with `n` vertices, where each vertex is labeled from `0` to `n - 1` (inclusive). The edges in the graph are represented as a 2D integer array edges, where each `edges[i] = [ui, vi]` denotes a bi-directional edge between vertex `ui` and vertex `vi`. Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+>
+> You want to determine if there is a valid path that exists from vertex source to vertex destination.
+>
+> Given edges and the integers n, source, and destination, return true if there is a valid path from source to destination, or false otherwise.
+
+BFS finds path.
+
+```c++
+bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination) {
+    int m = edges.size();
+    int idx = 0;
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (int i = 0; i < m; i++) {
+        int aa = edges[i][0];
+        int bb = edges[i][1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    queue<int> que;
+    vector<bool> st(n, false);
+    que.push(source);
+    bool found = false;
+    while (!que.empty()) {
+        int cur = que.front();
+        que.pop();
+        st[cur] = true;
+
+        if (cur == destination) {
+            found = true;
+            break;
+        }
+
+        for (int p = h[cur]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (st[j]) continue;
+            que.push(j);
+        }
+    }
+
+    return found;
+}
+```
+
+### All Paths From Source to Target BFS
+
+> Given a directed acyclic graph (DAG) of n nodes labeled from 0 to n - 1, find all possible paths from node 0 to node n - 1 and return them in any order.
+>
+> The graph is given as follows: `graph[i]` is a list of all nodes you can visit from node i (i.e., there is a directed edge from node i to node `graph[i][j]`).
+
+Notice that BFS searches all paths only works for DAG in following code: (what we push into the queue is path not vertex)
+
+```c++
+vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph) {
+    queue<vector<int>> que;   // push path
+    vector<vector<int>> paths;
+    int dst = graph.size() - 1;
+    que.push({0});
+    while (!que.empty()) {
+        vector<int> cur = que.front();
+        que.pop();
+        int last = cur[cur.size() - 1];
+        for (int ver : graph[last]) {
+            cur.push_back(ver);
+            if (ver == dst) {
+                paths.push_back(cur);   // found
+            } else {
+                que.push(cur);
+            }
+            cur.pop_back();
+        }
+    }
+
+    return paths;
+}
+```
 
 ## Graph
 
