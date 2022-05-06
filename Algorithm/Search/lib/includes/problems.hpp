@@ -55,5 +55,6 @@ bool leadsToDestination(int n, vector<vector<int>>& edges, int source, int desti
 /* BFS */
 bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination);
 vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph);
+int shortestPathBinaryMatrix(vector<vector<int>>& grid);
 
 #endif

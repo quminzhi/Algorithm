@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <queue>
 #include <unordered_map>
 #include <unordered_set>
-#include <queue>
 
 DisjointSet::DisjointSet(int n) {
     size = n;
@@ -541,14 +541,14 @@ bool leadsToDestination(int n, vector<vector<int>>& edges, int source, int desti
 }
 
 /**
- * @brief 
- * 
- * @param n 
- * @param edges 
- * @param source 
- * @param destination 
- * @return true 
- * @return false 
+ * @brief
+ *
+ * @param n
+ * @param edges
+ * @param source
+ * @param destination
+ * @return true
+ * @return false
  */
 bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination) {
     int m = edges.size();
@@ -592,10 +592,10 @@ bool validPathBFS(int n, vector<vector<int>>& edges, int source, int destination
 }
 
 /**
- * @brief 
- * 
- * @param graph 
- * @return vector<vector<int>> 
+ * @brief
+ *
+ * @param graph
+ * @return vector<vector<int>>
  */
 vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph) {
     queue<vector<int>> que;   // push path
@@ -618,4 +618,46 @@ vector<vector<int>> allPathsSourceTargetBFS(vector<vector<int>>& graph) {
     }
 
     return paths;
+}
+
+/**
+ * @brief
+ *
+ * @param grid
+ * @return int
+ */
+int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+    int m = grid.size();
+    int n = grid[0].size();
+    const vector<int> dx = {-1, -1, -1, 0, 0, 1, 1, 1};
+    const vector<int> dy = {-1, 0, 1, -1, 1, -1, 0, 1};
+    int nDir = dx.size();
+    typedef pair<int, int> PII;
+    queue<PII> que;
+    vector<vector<bool>> st(m, vector<bool>(n, false));
+    int step = 0;
+    if (grid[0][0] == 1 || grid[m - 1][n - 1] == 1) {
+        return -1;
+    }
+    que.push({0, 0});
+    while (!que.empty()) {
+        int sz = que.size();
+        if (sz != 0) step++;
+        for (int i = 0; i < sz; i++) {
+            PII cur = que.front();
+            que.pop();
+            int x = cur.first, y = cur.second;
+            if (x == m - 1 && y == n - 1) return step;
+            st[x][y] = true;
+            for (int i = 0; i < nDir; i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (nx >= 0 && nx < m && ny >= 0 && ny < n && !st[nx][ny] && grid[nx][ny] == 0) {
+                    que.push({nx, ny});
+                }
+            }
+        }
+    }
+
+    return -1;
 }

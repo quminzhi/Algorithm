@@ -185,3 +185,18 @@ TEST(DFSTests, leadsToDestinationTEST) {
     };
     EXPECT_FALSE(leadsToDestination(5, edges4, 0, 3));
 }
+
+TEST(BFSTests, shortestBinaryMatrixTEST) {
+    vector<vector<int>> grid = {
+        {0, 1},
+        {1, 0}
+    };
+    EXPECT_EQ(shortestPathBinaryMatrix(grid), 2);
+
+    vector<vector<int>> grid1 = {
+        {1, 0, 0},
+        {1, 1, 0},
+        {1, 1, 0}
+    };
+    EXPECT_EQ(shortestPathBinaryMatrix(grid1), -1);
+}
