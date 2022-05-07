@@ -1076,7 +1076,7 @@ The code of optimized Dijkstra:
 int minPathDijkstraHeap(int n, vector<vector<int>>& edges) {
     int N = n + 1;
     int m = edges.size();
-    int inf = 1e6;
+    int inf = 1e9;
     int idx = 0;
     vector<int> head(N, -1);
     vector<int> v(m, 0);
@@ -1212,14 +1212,14 @@ Notice that negative path is allowed in Bellman-Ford algorithm. But when using i
 How to understand Bellman-Ford Algorithm?
 
 ```text
-for v in all vertexes   // iterate n times
+for v in all vertexes except origin  // iterate n - 1 times
     for e in all edges   // e: a -> b with weight w
         dist[b] = min(dist[b], dist[a] + w)   // relax
 
 dist[i] represents the min path from origin to ith vertex so far.
 ```
 
-**IMPORTANT: after kth outmost loop, we got the min path from origin to ith vertex through at most k edges.** Each time we relax a vertex with an edge, then number of the edge on the min path add `1` if relaxation successes (`dist[b] > dist[a] + w`, so the min path must include `edge[a][b]`).
+**IMPORTANT: after kth outmost loop, we got the min path from origin to ith vertex through at most k edges.** Each time we relax a vertex with an edge, then number of the edge on the min path add `1` if relaxation succeeds (`dist[b] > dist[a] + w`, so the min path must include `edge[a][b]`).
 
 **This (Controlling K) is how Bellman-Ford algorithm solves negative edges.**
 
@@ -1259,7 +1259,7 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
         }
     }
 
-    if (dist[n - 1] >= (inf >> 1)) {   // weird!
+    if (dist[n - 1] >= (inf >> 1)) {   // negative edge!
         return -1;
     } else {
         return dist[n - 1];
@@ -1272,11 +1272,11 @@ int minPathBellman(int n, vector<vector<int>>& edges, int k) {
 Notice SPFA update in a heuristic way, meaning update those should be updated, whereas Bellman-Ford relaxes vertexes without any constraint, which may causing vertex(a) update vertex(b) when there is a negative edge between them even though both `dist[a]` and `dist[b]` are `inf`.
 
 ```text
-dist[a] = inf
-   +--...--- a
-origin       | -10
-   +--...--- b
-dist[b] = inf
+             dist[a] = inf
+   +--..........................--- a
+origin                              | -10
+   +--..........................--- b
+             dist[b] = inf
 
 for each loop, dist[b] = dist[a] - 10 = inf - 10
 it is even worth when there is a edge from b to a with weight -10 (meaning negative loop), in that case, dist[a] or dist[b] may be go down to a negative number. Bellman-Ford algorithm prevent that from happening.
@@ -1289,7 +1289,7 @@ Shortest Path Faster Algorithm (SPFA) is an optimized Bellman-Ford algorithm.
 First, let's see where can be optimized in Bellman-Ford algorithm.
 
 ```text
-for v in all vertexes
+for v in all vertexes except origin   // n - 1 times
     for e in all edges   // <-- trivial
         dist[b] = min(dist[b], dist[a] + w)   // relax
 
@@ -1301,7 +1301,7 @@ We do not need to traverse all edges. Recall from Dijkstra algorithm, we just ne
 With this idea in mind, we will use a `queue` to store those newly-updated vertex which will be used to update their adjacent vertexes.
 
 ```text
-for v in all vertexes   // update at most v.size time
+for v in all vertexes except origin
     while queue not empty
         for v in queue   // solve by level (round)
             for e in adjacent edges of v   // like bfs
@@ -1333,7 +1333,7 @@ int minPathSPFA(int n, vector<vector<int>>& edges) {
 
     int inf = 1e6;
     vector<int> dist(N, inf);
-    vector<bool> st(N, false);   // prevent there are multiple edges on two adjacent vertexes.
+    vector<bool> st(N, false);
     queue<int> que;
     // push origin vertex into queue
     dist[1] = 0;
@@ -1362,7 +1362,7 @@ int minPathSPFA(int n, vector<vector<int>>& edges) {
 }
 ```
 
-Why use `st[]` to track if a vertex is in the queue, i.e. it can be used to update adjacent vertexes?
+IMPORTANT: `st[]` is used for track if a vertex is in the queue as a newly-updated vertex, but why `st[]`? KEEP UNIQUE.
 
 Imagine following case:
 
@@ -1380,7 +1380,22 @@ vertex: 1  2  3
 
 answer: dist[3] = 4
 
-When using vertex 1 to relax 2, 2 will be pushed into queue nearly 100000 times horribly.
+When using vertex 1 to relax 2, 2 will be pushed into queue nearly 100000 times, which is horrible.
+```
+
+To fix the problem above, we keep to relax two vertexes with multiple edges (`dist[j] = dist[ver] + w[p]`) and only one end vertex (`bb`) is put into the queue (`if (!st[j]) {...}`).
+
+```c++
+for (int p = h[ver]; p != -1; p = ne[p]) {
+    int j = v[p];
+    if (dist[ver] + w[p] < dist[j]) {
+        dist[j] = dist[ver] + w[p];
+        if (!st[j]) {
+            que.push(j);
+            st[j] = true;
+        }
+    }
+}
 ```
 
 Without `st[]` to track if vertex 1 is in the queue, nearly 100000 repeated 1 will be in the queue. The time complexity is `O(mul(k[i]))`, `k[i]` is the number of adjacent edges (including repeats) vertex `i` has. With `st[]`, we can reduce repeats to unique path.
@@ -1430,7 +1445,7 @@ bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
             if (dist[ver] + w[p] < dist[j]) {
                 dist[j] = dist[ver] + w[p];
                 counter[j] = counter[ver] + 1;
-                if (counter[j] >= n) return true;   <== check
+                if (counter[j] >= n) return true;   // <== check
                 if (!st[j]) {
                     q.push(j);
                     st[j] = true;
@@ -1479,6 +1494,7 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
         i++;
         if (i > limit) break;   // control path length
         int sz = que.size();
+        vector<int> backup(dist.begin(), dist.end());
         for (int k = 0; k < sz; k++) {   // solve by level
             int ver = que.front();
             que.pop();
@@ -1486,8 +1502,8 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
             // relaxation
             for (int p = h[ver]; p != -1; p = ne[p]) {
                 int j = v[p];
-                if (dist[ver] + w[p] < dist[j]) {
-                    dist[j] = dist[ver] + w[p];
+                if (backup[ver] + w[p] < dist[j]) {
+                    dist[j] = backup[ver] + w[p];
                     if (!st[j]) {
                         que.push(j);
                         st[j] = true;
@@ -1555,6 +1571,169 @@ int minPathFloyd(int n, vector<vector<int>>& edges) {
     if (d[1][n] > (inf >> 1)) return -1;
     return d[1][n];
 }
+```
+
+### Network Delay Time
+
+> You are given a network of n nodes, labeled from 1 to n. You are also given times, a list of travel times as directed edges `times[i] = (ui, vi, wi)`, where `ui` is the source node, `vi` is the target node, and `wi` is the time it takes for a signal to travel from source to target.
+>
+> We will send a signal from a given node `k`. Return the time it takes for all the n nodes to receive the signal. If it is impossible for all the n nodes to receive the signal, return -1.
+
+Since all edges in the network graph are positive and it is an directed graph, we can solve the problem with Dijkstra algorithm.
+
+```c++
+int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+    int N = n + 1;
+    int m = times.size();
+    int inf = 1e9;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = times[i][0];
+        int bb = times[i][1];
+        int wt = times[i][2];
+        g[aa][bb] = min(g[aa][bb], wt);
+    }
+
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);
+    typedef pair<int, int> PII;
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    dist[k] = 0;
+    pq.push({dist[k], k});
+    
+    while (!pq.empty()) {
+        auto cur = pq.top();
+        pq.pop();
+        int ver = cur.second;
+        if (st[ver]) continue;
+        st[ver] = true;
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && dist[ver] + g[ver][j] < dist[j]) {
+                dist[j] = dist[ver] + g[ver][j];
+                pq.push({dist[j], j});
+            }
+        }
+    }
+
+    int idx = -1;
+    for (int i = 1; i <= n; i++) {
+        if (idx == -1 || dist[i] > dist[idx]) {
+            idx = i;
+        }
+    }
+
+    return dist[idx] == inf ? -1 : dist[idx];
+}
+```
+
+### Cheapest Flights Within K Stops
+
+> There are n cities connected by some number of flights. You are given an array flights where `flights[i] = [fromi, toi, pricei]` indicates that there is a flight from city `fromi` to city `toi` with cost `pricei`.
+>
+> You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+
+If we want to control the length of path, SPFA is a great choice.
+
+- Bellman-Ford
+
+```c++
+int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+    int inf = 1e9;
+    vector<int> dist(n, inf);
+    dist[src] = 0;
+    for (int i = 0; i <= k; i++) {
+        vector<int> backup(dist.begin(), dist.end());
+        for (int j = 0; j < flights.size(); j++) {
+            int aa = flights[j][0], bb = flights[j][1], wt = flights[j][2];
+            dist[bb] = min(dist[bb], backup[aa] + wt);
+        }
+    }
+    
+    return dist[dst] >= (inf >> 1) ? -1 : dist[dst];
+}
+```
+
+- SPFA (BUG)
+
+**SPFA has flaws in finding path with at most k edges: since it cannot update those out of the set of newly updated vertexes, which may cause bugs.**
+
+```c++
+int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+    // input graph is a dense graph (0-based)
+    int m = flights.size();
+    int inf = 1e9;
+    vector<vector<int>> g(n, vector<int>(n, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = flights[i][0];
+        int bb = flights[i][1];
+        int wt = flights[i][2];
+        g[aa][bb] = min(g[aa][bb], wt);
+    }
+
+    vector<int> dist(n, inf);
+    vector<bool> st(n, false);
+    queue<int> que;
+    dist[src] = 0;
+    que.push(src);
+    st[src] = true;
+    int nTrans = -1;
+    while (!que.empty()) {
+        nTrans++;
+        if (nTrans > k) break;
+        int sz = que.size();
+        // prevent chaining update
+        vector<int> backup(dist.begin(), dist.end());
+        for (int i = 0; i < sz; i++) {
+            int ver = que.front();
+            que.pop();
+            st[ver] = false;
+            for (int j = 0; j < n; j++) {
+                if (backup[ver] + g[ver][j] < dist[j]) {
+                    dist[j] = backup[ver] + g[ver][j];
+                    if (!st[j]) {
+                        que.push(j);
+                        st[j] = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return dist[dst] == inf ? -1 : dist[dst];
+}
+```
+
+IMPORTANT BUG: there is a bug in the code above, which is known as asynchronous update which often occurs in hinge graph.
+
+```text
+A hinge graph:
+      (1)         (1)             (100)
+   +-------- 1 --------+   +-----------------+
+  /                     \ /                   \
+ 0 --------------------- 2 -------- 3 -------- 4
+            (5)               (2)        (2)
+
+k = 1: (k here means the number of edges)
+    dist:  0   1   2   3   4
+           0  inf inf inf inf
+           0   1   5  inf inf   (updated)
+     que:      1   2
+k = 2:
+    dist:  0   1   2   3   4
+           0   1   5  inf inf
+           0   1   2  inf 105   (updated)  (105 = 5 + 100 (where k = 2) but not 2 + 100 (where k = 3), why we should update with backup of dist)
+     que:          2       4
+k = 3:
+    dist:  0   1   2   3   4
+           0   1   2  inf 105
+           0   1   2   4  102   <== BAD! when k = 3, the min path from 0 to 4 should be 5 + 2 + 2! Why? Since in k = 2, we update dist[2] from 5 to 2, causing the lost of path (0 - 2 with edge with weight 5)
+
+    ... Hinge Bug Occurs
+    
+k = 4:
+    dist:  0   1   2   3   4
+           0   1   2   4  102
+
 ```
 
 ## Min Spinning Graph

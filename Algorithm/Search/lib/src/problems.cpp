@@ -742,3 +742,124 @@ int orangesRotting(vector<vector<int>>& grid) {
     }
     return -1;
 }
+
+/**
+ * @brief Dijkstra algorithm
+ * 
+ * @param times
+ * @param n 
+ * @param k 
+ * @return int 
+ */
+int networkDelayTime(vector<vector<int>>& times, int n, int k) {
+    int N = n + 1;
+    int m = times.size();
+    int inf = 1e9;
+    vector<vector<int>> g(N, vector<int>(N, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = times[i][0];
+        int bb = times[i][1];
+        int wt = times[i][2];
+        g[aa][bb] = min(g[aa][bb], wt);
+    }
+
+    vector<int> dist(N, inf);
+    vector<bool> st(N, false);
+    typedef pair<int, int> PII;
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    dist[k] = 0;
+    pq.push({dist[k], k});
+    
+    while (!pq.empty()) {
+        auto cur = pq.top();
+        pq.pop();
+        int ver = cur.second;
+        if (st[ver]) continue;
+        st[ver] = true;
+        for (int j = 1; j <= n; j++) {
+            if (!st[j] && dist[ver] + g[ver][j] < dist[j]) {
+                dist[j] = dist[ver] + g[ver][j];
+                pq.push({dist[j], j});
+            }
+        }
+    }
+
+    int idx = -1;
+    for (int i = 1; i <= n; i++) {
+        if (idx == -1 || dist[i] > dist[idx]) {
+            idx = i;
+        }
+    }
+
+    return dist[idx] == inf ? -1 : dist[idx];
+}
+
+/**
+ * @brief SPFA is an optimized version of bellman
+ *   BELLMAN:
+ *      1. iterate k times
+ *      2. for edge in edges:
+ *            dist[j] = min(dist[j], dist[i] + weight[i][j])
+ *
+ *   SPFA: relax other vertexes with newly updated vertexes
+ *      queue is used to cache newly updated  vertexes.
+ *      st[]: record if a vertex is in the queue.
+ *      1. push src in to the queue
+ *      2. use src to update its adjacent vertexes, if succeed, add newly updated vertexes
+ *         into the queue.
+ *
+ * @param n 
+ * @param flights 
+ * @param src 
+ * @param dst 
+ * @param k: transfer time
+ * @return int 
+ */
+int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
+    // input graph is a dense graph (0-based)
+    int m = flights.size();
+    int inf = 1e9;
+    vector<vector<int>> g(n, vector<int>(n, inf));
+    for (int i = 0; i < m; i++) {
+        int aa = flights[i][0];
+        int bb = flights[i][1];
+        int wt = flights[i][2];
+        g[aa][bb] = min(g[aa][bb], wt);
+    }
+
+    vector<int> dist(n, inf);
+    vector<bool> st(n, false);
+    queue<int> que;
+    dist[src] = 0;
+    que.push(src);
+    st[src] = true;
+    int nTrans = -1;
+    while (!que.empty()) {
+        nTrans++;
+        if (nTrans > k) break;
+        int sz = que.size();
+        // prevent chaining update
+        vector<int> backup(dist.begin(), dist.end());
+        for (int i = 0; i < sz; i++) {
+            int ver = que.front();
+            que.pop();
+            st[ver] = false;
+            for (int j = 0; j < n; j++) {
+                if (backup[ver] + g[ver][j] < dist[j]) {
+                    dist[j] = backup[ver] + g[ver][j];
+                    if (!st[j]) {
+                        que.push(j);
+                        st[j] = true;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            cout << dist[i] << " ";
+        }
+        cout << endl;
+    }
+
+
+    return dist[dst] == inf ? -1 : dist[dst];
+}

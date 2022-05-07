@@ -59,4 +59,8 @@ int shortestPathBinaryMatrix(vector<vector<int>>& grid);
 vector<vector<int>> levelOrder(Node* root);
 int orangesRotting(vector<vector<int>>& grid);
 
+/* Min Path */
+int networkDelayTime(vector<vector<int>>& times, int n, int k);
+int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k);
+
 #endif

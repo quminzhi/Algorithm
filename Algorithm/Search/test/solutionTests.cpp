@@ -130,82 +130,69 @@ TEST(ProblemTests, calcEquationTEST) {
 }
 
 TEST(ProblemTests, WaterDistributionTEST) {
-    vector<vector<int>> pipes = {
-        {1, 2, 1},
-        {2, 3, 1}
-    };
-    vector<int> wells = {
-        1, 2, 2
-    };
+    vector<vector<int>> pipes = {{1, 2, 1}, {2, 3, 1}};
+    vector<int> wells = {1, 2, 2};
     EXPECT_EQ(minCostToSupplyWater(3, wells, pipes), 3);
     EXPECT_EQ(minCostToSupplyWaterII(3, wells, pipes), 3);
 }
 
 TEST(DFSTests, findPathTEST) {
-    vector<vector<int>> edges = {
-        {0, 1}, {1, 2}, {2, 0}
-    };
+    vector<vector<int>> edges = {{0, 1}, {1, 2}, {2, 0}};
 
     EXPECT_TRUE(validPath(3, edges, 0, 2));
 }
 
 TEST(DFSTests, findAllPathTEST) {
-    vector<vector<int>> graph = {
-        {1, 2}, {3}, {3}, {}
-    };
-    vector<vector<int>> res = {
-        {0, 1, 3}, {0, 2, 3}
-    };
+    vector<vector<int>> graph = {{1, 2}, {3}, {3}, {}};
+    vector<vector<int>> res = {{0, 1, 3}, {0, 2, 3}};
     EXPECT_EQ(allPathsSourceTarget(graph), res);
 }
 
 TEST(DFSTests, leadsToDestinationTEST) {
-    vector<vector<int>> edges = {
-        {0, 1}, {0, 2}
-    };
+    vector<vector<int>> edges = {{0, 1}, {0, 2}};
     EXPECT_FALSE(leadsToDestination(3, edges, 0, 2));
 
-    vector<vector<int>> edges1 = {
-        {0, 1}, {1, 1}
-    };
+    vector<vector<int>> edges1 = {{0, 1}, {1, 1}};
     EXPECT_FALSE(leadsToDestination(2, edges1, 0, 1));
 
-    vector<vector<int>> edges2 = {
-        {0, 1}, {0, 3}, {1, 2}, {2, 1}
-    };
+    vector<vector<int>> edges2 = {{0, 1}, {0, 3}, {1, 2}, {2, 1}};
     EXPECT_FALSE(leadsToDestination(4, edges2, 0, 3));
 
-    vector<vector<int>> edges3 = {
-        {0, 1}, {0, 2}, {1, 3}, {2, 3}
-    };
+    vector<vector<int>> edges3 = {{0, 1}, {0, 2}, {1, 3}, {2, 3}};
     EXPECT_TRUE(leadsToDestination(4, edges3, 0, 3));
 
-    vector<vector<int>> edges4 = {
-        {0, 1}, {1, 2}, {2, 3}, {3, 4}
-    };
+    vector<vector<int>> edges4 = {{0, 1}, {1, 2}, {2, 3}, {3, 4}};
     EXPECT_FALSE(leadsToDestination(5, edges4, 0, 3));
 }
 
 TEST(BFSTests, shortestBinaryMatrixTEST) {
-    vector<vector<int>> grid = {
-        {0, 1},
-        {1, 0}
-    };
+    vector<vector<int>> grid = {{0, 1}, {1, 0}};
     EXPECT_EQ(shortestPathBinaryMatrix(grid), 2);
 
-    vector<vector<int>> grid1 = {
-        {1, 0, 0},
-        {1, 1, 0},
-        {1, 1, 0}
-    };
+    vector<vector<int>> grid1 = {{1, 0, 0}, {1, 1, 0}, {1, 1, 0}};
     EXPECT_EQ(shortestPathBinaryMatrix(grid1), -1);
 }
 
 TEST(BFSTests, rottingOrangeTEST) {
-    vector<vector<int>> grid {
-        {2, 1, 1},
-        {1, 1, 0},
-        {0, 1, 1}
-    };
+    vector<vector<int>> grid{{2, 1, 1}, {1, 1, 0}, {0, 1, 1}};
     EXPECT_EQ(orangesRotting(grid), 4);
+}
+
+TEST(MinPathTests, networkDelayTEST) {
+    vector<vector<int>> times{{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
+    EXPECT_EQ(networkDelayTime(times, 4, 2), 2);
+}
+
+TEST(MinPathTests, cheapestFlightsTEST) {
+    vector<vector<int>> flights{{0, 1, 100}, {1, 2, 100}, {0, 2, 500}};
+    EXPECT_EQ(findCheapestPrice(3, flights, 0, 2, 1), 200);
+    EXPECT_EQ(findCheapestPrice(3, flights, 0, 2, 0), 500);
+
+    vector<vector<int>> flights1 = {{0, 1, 1}, {0, 2, 5}, {1, 2, 1}, {2, 3, 1}};
+    EXPECT_EQ(findCheapestPrice(4, flights1, 0, 3, 1), 6);
+
+    // Hinge Bug: Bellman can solve it.
+    vector<vector<int>> flights2 = {{0, 3, 3}, {3, 4, 3}, {4, 1, 3}, {0, 5, 1}, {5, 1, 100}, {0, 6, 2},  {6, 1, 100},
+                                    {0, 7, 1}, {7, 8, 1}, {8, 9, 1}, {9, 1, 1}, {1, 10, 1},  {10, 2, 1}, {1, 2, 100}};
+    // EXPECT_EQ(findCheapestPrice(11, flights2, 0, 2, 4), 11);
 }
