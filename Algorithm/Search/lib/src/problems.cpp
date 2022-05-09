@@ -929,8 +929,7 @@ int maximumMinimumPath(vector<vector<int>>& grid) {
         bool operator()(const Cell& lhs, const Cell& rhs) { return lhs.maxScore < rhs.maxScore; }
     };
 
-    const vector<int>
-        dx = {-1, 1, 0, 0};
+    const vector<int> dx = {-1, 1, 0, 0};
     const vector<int> dy = {0, 0, -1, 1};
 
     int inf = 1e9;
@@ -956,6 +955,55 @@ int maximumMinimumPath(vector<vector<int>>& grid) {
             }
         }
     }
-    
+
+    return dist[m - 1][n - 1];
+}
+
+/**
+ * @brief
+ *
+ * @param grid
+ * @return int
+ */
+int swimInWater(vector<vector<int>>& grid) {
+    class Cell {
+       public:
+        Cell(int _x, int _y, int _minTime) : x(_x), y(_y), minTime(_minTime){};
+        int x, y;
+        int minTime;
+    };
+
+    struct Comparator {
+        bool operator()(const Cell& lhs, const Cell& rhs) { return lhs.minTime > rhs.minTime; }
+    };
+
+    const vector<int> dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+
+    int m = grid.size();
+    int n = grid[0].size();
+    int inf = 1e9;
+    vector<vector<int>> dist(m, vector<int>(n, inf));
+    vector<vector<bool>> st(m, vector<bool>(n, false));
+    priority_queue<Cell, vector<Cell>, Comparator> pq;
+    dist[0][0] = grid[0][0];
+    pq.push(Cell(0, 0, dist[0][0]));
+
+    while (!pq.empty()) {
+        Cell t = pq.top();
+        pq.pop();
+        int x = t.x, y = t.y, minTime = t.minTime;
+        if (st[x][y]) continue;
+        st[x][y] = true;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx >= 0 && nx < m && ny >= 0 && ny < n && !st[nx][ny] && dist[nx][ny] > max(dist[x][y], grid[nx][ny])) {
+                dist[nx][ny] = max(dist[x][y], grid[nx][ny]);
+                pq.push(Cell(nx, ny, dist[nx][ny]));
+            }
+        }
+    }
+
     return dist[m - 1][n - 1];
 }

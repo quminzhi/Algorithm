@@ -1918,6 +1918,68 @@ int maximumMinimumPath(vector<vector<int>>& grid) {
 }
 ```
 
+### Swim in Rising Water
+
+> You are given an n x n integer matrix grid where each value `grid[i][j]` represents the elevation at that point `(i, j)`.
+>
+> The rain starts to fall. At time t, the depth of the water everywhere is t. You can swim from a square to another 4-directionally adjacent square if and only if the elevation of both squares individually are at most t. You can swim infinite distances in zero time. Of course, you must stay within the boundaries of the grid during your swim.
+>
+> Return the least time until you can reach the bottom right square (n - 1, n - 1) if you start at the top left square (0, 0).
+
+The `dist[][]` here means the maximum value along the path.
+
+```text
+a --> b --> c --> d
+   1     8     3        dist of path = max(1, 8, 3) = 8
+```
+
+This is a counterpart problem of the previous problem. `dist[nx][ny] = min(dist[nx][ny], max(dist[x][y], grid[nx][ny]))`.
+
+```c++
+int swimInWater(vector<vector<int>>& grid) {
+    class Cell {
+       public:
+        Cell(int _x, int _y, int _minTime) : x(_x), y(_y), minTime(_minTime){};
+        int x, y;
+        int minTime;
+    };
+
+    struct Comparator {
+        bool operator()(const Cell& lhs, const Cell& rhs) { return lhs.minTime > rhs.minTime; }
+    };
+
+    const vector<int> dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+
+    int m = grid.size();
+    int n = grid[0].size();
+    int inf = 1e9;
+    vector<vector<int>> dist(m, vector<int>(n, inf));
+    vector<vector<bool>> st(m, vector<bool>(n, false));
+    priority_queue<Cell, vector<Cell>, Comparator> pq;
+    dist[0][0] = grid[0][0];
+    pq.push(Cell(0, 0, dist[0][0]));
+
+    while (!pq.empty()) {
+        Cell t = pq.top();
+        pq.pop();
+        int x = t.x, y = t.y, minTime = t.minTime;
+        if (st[x][y]) continue;
+        st[x][y] = true;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx >= 0 && nx < m && ny >= 0 && ny < n && !st[nx][ny] && dist[nx][ny] > max(dist[x][y], grid[nx][ny])) {
+                dist[nx][ny] = max(dist[x][y], grid[nx][ny]);
+                pq.push(Cell(nx, ny, dist[nx][ny]));
+            }
+        }
+    }
+
+    return dist[m - 1][n - 1];
+}
+```
+
 ## Min Spinning Graph
 
 In general min spinning graph is undirected graph. There are two classic algorithms: Prim algorithm and Kruskal's algorithm.

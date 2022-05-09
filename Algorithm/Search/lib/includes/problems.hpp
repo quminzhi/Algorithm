@@ -64,5 +64,6 @@ int networkDelayTime(vector<vector<int>>& times, int n, int k);
 int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k);
 int minimumEffortPath(vector<vector<int>>& heights);
 int maximumMinimumPath(vector<vector<int>>& grid);
+int swimInWater(vector<vector<int>>& grid);
 
 #endif

@@ -210,3 +210,12 @@ TEST(MinPathTests, maxScoreTEST) {
                                 {3, 2, 4, 9, 8}, {4, 1, 2, 0, 0}, {4, 6, 5, 4, 3}};
     EXPECT_EQ(maximumMinimumPath(grid), 3);
 }
+
+TEST(MinPathTests, swimInWaterTEST) {
+    vector<vector<int>> grid = {{0, 2}, {1, 3}};
+    EXPECT_EQ(swimInWater(grid), 3);
+
+    vector<vector<int>> grid1 = {
+        {0, 1, 2, 3, 4}, {24, 23, 22, 21, 5}, {12, 13, 14, 15, 16}, {11, 17, 18, 19, 20}, {10, 9, 8, 7, 6}};
+    EXPECT_EQ(swimInWater(grid1), 16);
+}
