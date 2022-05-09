@@ -191,8 +191,22 @@ TEST(MinPathTests, cheapestFlightsTEST) {
     vector<vector<int>> flights1 = {{0, 1, 1}, {0, 2, 5}, {1, 2, 1}, {2, 3, 1}};
     EXPECT_EQ(findCheapestPrice(4, flights1, 0, 3, 1), 6);
 
+    vector<vector<int>> flights2 = {{0, 1, 1}, {0, 2, 5}, {1, 2, 1}, {2, 3, 2}, {2, 4, 100}, {3, 4, 2}};
+    EXPECT_EQ(findCheapestPrice(5, flights2, 0, 4, 2), 9);
+
     // Hinge Bug: Bellman can solve it.
-    vector<vector<int>> flights2 = {{0, 3, 3}, {3, 4, 3}, {4, 1, 3}, {0, 5, 1}, {5, 1, 100}, {0, 6, 2},  {6, 1, 100},
+    vector<vector<int>> flights3 = {{0, 3, 3}, {3, 4, 3}, {4, 1, 3}, {0, 5, 1}, {5, 1, 100}, {0, 6, 2},  {6, 1, 100},
                                     {0, 7, 1}, {7, 8, 1}, {8, 9, 1}, {9, 1, 1}, {1, 10, 1},  {10, 2, 1}, {1, 2, 100}};
-    // EXPECT_EQ(findCheapestPrice(11, flights2, 0, 2, 4), 11);
+    EXPECT_EQ(findCheapestPrice(11, flights3, 0, 2, 4), 11);
+}
+
+TEST(MinPathTests, minEffortTEST) {
+    vector<vector<int>> heights = {{1, 2, 1, 1, 1}, {1, 2, 1, 2, 1}, {1, 2, 1, 2, 1}, {1, 2, 1, 2, 1}, {1, 1, 1, 2, 1}};
+    EXPECT_EQ(minimumEffortPath(heights), 0);
+}
+
+TEST(MinPathTests, maxScoreTEST) {
+    vector<vector<int>> grid = {{3, 4, 6, 3, 4}, {0, 2, 1, 1, 7}, {8, 8, 3, 2, 7},
+                                {3, 2, 4, 9, 8}, {4, 1, 2, 0, 0}, {4, 6, 5, 4, 3}};
+    EXPECT_EQ(maximumMinimumPath(grid), 3);
 }

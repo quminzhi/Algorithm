@@ -1309,7 +1309,9 @@ for v in all vertexes except origin
                 queue <-- adjacent vertex if dist[adjacent vertex] is updated
 ```
 
-- Basic SPFA
+- Basic SPFA (without negative loop -> infinite loop)
+
+Basic SPFA is not recommended. We prefer solve by level (SPFA with edge control).
 
 ```c++
 int minPathSPFA(int n, vector<vector<int>>& edges) {
@@ -1483,22 +1485,20 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
 
     int inf = 1e6;
     vector<int> dist(n + 1, inf);
-    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
     queue<int> que;
     // push origin vertex into queue
     dist[1] = 0;
     que.push(1);
-    st[1] = true;
-    int i = 0;
+    int nEdge = 0;
     while (!que.empty()) {
-        i++;
-        if (i > limit) break;   // control path length
+        nEdge++;
+        if (nEdge > limit) break;   // control path length
         int sz = que.size();
-        vector<int> backup(dist.begin(), dist.end());
         for (int k = 0; k < sz; k++) {   // solve by level
             int ver = que.front();
             que.pop();
-            st[ver] = false;
+            vector<int> backup(dist.begin(), dist.end());
+            vector<bool> st(n + 1, false);
             // relaxation
             for (int p = h[ver]; p != -1; p = ne[p]) {
                 int j = v[p];
@@ -1671,22 +1671,21 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
     }
 
     vector<int> dist(n, inf);
-    vector<bool> st(n, false);
     queue<int> que;
     dist[src] = 0;
     que.push(src);
-    st[src] = true;
-    int nTrans = -1;
+    int nEdge = 0;
     while (!que.empty()) {
-        nTrans++;
-        if (nTrans > k) break;
+        nEdge++;
+        if (nEdge > k + 1) break;
         int sz = que.size();
         // prevent chaining update
         vector<int> backup(dist.begin(), dist.end());
+        // check on kth expansion, push the same (newly-updated) vertex once.
+        vector<bool> st(n, false);
         for (int i = 0; i < sz; i++) {
             int ver = que.front();
             que.pop();
-            st[ver] = false;
             for (int j = 0; j < n; j++) {
                 if (backup[ver] + g[ver][j] < dist[j]) {
                     dist[j] = backup[ver] + g[ver][j];
@@ -1703,7 +1702,11 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
 }
 ```
 
-IMPORTANT BUG: there is a bug in the code above, which is known as asynchronous update which often occurs in hinge graph.
+`st[]` means on ith expansion, if the newly-updated vertex is pushed into the queue.
+
+- Reflection
+
+If we solve the queue not by level (like basic SPFA), bug occurs.
 
 ```text
 A hinge graph:
@@ -1734,6 +1737,185 @@ k = 4:
     dist:  0   1   2   3   4
            0   1   2   4  102
 
+```
+
+So, we need to solve it by level, where `st[]` means if the newly-updated vertexes **on the same level** are pushed in to the queue.
+
+```c++
+int nEdge = 0;
+while (!que.empty()) {
+    nEdge++;
+    if (nEdge > limit) break;   // control path length
+    int sz = que.size();
+    for (int k = 0; k < sz; k++) {   // solve by level
+        int ver = que.front();
+        que.pop();
+        vector<int> backup(dist.begin(), dist.end());
+        vector<bool> st(n + 1, false);
+        // relaxation
+        for (int p = h[ver]; p != -1; p = ne[p]) {
+            int j = v[p];
+            if (backup[ver] + w[p] < dist[j]) {
+                dist[j] = backup[ver] + w[p];
+                if (!st[j]) {
+                    que.push(j);
+                    st[j] = true;
+                }
+            }
+        }
+    }
+}
+```
+
+That's why `st[]` has been reset on each level.
+
+### Path With Minimum Effort
+
+> You are a hiker preparing for an upcoming hike. You are given `heights`, a 2D array of size rows `x` columns, where `heights[row][col]` represents the height of cell (row, col). You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). You can move up, down, left, or right, and you wish to find a route that requires the minimum effort.
+>
+> A route's effort is the maximum absolute difference in heights between two consecutive cells of the route.
+>
+> Return the minimum effort required to travel from the top-left cell to the bottom-right cell.
+
+Note that all weights are positive. We can solve it with Dijkstra algorithm.
+
+There are some problems to be solved in matrix graph:
+
+- How to represent a vertex: use cell `(x, y)` as an identification for a vertex, and adjacent vertex can be found by the locale relation in a matrix. **The definition of `Cell` is for sorting `dist[x][y]` in priority queue according its value.**, so it encapsulates location parameters `x`, `y`, and value `minDist`.
+
+```c++
+class Cell {
+    public:
+    Cell(int _x, int _y, int _effort) : x(_x), y(_y), minDist(_minDist) {}
+    int x, y;
+    int minDist;
+};
+```
+
+- How to represent min dist? `dist[][]` in matrix is a 2-d representation. `dist[i][j]` represents the minimum distance from `(0, 0)` to `(i, j)`. The meaning of `dist` is varied from one problem to another. In this problem, it represents the max difference along a path.
+- How to define the `Comparator` of user-customized object for a priority queue.
+- The min path should be the maximum difference along the path from `(0, 0)` to `(x, y)`, or the difference of `(x, y)` and `(nx, ny)` if it is larger. (`dist[nx][ny] = min(dist[nx][ny], max(dist[x][y], abs(heights[nx][ny] - heights[x][y])))`)
+
+```c++
+struct Comparator {
+    // lhs are children of a heap and rhs is the parent
+    bool operator()(const Cell& lhs, const Cell& rhs) {
+        return lhs.minDist > rhs.minDist;
+    }
+};
+
+int foo {
+    ....
+    priority_queue<Cell, vector<Cell>, Comparator> pq;
+}
+```
+
+The full code is:
+
+```c++
+int minimumEffortPath(vector<vector<int>>& heights) {
+    class Cell {
+       public:
+        Cell(int _x, int _y, int _effort) : x(_x), y(_y), minEffort(_effort) {}
+        int x, y;
+        int minEffort;
+    };
+
+    // customize comparator of Cell for priority queue
+    // lhs are children
+    struct Comparator {
+        bool operator()(const Cell& lhs, const Cell& rhs) { return lhs.minEffort > rhs.minEffort; }
+    };
+
+    const vector<int> dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+
+    int m = heights.size();
+    int n = heights[0].size();
+    int inf = 1e9;
+    vector<vector<int>> dist(m, vector<int>(n, inf));   // max diff
+    vector<vector<bool>> st(m, vector<bool>(n, false));
+    dist[0][0] = 0;
+
+    priority_queue<Cell, vector<Cell>, Comparator> pq;
+    pq.push(Cell(0, 0, dist[0][0]));
+    while (!pq.empty()) {
+        auto t = pq.top();
+        pq.pop();
+        int x = t.x, y = t.y, minEffort = t.minEffort;
+        if (st[x][y]) continue;
+        st[x][y] = true;
+        // update
+        for (int i = 0; i < dx.size(); i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx >= 0 && nx < m && ny >= 0 && ny < n && !st[nx][ny] &&
+                dist[nx][ny] > max(dist[x][y], abs(heights[nx][ny] - heights[x][y]))) {
+                dist[nx][ny] = max(dist[x][y], abs(heights[nx][ny] - heights[x][y]));
+                pq.push(Cell(nx, ny, dist[nx][ny]));
+            }
+        }
+    }
+
+    return dist[m - 1][n - 1];
+}
+```
+
+### Path With Maximum Minimum Value
+
+> Given an m x n integer matrix grid, return the maximum score of a path starting at (0, 0) and ending at (m - 1, n - 1) moving in the 4 cardinal directions.
+>
+> The score of a path is the minimum value in that path.
+>
+> - For example, the score of the path 8 → 4 → 5 → 9 is 4.
+
+Note that all weights are positive and this is a single origin problem -> Dijkstra.
+
+How to define distance? `dist[][]` is the **maximum** score of all the paths from `(0, 0)` to `(i, j)`. if `dist[nx][ny] < min(dist[x][y], grid[nx][ny])`, `dist[nx][ny] = min(dist[x][y], grid[nx][ny])`, i.e. the min path of `(nx, ny)` has two cases: 1. the min value from `(0, 0)` to `(x, y)` or the value of `grid[nx][ny]` if it is smaller. (max heap)
+
+```c++
+int maximumMinimumPath(vector<vector<int>>& grid) {
+    class Cell {
+       public:
+        Cell(int _x, int _y, int _maxScore) : x(_x), y(_y), maxScore(_maxScore){};
+        int x, y;
+        int maxScore;
+    };
+
+    struct Comparator {
+        bool operator()(const Cell& lhs, const Cell& rhs) { return lhs.maxScore < rhs.maxScore; }
+    };
+
+    const vector<int>
+        dx = {-1, 1, 0, 0};
+    const vector<int> dy = {0, 0, -1, 1};
+
+    int inf = 1e9;
+    int m = grid.size();
+    int n = grid[0].size();
+    vector<vector<int>> dist(m, vector<int>(n, -inf));   // find max score
+    vector<vector<bool>> st(m, vector<bool>(n, false));
+    priority_queue<Cell, vector<Cell>, Comparator> pq;
+    dist[0][0] = grid[0][0];
+    pq.push(Cell(0, 0, dist[0][0]));
+    while (!pq.empty()) {
+        Cell t = pq.top();
+        pq.pop();
+        int x = t.x, y = t.y, score = t.maxScore;
+        if (st[x][y]) continue;
+        st[x][y] = true;
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx >= 0 && nx < m && ny >= 0 && ny < n && !st[nx][ny] && dist[nx][ny] < min(dist[x][y], grid[nx][ny])) {
+                dist[nx][ny] = min(dist[x][y], grid[nx][ny]);
+                pq.push(Cell(nx, ny, dist[nx][ny]));
+            }
+        }
+    }
+    
+    return dist[m - 1][n - 1];
+}
 ```
 
 ## Min Spinning Graph

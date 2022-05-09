@@ -554,26 +554,25 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
 
     int inf = 1e6;
     vector<int> dist(n + 1, inf);
-    vector<bool> st(n + 1, false);   // prevent there are multiple edges on two adjacent vertexes.
     queue<int> que;
     // push origin vertex into queue
     dist[1] = 0;
     que.push(1);
-    st[1] = true;
-    int i = 0;
+    int nEdge = 0;
     while (!que.empty()) {
-        i++;
-        if (i > limit) break;   // control path length
+        nEdge++;
+        if (nEdge > limit) break;   // control path length
         int sz = que.size();
         for (int k = 0; k < sz; k++) {   // solve by level
             int ver = que.front();
             que.pop();
-            st[ver] = false;
+            vector<int> backup(dist.begin(), dist.end());
+            vector<bool> st(n + 1, false);
             // relaxation
             for (int p = h[ver]; p != -1; p = ne[p]) {
                 int j = v[p];
-                if (dist[ver] + w[p] < dist[j]) {
-                    dist[j] = dist[ver] + w[p];
+                if (backup[ver] + w[p] < dist[j]) {
+                    dist[j] = backup[ver] + w[p];
                     if (!st[j]) {
                         que.push(j);
                         st[j] = true;
