@@ -219,3 +219,20 @@ TEST(MinPathTests, swimInWaterTEST) {
         {0, 1, 2, 3, 4}, {24, 23, 22, 21, 5}, {12, 13, 14, 15, 16}, {11, 17, 18, 19, 20}, {10, 9, 8, 7, 6}};
     EXPECT_EQ(swimInWater(grid1), 16);
 }
+
+TEST(MinPathTests, minLinesTEST) {
+    vector<vector<int>> points = {{0, 1}, {2, 3}, {4, 5}, {4, 3}};
+    EXPECT_EQ(minimumLines(points), 2);
+
+    vector<vector<int>> points1 = {{-3, -5}, {0, 1}, {1, -1}, {2, 5}, {-1, -3}, {-2, -4}};
+    EXPECT_EQ(minimumLines(points1), 2);
+
+    vector<vector<int>> points2 = {{5, -3}, {-5, 3}, {3, -5}, {-3, 5}};
+    EXPECT_EQ(minimumLines(points2), 2);
+
+    vector<vector<int>> points3 = {{0, 0}, {2, -3}, {-2, 3}, {5, -3}, {-5, 3}, {3, -5}, {-3, 5}};
+    EXPECT_EQ(minimumLines(points3), 3);
+
+    // vector<vector<int>> points4 = {{-2, 3}, {4, -5}, {3, -2}, {5, 3}};
+    // EXPECT_EQ(minimumLines(points4), 2);
+}

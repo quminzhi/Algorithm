@@ -36,9 +36,11 @@ int minPathFloyd(int n, vector<vector<int>>& edges);
 /* Spinning Graph */
 int minSpinningGraphPrim(int n, vector<vector<int>>& edges);
 int minSpinningGraphKruskal(int n, vector<vector<int>>& edges);
+int minimumLines(vector<vector<int>>& points);
 
 /* Bipartite Graph */
 bool isBipartiteGraph(int n, vector<vector<int>>& edges);
 int maxBipartiteGraph(int n1, int n2, vector<vector<int>>& edges);
+
 
 #endif

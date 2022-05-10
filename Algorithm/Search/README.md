@@ -2219,6 +2219,116 @@ int minCostConnectPoints(vector<vector<int>>& points) {
 }
 ```
 
+### Minimum Number of Lines to Cover Points
+
+> You are given an array points where `points[i] = [xi, yi]` represents a point on an X-Y plane.
+>
+> Straight lines are going to be added to the X-Y plane, such that every point is covered by at least one line.
+>
+> Return the minimum number of straight lines needed to cover all the points.
+
+This is a classic min spinning tree problem. Since the graph consisting of points is a dense graph, it is represented with adjacency matrix.
+
+One important fact is that the result of minimum lines that cover all vertexes is the same as the min (distance) spinning tree.
+
+- min spinning tree (BUG)
+
+Some points to consider:
+
+- why one min of spinning tree is almost the answer to the problem after filtering unnecessary lines?
+- how to represent a line? `pair<slope, y-intercept>`
+
+```c++
+int minimumLines(vector<vector<int>>& points) {
+    int n = points.size();
+    if (n == 1) return 1;
+    int inf = 1e9;
+    vector<vector<int>> g(n, vector<int>(n, inf));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int dx = abs(points[i][0] - points[j][0]);
+            int dy = abs(points[i][1] - points[j][1]);
+            int distance = floor(sqrt(dx * dx + dy * dy));
+            g[i][j] = g[j][i] = distance;
+        }
+    }
+
+    vector<int> dist(n, inf);
+    // record the other end of edge in min spinning tree
+    vector<int> match(n, -1);
+    vector<bool> st(n, false);
+    dist[0] = 0;
+    match[0] = 0;   // the only self edge
+    for (int i = 0; i < n; i++) {
+        int t = -1;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && (t == -1 || dist[j] < dist[t])) {
+                t = j;
+            }
+        }
+        if (dist[t] == inf) return -1;
+        st[t] = true;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && dist[j] > g[t][j]) {
+                dist[j] = g[t][j];
+                match[j] = t;
+            }
+        }
+    }
+
+    // points on the line with slopes 's'
+    unordered_map<string, unordered_set<int>> vertexesOn;
+    // # of lines == # of slopes
+    // ignore the first edge (self edge)
+    for (int i = 1; i < n; i++) {
+        int x1 = points[i][0], y1 = points[i][1];
+        int x2 = points[match[i]][0], y2 = points[match[i]][1];
+
+        double slope, yIntercept;
+        if (x1 - x2 != 0) {
+            slope = double(y1 - y2) / (x1 - x2);
+            yIntercept = y1 - slope * x1;
+        } else {
+            slope = yIntercept = inf;
+        }
+
+        // add points to lines
+        string id = to_string(slope) + "," + to_string(yIntercept);
+        vertexesOn[id].insert(i);
+        vertexesOn[id].insert(match[i]);
+    }
+
+    // filter unnecessary points
+    // occurrence time of each node on different lines
+    vector<int> occurrence(n, 0);
+    for (auto t : vertexesOn) {
+        for (auto v : vertexesOn[t.first]) {
+            occurrence[v]++;
+        }
+    }
+
+    for (auto t : vertexesOn) {
+        cout << t.first << " ";
+        for (auto v : vertexesOn[t.first]) {
+            cout << v << " ";
+        }
+        cout << endl;
+    }
+
+    int res = 0;
+    for (auto t : vertexesOn) {
+        for (auto v : vertexesOn[t.first]) {
+            if (occurrence[v] - 1 == 0) {
+                res++;
+                break;
+            }
+        }
+    }
+
+    return res;
+}
+```
+
 ## Bipartite Graph
 
 We will talk about: 1. how to check if a graph is a bipartite, and 2. match problem (Hungarian algorithm).
