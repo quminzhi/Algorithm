@@ -1309,7 +1309,7 @@ for v in all vertexes except origin
                 queue <-- adjacent vertex if dist[adjacent vertex] is updated
 ```
 
-- Basic SPFA (without negative loop -> infinite loop)
+- Basic SPFA (without negative loop control -> infinite loop)
 
 Basic SPFA is not recommended. We prefer solve by level (SPFA with edge control).
 
@@ -1432,7 +1432,7 @@ bool checkNegativeLoopWithSPFA(int n, vector<vector<int>>& edges) {
     vector<bool> st(N, false);
     vector<int> counter(N, 0);   // count how many edges on the min path of a vertex
     queue<int> q;
-    // since negative loop may start from any vertex, not necessary to be 1
+    // IMPORTANT: since negative loop may start from any vertex, not necessary to be 1
     for (int i = 1; i <= n; i++) {
         q.push(i);
         st[i] = true;
@@ -1498,7 +1498,7 @@ int minPathSPFAWithControl(int n, vector<vector<int>>& edges, int limit) {
             int ver = que.front();
             que.pop();
             vector<int> backup(dist.begin(), dist.end());
-            vector<bool> st(n + 1, false);
+            vector<bool> st(n + 1, false);  // <-- IMPORTANT
             // relaxation
             for (int p = h[ver]; p != -1; p = ne[p]) {
                 int j = v[p];
@@ -1653,9 +1653,7 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
 }
 ```
 
-- SPFA (BUG)
-
-**SPFA has flaws in finding path with at most k edges: since it cannot update those out of the set of newly updated vertexes, which may cause bugs.**
+- SPFA
 
 ```c++
 int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
@@ -1682,7 +1680,7 @@ int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int
         // prevent chaining update
         vector<int> backup(dist.begin(), dist.end());
         // check on kth expansion, push the same (newly-updated) vertex once.
-        vector<bool> st(n, false);
+        vector<bool> st(n, false);   // <-- IMPORTANT
         for (int i = 0; i < sz; i++) {
             int ver = que.front();
             que.pop();
@@ -1739,7 +1737,7 @@ k = 4:
 
 ```
 
-So, we need to solve it by level, where `st[]` means if the newly-updated vertexes **on the same level** are pushed in to the queue.
+So, we need to solve it by level, where `st[]` means if the newly-updated vertexes **on the same level** are pushed in to the queue. (**IMPORTANT**)
 
 ```c++
 int nEdge = 0;
@@ -1751,7 +1749,7 @@ while (!que.empty()) {
         int ver = que.front();
         que.pop();
         vector<int> backup(dist.begin(), dist.end());
-        vector<bool> st(n + 1, false);
+        vector<bool> st(n + 1, false);   // !!! IMPORTANT
         // relaxation
         for (int p = h[ver]; p != -1; p = ne[p]) {
             int j = v[p];
@@ -2009,7 +2007,7 @@ for v in vertexes
 *candidate vertexes means those not in `st[]` (the spinning graph)
 ```
 
-The implementation is:
+The implementation is: (1-base implementation, when i == 0, dist is initialized. So we don't have to set `dist[0] = 0` explicitly).
 
 ```c++
 /**
@@ -2054,7 +2052,7 @@ int minSpinningGraphPrim(int n, vector<vector<int>>& edges) {
         }
 
         // if (i) skip the first vertex (iteration)
-        // no connection from ver to spinning graph
+        // no connection from ver to spinning graph found
         if (i && dist[ver] == inf) return -1;
 
         // add into the spinning graph
@@ -2169,6 +2167,54 @@ int minSpinningGraphKruskal(int n, vector<vector<int>>& edges) {
     }
 
     if (cnt_edges < n - 1) return -1;
+    return res;
+}
+```
+
+### Min Cost to Connect All Points
+
+> You are given an array points representing integer coordinates of some points on a 2D-plane, where `points[i] = [xi, yi]`.
+>
+> The cost of connecting two points `[xi, yi]` and `[xj, yj]` is the manhattan distance between them: `|xi - xj| + |yi - yj|`, where `|val|` denotes the absolute value of val.
+>
+> Return the minimum cost to make all points connected. All points are connected if there is exactly one simple path between any two points.
+
+An exercise for min spinning tree.
+
+```c++
+int minCostConnectPoints(vector<vector<int>>& points) {
+    int n = points.size();
+    int inf = 1e9;
+    vector<vector<int>> g(n, vector<int>(n, inf));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            g[i][j] = g[j][i] = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+        }
+    }
+
+    vector<int> dist(n, inf);
+    dist[0] = 0;
+    vector<bool> st(n, false);
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        int t = -1;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && (t == -1 || dist[j] < dist[t])) {
+                t = j;
+            }
+        }
+        if (dist[t] == inf) return -1;
+
+        st[t] = true;
+        res += dist[t];
+
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && dist[j] > g[t][j]) {
+                dist[j] = g[t][j];
+            }
+        }
+    }
+
     return res;
 }
 ```

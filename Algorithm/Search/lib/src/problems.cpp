@@ -1007,3 +1007,43 @@ int swimInWater(vector<vector<int>>& grid) {
 
     return dist[m - 1][n - 1];
 }
+
+/**
+ * @brief
+ *
+ * @param points
+ * @return int
+ */
+int minCostConnectPoints(vector<vector<int>>& points) {
+    int n = points.size();
+    int inf = 1e9;
+    vector<vector<int>> g(n, vector<int>(n, inf));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            g[i][j] = g[j][i] = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1]);
+        }
+    }
+
+    vector<int> dist(n, inf);
+    dist[0] = 0;
+    vector<bool> st(n, false);
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+        int t = -1;
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && (t == -1 || dist[j] < dist[t])) {
+                t = j;
+            }
+        }
+        if (dist[t] == inf) return -1;
+        st[t] = true;
+        res += dist[t];
+        for (int j = 0; j < n; j++) {
+            if (!st[j] && dist[j] > g[t][j]) {
+                dist[j] = g[t][j];
+            }
+        }
+    }
+
+    return res;
+}

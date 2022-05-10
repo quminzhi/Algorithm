@@ -66,4 +66,7 @@ int minimumEffortPath(vector<vector<int>>& heights);
 int maximumMinimumPath(vector<vector<int>>& grid);
 int swimInWater(vector<vector<int>>& grid);
 
+/* Min Spinning Tree */
+int minCostConnectPoints(vector<vector<int>>& points);
+
 #endif
