@@ -776,3 +776,86 @@ double MedianFinder::findMedian() {
     return lo.size() > hi.size() ? lo.top() : ((double)lo.top() + hi.top()) * 0.5;
 }
 ```
+
+### Top K Frequent Words
+
+> Given an array of strings words and an integer k, return the k most frequent strings.
+>
+> Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
+
+Two different ways to customize comparator of priority queue.
+
+```c++
+class Word {
+   public:
+    Word(string _word, int _freq)
+        : word(_word), freq(_freq) {};
+    string word;
+    int freq;
+    
+    bool operator> (const Word& rhs) const {
+        return freq < rhs.freq || (freq == rhs.freq && word > rhs.word);
+    }
+};
+
+priority_queue<Word, vector<Word>, greater<Word>> pq;
+```
+
+or construct `Comparator`.
+
+```c++
+struct Comparator {
+    bool operator()(const Word& lhs, const Word& rhs) {
+        return lhs.freq < rhs.freq || (lhs.freq == rhs.freq && lhs.word > rhs.word);
+    }  
+};
+
+priority_queue<Word, vector<Word>, Comparator> pq;
+```
+
+The full code is:
+
+```c++
+class Solution {
+public:
+    class Word {
+       public:
+        Word(string _word, int _freq)
+            : word(_word), freq(_freq) {};
+        string word;
+        int freq;
+        
+        bool operator> (const Word& rhs) const {
+            return freq < rhs.freq || (freq == rhs.freq && word > rhs.word);
+        }
+    };
+    
+    struct Comparator {
+        bool operator()(const Word& lhs, const Word& rhs) {
+            return lhs.freq < rhs.freq || (lhs.freq == rhs.freq && lhs.word > rhs.word);
+        }  
+    };
+    
+    vector<string> topKFrequent(vector<string>& words, int k) {
+        unordered_map<string, int> freq;
+        for (auto word : words) {
+            freq[word]++;
+        }
+        
+        priority_queue<Word, vector<Word>, greater<Word>> pq;
+        // priority_queue<Word, vector<Word>, Comparator> pq;
+        for (auto t : freq) {
+            pq.push(Word(t.first, t.second));
+        }
+        
+        vector<string> res;
+        for (int i = 0; i < k; i++) {
+            auto w = pq.top();
+            pq.pop();
+            res.push_back(w.word);
+        }
+        
+        return res;
+    }
+};
+```

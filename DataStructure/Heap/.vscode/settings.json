@@ -84,6 +84,7 @@
     },
     "cSpell.ignoreWords": [
         "heapify",
-        "nums"
+        "nums",
+        "struct"
     ]
 }
