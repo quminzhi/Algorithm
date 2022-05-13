@@ -2976,3 +2976,141 @@ int minCostToSupplyWaterII(int n, vector<int>& wells, vector<vector<int>>& pipes
     return res;
 }
 ```
+
+## Topology Sort
+
+### Course Schedule II
+
+> There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where `prerequisites[i] = [ai, bi]` indicates that you must take course `bi` first if you want to take course `ai`.
+>
+> For example, the pair `[0, 1]`, indicates that to take course 0 you have to first take course 1.
+>
+> Return the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.
+
+```c++
+vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    int n = numCourses;
+    vector<vector<int>> g(n, vector<int>(n, 0));
+    vector<int> id(numCourses, 0);
+    for (auto prerequisite : prerequisites) {
+        g[prerequisite[1]][prerequisite[0]] = 1;
+        id[prerequisite[0]]++;
+    }
+
+    queue<int> que;
+    for (int i = 0; i < numCourses; i++) {
+        if (id[i] == 0) que.push(i);
+    }
+
+    vector<int> res;
+    while (!que.empty()) {
+        int ver = que.front();
+        que.pop();
+        res.push_back(ver);
+        for (int i = 0; i < numCourses; i++) {
+            if (g[ver][i] == 1) {
+                id[i]--;
+                if (id[i] == 0) que.push(i);
+            }
+        }
+    }
+    
+    if (res.size() < numCourses) return {};
+    return res;
+}
+```
+
+### Alien Dictionary
+
+> There is a new alien language that uses the English alphabet. However, the order among the letters is unknown to you.
+>
+> You are given a list of strings `words` from the alien language's dictionary, where the strings in `words` are sorted lexicographically by the rules of this new language.
+>
+> Return a string of the unique letters in the new alien language sorted in lexicographically increasing order by the new language's rules. If there is no solution, return `""`. If there are multiple solutions, return any of them.
+>
+> A string `s` is lexicographically smaller than a string `t` if at the first letter where they differ, the letter in `s` comes before the letter in `t` in the alien language. If the first min`(s.length, t.length)` letters are the same, then `s` is smaller if and only if `s.length < t.length`.
+
+For example,
+
+```text
+words = ["wrt","wrf","er","ett","rftt"];
+
+"wrt" < "wrf" => "wr" == "wr", the index of the first character differs is 2 (0-based). We know that "t" < "f"
+
+"wrf" < "er"  => they have no common prefix and the first different char is the first char. We know that "w" < "e".
+
+"er" < "erw"  => "er" == "er", "er" < "erw" since len("er") < len("erw") (NO INFO ABOUT WHICH CHAR IS SMALLER THAN WHICH CHAR)
+
+answer: "wertf"
+```
+
+```c++
+void analyze(vector<vector<int>>& g, vector<int>& id, string lhs, string rhs) {
+    for (int i = 0; i < min(lhs.size(), rhs.size()); i++) {
+        if (lhs[i] == rhs[i]) continue;
+        // prevent repeated edges
+        if (!g[lhs[i] - 'a'][rhs[i] - 'a']) {
+            g[lhs[i] - 'a'][rhs[i] - 'a'] = 1;
+            id[rhs[i] - 'a']++;
+        }
+        break;
+    }
+}
+
+/**
+ * @brief 0-based
+ * 
+ * Special case: ["abc", "ab"] violates the rule, return ""
+ * 
+ * @param words 
+ * @return string 
+ */
+string alienOrder(vector<string>& words) {
+    int n = 26;
+    vector<vector<int>> g(26, vector<int>(26, 0));
+    vector<int> id(26, -1);
+
+    // calculate the size of char
+    int nChar = 0;
+    for (auto word : words) {
+        for (auto ch : word) {
+            // when char occurs for the first time, set its id as 0 (assumed it is smallest)
+            if (id[ch - 'a'] == -1) {
+                id[ch - 'a'] = 0;
+                nChar++;
+            }
+        }
+    }
+
+    int m = words.size();
+    for (int i = 0; i < m; i++) {
+        for (int j = i + 1; j < m; j++) {
+            // handle violation ["abd", "ab"]
+            if (words[i].size() > words[j].size() && words[i].rfind(words[j], 0) == 0) {
+                return "";
+            }
+            analyze(g, id, words[i], words[j]);
+        }
+    }
+
+    queue<int> que;
+    for (int i = 0; i < 26; i++) {
+        if (id[i] == 0) que.push(i);
+    }
+
+    string res;
+    while (!que.empty()) {
+        int ch = que.front();
+        que.pop();
+        res.push_back(ch + 'a');
+        for (int j = 0; j < 26; j++) {
+            if (g[ch][j] == 1) {
+                id[j]--;
+                if (id[j] == 0) que.push(j);
+            }
+        }
+    }
+
+    return res.size() < nChar ? "" : res;
+}
+```

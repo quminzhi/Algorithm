@@ -42,5 +42,8 @@ int minimumLines(vector<vector<int>>& points);
 bool isBipartiteGraph(int n, vector<vector<int>>& edges);
 int maxBipartiteGraph(int n1, int n2, vector<vector<int>>& edges);
 
+/* Topology Sorting */
+vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites);
+string alienOrder(vector<string>& words);
 
 #endif

@@ -939,3 +939,110 @@ int minimumLines(vector<vector<int>>& points) {
 
     return res;
 }
+
+/**
+ * @brief 0-based
+ *
+ * @param numCourses
+ * @param prerequisites
+ * @return vector<int>
+ */
+vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    int n = numCourses;
+    vector<vector<int>> g(n, vector<int>(n, 0));
+    vector<int> id(numCourses, 0);
+    for (auto prerequisite : prerequisites) {
+        g[prerequisite[1]][prerequisite[0]] = 1;
+        id[prerequisite[0]]++;
+    }
+
+    queue<int> que;
+    for (int i = 0; i < numCourses; i++) {
+        if (id[i] == 0) que.push(i);
+    }
+
+    vector<int> res;
+    while (!que.empty()) {
+        int ver = que.front();
+        que.pop();
+        res.push_back(ver);
+        for (int i = 0; i < numCourses; i++) {
+            if (g[ver][i] == 1) {
+                id[i]--;
+                if (id[i] == 0) que.push(i);
+            }
+        }
+    }
+
+    if (res.size() < numCourses) return {};
+    return res;
+}
+
+void analyze(vector<vector<int>>& g, vector<int>& id, string lhs, string rhs) {
+    for (int i = 0; i < min(lhs.size(), rhs.size()); i++) {
+        if (lhs[i] == rhs[i]) continue;
+        // prevent repeated edges
+        if (!g[lhs[i] - 'a'][rhs[i] - 'a']) {
+            g[lhs[i] - 'a'][rhs[i] - 'a'] = 1;
+            id[rhs[i] - 'a']++;
+        }
+        break;
+    }
+}
+
+/**
+ * @brief 0-based
+ * 
+ * Special case: ["abc", "ab"] violates the rule, return ""
+ * 
+ * @param words 
+ * @return string 
+ */
+string alienOrder(vector<string>& words) {
+    int n = 26;
+    vector<vector<int>> g(26, vector<int>(26, 0));
+    vector<int> id(26, -1);
+
+    // calculate the size of char
+    int nChar = 0;
+    for (auto word : words) {
+        for (auto ch : word) {
+            // when char occurs for the first time, set its id as 0 (assumed it is smallest)
+            if (id[ch - 'a'] == -1) {
+                id[ch - 'a'] = 0;
+                nChar++;
+            }
+        }
+    }
+
+    int m = words.size();
+    for (int i = 0; i < m; i++) {
+        for (int j = i + 1; j < m; j++) {
+            // handle violation ["abd", "ab"]
+            if (words[i].size() > words[j].size() && words[i].rfind(words[j], 0) == 0) {
+                return "";
+            }
+            analyze(g, id, words[i], words[j]);
+        }
+    }
+
+    queue<int> que;
+    for (int i = 0; i < 26; i++) {
+        if (id[i] == 0) que.push(i);
+    }
+
+    string res;
+    while (!que.empty()) {
+        int ch = que.front();
+        que.pop();
+        res.push_back(ch + 'a');
+        for (int j = 0; j < 26; j++) {
+            if (g[ch][j] == 1) {
+                id[j]--;
+                if (id[j] == 0) que.push(j);
+            }
+        }
+    }
+
+    return res.size() < nChar ? "" : res;
+}
