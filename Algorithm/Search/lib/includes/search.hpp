@@ -47,5 +47,6 @@ vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites);
 string alienOrder(vector<string>& words);
 vector<int> findMinHeightTreesTLE(int n, vector<vector<int>>& edges);
 vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges);
+int minimumSemesters(int n, vector<vector<int>>& relations);
 
 #endif

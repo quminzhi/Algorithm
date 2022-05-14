@@ -3269,3 +3269,62 @@ vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
     return res;
 }
 ```
+
+### Parallel Courses
+
+> You are given an integer n, which indicates that there are n courses labeled from 1 to n. You are also given an array relations where `relations[i] = [prevCoursei, nextCoursei]`, representing a prerequisite relationship between course `prevCoursei` and course `nextCoursei`: course `prevCoursei` has to be taken before course `nextCoursei`.
+>
+> In one semester, you can take any number of courses as long as you have taken all the prerequisites in the previous semester for the courses you are taking.
+>
+> Return the minimum number of semesters needed to take all courses. If there is no way to take all the courses, return -1.
+
+Topology sorting with loop checking (`nVertexes` to check if all vertexes are visited).
+
+```c++
+int minimumSemesters(int n, vector<vector<int>>& relations) {
+    int N = n + 1;
+    int m = relations.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    for (auto rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    queue<int> que;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) {
+            que.push(i);
+        }
+    }
+
+    int nVertexes = n;
+    int nSemester = 0;
+    while (!que.empty()) {
+        int sz = que.size();
+        nSemester++;
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            nVertexes--;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                id[j]--;
+                if (id[j] == 0) que.push(j);
+            }
+        }
+    }
+
+    if (nVertexes == 0) {
+        return nSemester;
+    } else {
+        return -1;
+    }
+}
+```

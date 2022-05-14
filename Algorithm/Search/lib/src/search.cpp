@@ -1172,3 +1172,57 @@ vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
 
     return res;
 }
+
+/**
+ * @brief 1-based
+ *
+ * @param n
+ * @param relations
+ * @return int
+ */
+int minimumSemesters(int n, vector<vector<int>>& relations) {
+    int N = n + 1;
+    int m = relations.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    for (auto rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    queue<int> que;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) {
+            que.push(i);
+        }
+    }
+
+    int nVertexes = n;
+    int nSemester = 0;
+    while (!que.empty()) {
+        int sz = que.size();
+        nSemester++;
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            nVertexes--;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                id[j]--;
+                if (id[j] == 0) que.push(j);
+            }
+        }
+    }
+
+    if (nVertexes == 0) {
+        return nSemester;
+    } else {
+        return -1;
+    }
+}

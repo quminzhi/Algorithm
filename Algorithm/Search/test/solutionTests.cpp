@@ -256,3 +256,10 @@ TEST(TopologyTests, minHeightTEST) {
     vector<int> res2 = {0};
     EXPECT_EQ(findMinHeightTrees(3, edges2), res2);
 }
+
+TEST(TopologyTests, parallelCourseTEST) {
+    vector<vector<int>> rel = {
+        {1, 3}, {2, 3}
+    };
+    EXPECT_EQ(minimumSemesters(3, rel), 2);
+}
