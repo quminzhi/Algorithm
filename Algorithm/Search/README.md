@@ -3114,3 +3114,158 @@ string alienOrder(vector<string>& words) {
     return res.size() < nChar ? "" : res;
 }
 ```
+
+### Minimum Height Trees
+
+> A tree is an undirected graph in which any two vertices are connected by exactly one path. In other words, any connected graph without simple cycles is a tree.
+>
+> Given a tree of n nodes labelled from 0 to n - 1, and an array of n - 1 edges where edges[i] = [ai, bi] indicates that there is an undirected edge between the two nodes ai and bi in the tree, you can choose any node of the tree as the root. When you select a node x as the root, the result tree has height h. Among all possible rooted trees, those with minimum height (i.e. min(h))  are called minimum height trees (MHTs).
+>
+> Return a list of all MHTs' root labels. You can return the answer in any order.
+>
+> The height of a rooted tree is the number of edges on the longest downward path between the root and a leaf.
+
+There two important observations:
+
+- Tree is a special graph with `n` vertexes and `n - 1` edges.
+- Each vertex (node) in a tree has only one input degree. So, the result of topology sorting is same as that of BFS.
+
+The implementation is shown as follow.
+
+- BFS: Time Limit Exceed.
+
+```c++
+int findMHTHelper(vector<int>& h, vector<int>& v, vector<int>& ne, int i) {
+    int height = 0;
+    // topology sorting
+    queue<int> que;
+    // undirected graph: prevent dead loop
+    vector<bool> st(h.size(), false);
+    que.push(i);
+    while (!que.empty()) {
+        height++;
+        int sz = que.size();
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            st[u] = true;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (!st[j]) que.push(j);
+            }
+        }
+    }
+
+    return height;
+}
+
+/**
+ * @brief topology sorting == breadth first search in a tree.
+ *
+ * @param n
+ * @param edges
+ * @return vector<int>
+ */
+vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+    const int inf = 1e6;
+    int idx = 0;
+    int m = edges.size();
+    // undirected graph
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (auto edge : edges) {
+        int aa = edge[0], bb = edge[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    int minVertex = -1;
+    int minHeight = inf;
+    vector<int> res;
+    for (int i = 0; i < n; i++) {
+        int height = findMHTHelper(h, v, ne, i);
+        if (minVertex == -1 || height < minHeight) {
+            minVertex = i;
+            res.clear();
+            res.push_back(i);
+            minHeight = height;
+            continue;
+        }
+        if (height == minHeight) {
+            res.push_back(i);
+        }
+    }
+
+    return res;
+}
+```
+
+- Find centroid with topology sorting.
+
+When centroid is treated as the root of a tree, it should have the minimum height.
+
+One important observation is: in tree graph, there are at most two centroids.
+
+```c++
+vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+    if (n == 1) return {0};
+    const int inf = 1e6;
+    int idx = 0;
+    int m = edges.size();
+    // undirected graph
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    vector<int> d(n, 0);   // degree of each node == edges (undirected)
+    for (auto edge : edges) {
+        int aa = edge[0], bb = edge[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+
+        d[aa]++, d[bb]++;
+    }
+
+    queue<int> que;
+    for (int i = 0; i < n; i++) {
+        if (d[i] == 1) que.push(i);
+    }
+    vector<int> st(n, false);
+    vector<int> res;
+    int nLeft = n;
+    while (!que.empty()) {
+        int sz = que.size();
+        if (nLeft <= 2) break;
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            st[u] = true;
+            nLeft--;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                d[j]--;
+                if (!st[j] && d[j] == 1) que.push(j);
+            }
+        }
+    }
+
+    // # of nodes is odd
+    res.push_back(que.front());
+
+    // # of nodes is even
+    if (que.size() == 2) {
+        que.pop();
+        res.push_back(que.front());
+    }
+
+    return res;
+}
+```

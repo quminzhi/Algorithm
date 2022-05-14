@@ -236,3 +236,23 @@ TEST(MinPathTests, minLinesTEST) {
     // vector<vector<int>> points4 = {{-2, 3}, {4, -5}, {3, -2}, {5, 3}};
     // EXPECT_EQ(minimumLines(points4), 2);
 }
+
+TEST(TopologyTests, minHeightTEST) {
+    vector<vector<int>> edges = {
+        {1, 0}, {1, 2}, {1, 3}
+    };
+    vector<int> res = {1};
+    // EXPECT_EQ(findMinHeightTrees(4, edges), res);
+
+    vector<vector<int>> edges1 = {
+        {3, 0}, {3, 1}, {3, 2}, {3, 4}, {5, 4}
+    };
+    vector<int> res1 = {3, 4};
+    EXPECT_EQ(findMinHeightTrees(6, edges1), res1);
+
+    vector<vector<int>> edges2 = {
+        {0, 1}, {0, 2}
+    };
+    vector<int> res2 = {0};
+    EXPECT_EQ(findMinHeightTrees(3, edges2), res2);
+}

@@ -992,11 +992,11 @@ void analyze(vector<vector<int>>& g, vector<int>& id, string lhs, string rhs) {
 
 /**
  * @brief 0-based
- * 
+ *
  * Special case: ["abc", "ab"] violates the rule, return ""
- * 
- * @param words 
- * @return string 
+ *
+ * @param words
+ * @return string
  */
 string alienOrder(vector<string>& words) {
     int n = 26;
@@ -1045,4 +1045,130 @@ string alienOrder(vector<string>& words) {
     }
 
     return res.size() < nChar ? "" : res;
+}
+
+int findMHTHelper(vector<int>& h, vector<int>& v, vector<int>& ne, int i) {
+    int height = 0;
+    // topology sorting
+    queue<int> que;
+    // undirected graph: prevent dead loop
+    vector<bool> st(h.size(), false);
+    que.push(i);
+    while (!que.empty()) {
+        height++;
+        int sz = que.size();
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            st[u] = true;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                if (!st[j]) que.push(j);
+            }
+        }
+    }
+
+    return height;
+}
+
+/**
+ * @brief topology sorting == breadth first search in a tree.
+ *
+ * @param n
+ * @param edges
+ * @return vector<int>
+ */
+vector<int> findMinHeightTreesTLE(int n, vector<vector<int>>& edges) {
+    const int inf = 1e6;
+    int idx = 0;
+    int m = edges.size();
+    // undirected graph
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    for (auto edge : edges) {
+        int aa = edge[0], bb = edge[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+    }
+
+    int minVertex = -1;
+    int minHeight = inf;
+    vector<int> res;
+    for (int i = 0; i < n; i++) {
+        int height = findMHTHelper(h, v, ne, i);
+        if (minVertex == -1 || height < minHeight) {
+            minVertex = i;
+            res.clear();
+            res.push_back(i);
+            minHeight = height;
+            continue;
+        }
+        if (height == minHeight) {
+            res.push_back(i);
+        }
+    }
+
+    return res;
+}
+
+vector<int> findMinHeightTrees(int n, vector<vector<int>>& edges) {
+    if (n == 1) return {0};
+    const int inf = 1e6;
+    int idx = 0;
+    int m = edges.size();
+    // undirected graph
+    vector<int> h(n, -1);
+    vector<int> v(2 * m, 0);
+    vector<int> ne(2 * m, -1);
+    vector<int> d(n, 0);   // degree of each node == edges (undirected)
+    for (auto edge : edges) {
+        int aa = edge[0], bb = edge[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        v[idx] = aa;
+        ne[idx] = h[bb];
+        h[bb] = idx++;
+
+        d[aa]++, d[bb]++;
+    }
+
+    queue<int> que;
+    for (int i = 0; i < n; i++) {
+        if (d[i] == 1) que.push(i);
+    }
+    vector<int> st(n, false);
+    vector<int> res;
+    int nLeft = n;
+    while (!que.empty()) {
+        int sz = que.size();
+        if (nLeft <= 2) break;
+        while (sz--) {
+            int u = que.front();
+            que.pop();
+            st[u] = true;
+            nLeft--;
+            for (int p = h[u]; p != -1; p = ne[p]) {
+                int j = v[p];
+                d[j]--;
+                if (!st[j] && d[j] == 1) que.push(j);
+            }
+        }
+    }
+
+    // # of nodes is odd
+    res.push_back(que.front());
+
+    // # of nodes is even
+    if (que.size() == 2) {
+        que.pop();
+        res.push_back(que.front());
+    }
+
+    return res;
 }
