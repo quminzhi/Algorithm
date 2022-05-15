@@ -1309,3 +1309,100 @@ int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {
 
     return solver(h, v, ne, f, n, k, 0);
 }
+
+/**
+ * @brief 
+ *
+ * @param n: 1-based
+ * @param relations 
+ * @param time: 0-based
+ * @return int 
+ */
+int minimumTime(int n, vector<vector<int>>& relations, vector<int>& time) {
+    int N = n + 1;
+    int m = relations.size();
+    int inf = 1e7;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    int idx = 0;
+    for (auto& rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    typedef pair<int, int> PII;   // {the month when the course is done, node}
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) pq.push({0 + time[i - 1], i});
+    }
+
+    int begin = 0;
+    while (!pq.empty()) {
+        auto t = pq.top();
+        pq.pop();
+        int u = t.second, tm = t.first;
+        begin = tm;   // complete
+        for (int p = h[u]; p != -1; p = ne[p]) {
+            int j = v[p];
+            id[j]--;
+            if (id[j] == 0) pq.push({begin + time[j - 1], j});
+        }
+    }
+
+    return begin;
+}
+
+int minimumTimeHelper(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& time, vector<int>& f, int u) {
+    if (f[u] != -1) return f[u];
+
+    int t = 0;
+    for (int p = h[u]; p != -1; p = ne[p]) {
+        int j = v[p];
+        t = max(t, minimumTimeHelper(h, v, ne, time, f, j));
+    }
+    t += time[u - 1];
+
+    f[u] = t;
+    return t;
+}
+
+/**
+ * @brief 
+ * 
+ * @param n 
+ * @param relations 
+ * @param time 
+ * @return int 
+ */
+int minimumTimeII(int n, vector<vector<int>>& relations, vector<int>& time) {
+    int N = n + 1;
+    int m = relations.size();
+    int inf = 1e7;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    int idx = 0;
+    for (auto& rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    vector<int> f(N, -1);
+    int res = -1;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) {
+            res = max(res, minimumTimeHelper(h, v, ne, time, f, i));
+        }
+    }
+
+    return res;
+}

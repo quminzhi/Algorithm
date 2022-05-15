@@ -3444,3 +3444,112 @@ int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {
     return solver(h, v, ne, f, n, k, 0);
 }
 ```
+
+### Parallel Courses III
+
+> You are given an integer n, which indicates that there are n courses labeled from 1 to n. You are also given a 2D integer array `relations` where `relations[j] = [prevCoursej, nextCoursej]` denotes that course `prevCoursej` has to be completed before course `nextCoursej` (prerequisite relationship). Furthermore, you are given a 0-indexed integer array time where `time[i]` denotes how many months it takes to complete the `(i+1)th` course.
+>
+> You must find the minimum number of months needed to complete all the courses following these rules:
+>
+> - You may start taking a course at any time if the prerequisites are met.
+> - Any number of courses can be taken at the same time.
+>
+> Return the minimum number of months needed to complete all the courses.
+
+There are two constraints in this problem compared with Parallel Courses II:
+
+- dependency: some courses are required to be completed before taking other courses.
+- cost: time cost for each course varies.
+
+- topology sorting solution
+
+Note that there is no number of selection constraint and we may start taking a course at any time if the prerequisites are met. So, we will use topology sorting to find the course I can take so far, and use priority queue to save the first course will be completed in all on-going courses (with pair `{the month when the course is done, course id}`).
+
+```c++
+int minimumTime(int n, vector<vector<int>>& relations, vector<int>& time) {
+    int N = n + 1;
+    int m = relations.size();
+    int inf = 1e7;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    int idx = 0;
+    for (auto& rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    typedef pair<int, int> PII;   // {the month when the course is done, node}
+    priority_queue<PII, vector<PII>, greater<PII>> pq;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) pq.push({0 + time[i - 1], i});
+    }
+
+    int begin = 0;
+    while (!pq.empty()) {
+        auto t = pq.top();
+        pq.pop();
+        int u = t.second, tm = t.first;
+        begin = tm;   // complete
+        for (int p = h[u]; p != -1; p = ne[p]) {
+            int j = v[p];
+            id[j]--;
+            if (id[j] == 0) pq.push({begin + time[j - 1], j});
+        }
+    }
+
+    return begin;
+}
+```
+
+- dynamic programming solution
+
+Define `f[i]` as the min time cost for all courses depending on `i`th course.
+
+```c++
+int minimumTimeHelper(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& time, vector<int>& f, int u) {
+    if (f[u] != -1) return f[u];
+
+    int t = 0;
+    for (int p = h[u]; p != -1; p = ne[p]) {
+        int j = v[p];
+        t = max(t, minimumTimeHelper(h, v, ne, time, f, j));
+    }
+    t += time[u - 1];
+
+    f[u] = t;
+    return t;
+}
+
+int minimumTimeII(int n, vector<vector<int>>& relations, vector<int>& time) {
+    int N = n + 1;
+    int m = relations.size();
+    int inf = 1e7;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    vector<int> id(N, 0);
+    int idx = 0;
+    for (auto& rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+        id[bb]++;
+    }
+
+    vector<int> f(N, -1);
+    int res = -1;
+    for (int i = 1; i <= n; i++) {
+        if (id[i] == 0) {
+            res = max(res, minimumTimeHelper(h, v, ne, time, f, i));
+        }
+    }
+
+    return res;
+}
+```
