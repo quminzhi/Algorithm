@@ -1226,3 +1226,86 @@ int minimumSemesters(int n, vector<vector<int>>& relations) {
         return -1;
     }
 }
+
+/**
+ * @brief bit is 0-based and node (adjacency list) is 1-based
+ *
+ * @param h
+ * @param v
+ * @param ne
+ * @param courses: a bit representation (0-based)
+ * @return int
+ */
+int solver(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& f, int n, int k, int courses) {
+    static int inf = 1e5;
+    // all courses have been selected, no new semester
+    if (courses == (1 << n) - 1) return 0;
+    // if calculated before, return the result
+    if (f[courses] != -1) return f[courses];
+
+    // find all courses without prerequisites and has not been selected, till now (with indegree 0)
+    vector<int> id(h.size(), 0);
+    for (int i = 0; i < n; i++) {
+        // selected
+        if ((courses >> i) & 1) continue;
+        // not selected: bit is 0-based and node is 1-based
+        for (int p = h[i + 1]; p != -1; p = ne[p]) {
+            int j = v[p];
+            id[j]++;
+        }
+    }
+
+    // construct available courses
+    int available = 0;   // available courses in this semester
+    for (int i = 0; i < n; i++) {
+        // if not selected before and no prerequisite
+        if (((courses >> i) & 1) == 0 && id[i + 1] == 0) {
+            available |= (1 << i);
+        }
+    }
+
+    int nCourses = __builtin_popcount(available);
+    int minSemester = inf;
+    if (nCourses < k) {
+        minSemester = min(minSemester, solver(h, v, ne, f, n, k, courses | available) + 1);
+    } else {
+        // use j to enumerate all subsets of available courses with the size of k
+        for (int j = available; j; j = (j - 1) & available) {
+            int cnt = __builtin_popcount(j);
+            if (cnt != k) continue;
+            minSemester = min(minSemester, solver(h, v, ne, f, n, k, courses | j) + 1);
+        }
+    }
+
+    f[courses] = minSemester;
+    return minSemester;
+}
+
+/**
+ * @brief 1-based
+ *
+ * @param n
+ * @param relations
+ * @param k
+ * @return int
+ */
+int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {
+    int N = n + 1;
+    int inf = 1e6;
+    int m = relations.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    for (auto rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+    }
+
+    // -1 represents no calculation result
+    vector<int> f(1 << n, -1);
+
+    return solver(h, v, ne, f, n, k, 0);
+}

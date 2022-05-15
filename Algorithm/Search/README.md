@@ -3328,3 +3328,119 @@ int minimumSemesters(int n, vector<vector<int>>& relations) {
     }
 }
 ```
+
+### Parallel Courses II
+
+> You are given an integer n, which indicates that there are n courses labeled from 1 to n. You are also given an array relations where `relations[i] = [prevCoursei, nextCoursei]`, representing a prerequisite relationship between course `prevCoursei` and course `nextCoursei`: course `prevCoursei` has to be taken before course `nextCoursei`. Also, you are given the integer k.
+>
+> In one semester, you can take at most `k` courses as long as you have taken all the prerequisites in the previous semesters for the courses you are taking.
+>
+> Return the minimum number of semesters needed to take all courses. The testcases will be generated such that it is possible to take every course.
+
+Note that `n <= 15` in the constraint, we are able to represent if a course is selected with a bitmap, `0b00000011` representing the first and second courses are selected.
+
+The basic algorithm is:
+
+- Use masks to represent the set of courses (nodes) taken, till now. If a bit in mask is 1, it means that course is taken.
+- For a particular mask, calculate the indegree (pre-requisite) of each node, without including the edges from the nodes that are already taken (courses having been selected).
+- Now, at any stage, we can only chose any subset (submask) of the nodes with indegree as 0. This generates overlapping subproblems, which can be easily handled using DP with bitmasking.
+
+There are two cases in each semester: Let p as the number of nodes (so far) with indegree 0 at any stage.
+
+- if `p > k`, it is optimal to take a subset of nodes having exactly k nodes.
+- if `p <= k`, it is optimal to take all the p nodes.
+
+Before implementing the algorithm above, we will review the bit operation first:
+
+- bit representation
+
+```text
+                        # of states (ignore leading 1)
+2^0 = 0b1    = 1 << 0       (0)
+2^1 = 0b10   = 1 << 1       (1)
+2^2 = 0b100  = 1 << 2       (2)
+...
+2^n = 0b100..00 = 1 << n    (n)
+```
+
+`2^n` can represent subsets of `n` states.
+
+- bit operation
+    - set all state bit to be 1: `(1 << n) - 1`.
+    - check if ith bit is set: `(mask >> i) & 1 == 1` or `mask & (1 << i) != 0`.
+    - set ith bit to be 1: `mask | (1 << i)`.
+    - set ith bit to be 0: `mask & ~(1 << i)`.
+    - toggle ith bit: `mask ^ (1 << i)`.
+
+- iterate all subset of `mask`: `for (int j = mask; j; j = (j - 1) & mask)`.
+
+- bit functions
+    - `__builtin_popcount(int)` returns the number of set bits.
+
+```c++
+int solver(vector<int>& h, vector<int>& v, vector<int>& ne, vector<int>& f, int n, int k, int courses) {
+    static int inf = 1e5;
+    // all courses have been selected, no new semester
+    if (courses == (1 << n) - 1) return 0;
+    // if calculated before, return the result
+    if (f[courses] != -1) return f[courses];
+
+    // find all courses without prerequisites and has not been selected, till now (with indegree 0)
+    vector<int> id(h.size(), 0);
+    for (int i = 0; i < n; i++) {
+        // selected
+        if ((courses >> i) & 1) continue;
+        // not selected: bit is 0-based and node is 1-based
+        for (int p = h[i + 1]; p != -1; p = ne[p]) {
+            int j = v[p];
+            id[j]++;
+        }
+    }
+
+    // construct available courses
+    int available = 0;   // available courses in this semester
+    for (int i = 0; i < n; i++) {
+        // if not selected before and no prerequisite
+        if (((courses >> i) & 1) == 0 && id[i + 1] == 0) {
+            available |= (1 << i);
+        }
+    }
+
+    int nCourses = __builtin_popcount(available);
+    int minSemester = inf;
+    if (nCourses < k) {
+        minSemester = min(minSemester, solver(h, v, ne, f, n, k, courses | available) + 1);
+    } else {
+        // use j to enumerate all subsets of available courses with the size of k
+        for (int j = available; j; j = (j - 1) & available) {
+            int cnt = __builtin_popcount(j);
+            if (cnt != k) continue;
+            minSemester = min(minSemester, solver(h, v, ne, f, n, k, courses | j) + 1);
+        }
+    }
+
+    f[courses] = minSemester;
+    return minSemester;
+}
+
+int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {
+    int N = n + 1;
+    int inf = 1e6;
+    int m = relations.size();
+    int idx = 0;
+    vector<int> h(N, -1);
+    vector<int> v(m, 0);
+    vector<int> ne(m, -1);
+    for (auto rel : relations) {
+        int aa = rel[0], bb = rel[1];
+        v[idx] = bb;
+        ne[idx] = h[aa];
+        h[aa] = idx++;
+    }
+
+    // -1 represents no calculation result
+    vector<int> f(1 << n, -1);
+
+    return solver(h, v, ne, f, n, k, 0);
+}
+```

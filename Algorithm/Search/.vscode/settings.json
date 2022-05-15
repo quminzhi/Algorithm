@@ -89,6 +89,7 @@
         "SPFA",
         "SPFATEST",
         "bigraph",
+        "bitmasking",
         "costj",
         "cout",
         "dcab",
@@ -96,14 +97,19 @@
         "endl",
         "heapfied",
         "heapified",
+        "indegree",
         "logn",
         "minzhi",
         "mlog",
         "mlogn",
         "nlogn",
         "nullptr",
+        "popcount",
         "rftt",
         "struct",
+        "submask",
+        "subproblems",
+        "testcases",
         "topo"
     ]
 }
