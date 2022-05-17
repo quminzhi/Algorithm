@@ -3437,7 +3437,7 @@ int minNumberOfSemesters(int n, vector<vector<int>>& relations, int k) {
         ne[idx] = h[aa];
         h[aa] = idx++;
     }
-
+    
     // -1 represents no calculation result
     vector<int> f(1 << n, -1);
 
