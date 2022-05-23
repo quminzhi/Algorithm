@@ -82,13 +82,21 @@
         "filesystem": "cpp"
     },
     "cSpell.ignoreWords": [
+        "abaabd",
         "abababbbabbababa",
+        "cdccdcab",
         "childrens's",
         "cout",
+        "cstring",
         "endl",
+        "iostream",
+        "libc",
+        "memset",
         "nullptr",
         "nums",
         "struct",
+        "subarray",
+        "subpalindrome",
         "substr",
         "vals"
     ]

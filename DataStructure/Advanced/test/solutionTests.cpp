@@ -30,6 +30,17 @@ TEST(MyTests, KMP_TEST) {
 TEST(MyTestsTest, SegmentTreeTEST) {
     vector<int> v = {1, 3, 4, 5, 20, 17, 4, 19, 25};
     SegmentTree st(v);
-    EXPECT_EQ(st.query(1, 0, 3), 4);
+    EXPECT_EQ(st.query(1, 1, 3), 4);
     EXPECT_EQ(st.query(1, 1, 4), 5);
+    EXPECT_EQ(st.query(1, 3, 5), 20);
+    EXPECT_EQ(st.query(1, 3, 6), 20);
+}
+
+TEST(MyTestsTest, MaxSubarrayTEST) {
+    vector<int> v = {1, 3, 4, 5, -20, 17, 4, 19, 25};
+    MaxSubarray st(v);
+    EXPECT_EQ(st.query(1, 1, 3).vMax, 8);
+    EXPECT_EQ(st.query(1, 1, 4).vMax, 13);
+    EXPECT_EQ(st.query(1, 3, 5).vMax, 9);
+    EXPECT_EQ(st.query(1, 3, 6).vMax, 17);
 }

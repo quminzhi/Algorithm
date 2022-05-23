@@ -574,7 +574,9 @@ int main() {
 
 The basic idea of segment tree is rearrange a segment into a tree shape where each node represents a smaller segment which includes some important info about this segment (e.g. max, sum, prefix sum, postfix sum, max sum of sub array within the segment).
 
-- Basic Pattern (update a single value each time)
+#### Single Point Update
+
+#### Max Segment Tree
 
 For convenience: we treat input as 1-based data. The segment tree will be represented with a 1-d array (location is indexed with indices).
 
@@ -595,7 +597,7 @@ struct Node {
 We divide a segment `[l, r]` into two parts: left part `[l, mid]` and `[mid + 1, r]` (mid is included in the left part).
 
 ```c++
-/* build tree */
+/* build tree: segment division, 1-based for u and l */
 void build(int u, int l, int r) {
     tr[u].l == l;
     tr[u].r == r;
@@ -674,8 +676,8 @@ int query(int u, int l, int r) {
     // case 1: include
     if (tr[u].l >= l && tr[u].r <= r) return tr[u].vMax;
     int mid = tr[u].l + tr[u].r >> 1;
-    int winner;
-    if (l <= mid) winner = query(u << 1, l, r);   // left intersection exists
+    int winner = -inf;
+    if (l <= mid) winner = max(winner, query(u << 1, l, r));   // left intersection exists
     if (r > mid) winner = max(winner, query(u << 1 | 1, l, r));   // right intersection exists
     return winner; 
 };
@@ -689,15 +691,113 @@ void pushup(int u) {   // indexed by indices (int ~= Node*)
     tr[u].vMax = max(tr[u << 1].vMax, tr[u << 1 | 1].vMax);
 };
 
-void modify(int u, int vOld, int vNew) {
+void modify(int u, int idx, int val) {
     // find leaf node of modified element
-    if (tr[u].l == tr[u].r) tr[u].vMax = vNew;
+    if (tr[u].l == idx && tr[u].r == idx) tr[u].vMax = val;
     else {
         int mid = tr[u].l + tr[u].r >> 1;
-        if (vOld <= mid) modify(u << 1, vOld, vNew);
-        else modify(u << 1 | 1, vOld, vNew);
+        if (idx <= mid) modify(u << 1, idx, val);
+        else modify(u << 1 | 1, idx, val);
         // backtracking: update parent
         pushup(u);
     }
+};
+```
+
+#### Max Sum of Subarray
+
+Given two children segments, how to calculate the max sum of sub array of parent segment.
+
+``text
+parent:
+    o-------------o-------------o
+                 mid
+children:
+    o-------------oo------------o
+       left            right
+```
+
+The max sum of subarray of parent segment has three possibles:
+
+- max subarray of left segment
+- max subarray of right segment
+- max postfix of left + max prefix of right (combined)
+
+The new generated problem is how to maintain prefix and postfix of each segment?
+
+- `prefix of parent  = max(prefix of left, sum of left + prefix of right)`
+- `postfix of parent = max(postfix of right, sum of right + postfix of right)`
+
+The next problem is how to maintain sum of each segment? Obviously, `sum of parent = sum of left + sum of right`.
+
+```c++
+class MaxSubarray {
+   private:
+    struct Node {
+        int l, r;
+        int prefix, postfix, sum, vMax;
+    };
+
+   public:
+    MaxSubarray(vector<int> v) {
+        const int n = v.size();
+        build(1, 1, n);
+        for (int i = 1; i <= n; i++) {
+            modify(1, i, v[i - 1]);
+        }
+    }
+
+    void build(int u, int l, int r) {
+        tr[u].l = l;
+        tr[u].r = r;
+        if (l == r) return;
+        int mid = tr[u].l + tr[u].r >> 1;
+        build(u << 1, l, mid);
+        build(u << 1 | 1, mid + 1, r);
+    }
+
+    /* update regulation */
+    void pushup(struct Node& p, struct Node& left, struct Node& right) {
+        p.sum = left.sum + right.sum;
+        p.prefix = max(left.prefix, left.sum + right.prefix);
+        p.postfix = max(right.postfix, right.sum + left.postfix);
+        // three possibles
+        p.vMax = max(left.vMax, right.vMax);                 // left or right
+        p.vMax = max(p.vMax, left.postfix + right.prefix);   // or combination of postfix and prefix
+    }
+
+    void pushup(int u) { pushup(tr[u], tr[u << 1], tr[u << 1 | 1]); }
+
+    void modify(int u, int idx, int val) {
+        if (tr[u].l == tr[u].r && tr[u].l == idx) {
+            tr[u].postfix = tr[u].prefix = tr[u].sum = tr[u].vMax = val;
+        } else {
+            int mid = tr[u].l + tr[u].r >> 1;
+            if (idx <= mid)
+                modify(u << 1, idx, val);
+            else
+                modify(u << 1 | 1, idx, val);
+            pushup(u);
+        }
+    }
+
+    // return the segment including ans
+    Node query(int u, int l, int r) {
+        if (tr[u].l >= l && tr[u].r <= r) return tr[u];
+        int mid = tr[u].l + tr[u].r >> 1;
+        // only left
+        if (r <= mid) return query(u << 1, l, r);
+        // only right
+        if (l > mid) return query(u << 1 | 1, l, r);
+        // include left and right: three cases solved with pushup
+        struct Node left = query(u << 1, l, r);
+        struct Node right = query(u << 1 | 1, l, r);
+        struct Node res;
+        pushup(res, left, right);   // update res with left and right answer
+        return res;
+    }
+
+   private:
+    struct Node tr[1010];
 };
 ```
