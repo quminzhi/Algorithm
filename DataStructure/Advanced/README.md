@@ -1,4 +1,4 @@
-# ACWing Data Structure
+# Advanced Data Structure
 
 ## Data Structure I
 
@@ -708,7 +708,7 @@ void modify(int u, int idx, int val) {
 
 Given two children segments, how to calculate the max sum of sub array of parent segment.
 
-``text
+```text
 parent:
     o-------------o-------------o
                  mid
