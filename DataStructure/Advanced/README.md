@@ -574,7 +574,7 @@ int main() {
 
 The basic idea of segment tree is rearrange a segment into a tree shape where each node represents a smaller segment which includes some important info about this segment (e.g. max, sum, prefix sum, postfix sum, max sum of sub array within the segment).
 
-#### Single Point Update
+There are two kinds: 1. single point update (basic), 2. range update (lazy label).
 
 #### Max Segment Tree
 
@@ -799,5 +799,162 @@ class MaxSubarray {
 
    private:
     struct Node tr[1010];
+};
+```
+
+#### Range Greatest Common Divisor
+
+One property of greatest common divisor is: `gcd(a1, a2, ..., an) = gcd(a1 - 0, a2 - a1, ..., an - an-1)`.
+
+```text
+Proof: gcd(left) <= gcd(right)
+let d be the gcd(left). For the first two terms on the left,
+    a1 mod d == 0 and a2 mod d == 0
+So, for the first two terms on the right,
+    (a1 - 0) mod d == 0 and  (a2 - a1) mod d == 0
+With the same logic, we can proof all terms have such property. Thus, d must be a common divisor of right. So gcd(left) <= gcd(right).
+
+Proof: gcd(left) >= gcd(right)
+let d be the gcd(right). For the first two terms on the right, we have
+    (a1 - 0) mod d == 0 and  (a2 - a1) mod d == 0
+So, for the first two terms on the left,
+    a1 mod d == 0 and ((a2 - a1) + a1) mod d == a2 mod d == 0
+d must be a common divisor of left. So, gcd(left) >= gcd(right)
+```
+
+So, gcd of an array `arr` is equal to gcd of difference array `diff` of `arr`. If we want to calculate gcd of `arr[L, R]`,
+
+```text
+gcd(aL, aL+1, ..., aR) = gcd(aL, aL+1 - aL, aL+2 - aL+1, ..., aR - aR-1)
+                       = gcd(aL, bL+1, bL+2, ..., bR).
+
+where b is diff array, a is original array. 'aL' == 'prefixSum[L+1]'.
+```
+
+With this property, we will save difference of two adjacent numbers in the segment (refer to the update of difference) to achieve range update. In this case, to query `a[i]` is to query `prefixSum(b[i+1])`.
+
+This is called **difference segment tree** (range change and single point query).
+
+Side note: beautiful gcd code:
+
+```c++
+/* 
+    if b == 0, return a
+    else a = b, b = a % b, and solve recursively
+ */
+int gcd(int a, int b) {
+    return b ? gcd(b, a % b) : a;
+}
+```
+
+The complete code:
+
+```c++
+/*
+    1. one property: gcd(a1, a2, ..., an) = gcd(a1 - 0, a2 - a1, ..., an - an-1)
+    i.e. gcd of original sequence is gcd of difference sequence
+
+    2. maintain elements in segment tree in the form of difference sequence.
+        - modify(u, l, r, add) -> modify(u, l, add) and modify(u, r + 1, -add) if r + 1 <= n
+        - query(u, l, r) -> gcd(a[l], diff[l+1], ..., diff[r]) == gcd(a[l], gcd(diff[l+1], ..., diff[r]))
+        where, a[l] = prefixSum[l + 1]
+ */
+class GCDTree {
+   private:
+    struct Node {
+        int l, r;
+        int sum, divisor;   // maintain two property
+    };
+
+   public:
+    GCDTree(const vector<int>& v) {
+        n = v.size();
+        // 0-based to 1-based
+        vector<int> vv(v.begin(), v.end());
+        vv.insert(vv.begin(), 0);
+        build(vv, 1, 1, n);
+    }
+
+    void pushup(struct Node& p, struct Node& left, struct Node& right) {
+        p.sum = left.sum + right.sum;
+        p.divisor = gcd(left.divisor, right.divisor);
+    }
+
+    void pushup(int u) { pushup(tr[u], tr[u << 1], tr[u << 1 | 1]); }
+
+    // segment: diff sequence
+    void build(const vector<int>& v, int u, int l, int r) {
+        tr[u].l = l;
+        tr[u].r = r;
+        if (l == r) {
+            // leaf
+            int diff = v[l] - v[l - 1];
+            tr[u].divisor = diff;
+            tr[u].sum = diff;
+        } else {
+            int mid = l + r >> 1;
+            build(v, u << 1, l, mid);
+            build(v, u << 1 | 1, mid + 1, r);
+            pushup(u);
+        }
+    }
+
+    // modify: change of value (DELTA) on [idx, idx], not replace with 'add'
+    void modify(int u, int idx, int add) {
+        if (tr[u].l == tr[u].r && tr[u].l == idx) {
+            int t = tr[u].divisor + add;
+            tr[u].divisor = tr[u].sum = t;
+        } else {
+            int mid = tr[u].l + tr[u].r >> 1;
+            if (idx <= mid)
+                modify(u << 1, idx, add);
+            else
+                modify(u << 1 | 1, idx, add);
+            pushup(u);
+        }
+    }
+
+    // range modify
+    void modify(int u, int l, int r, int add) {
+        // update diff sequence
+        modify(u, l, add);
+        if (r + 1 <= n) modify(u, r + 1, -add);
+    }
+
+    struct Node query(int u, int l, int r) {
+        if (tr[u].l >= l && tr[u].r <= r) return tr[u];
+        int mid = tr[u].l + tr[u].r >> 1;
+        if (r <= mid) {
+            // ans in left segment (known)
+            return query(u << 1, l, r);
+        } else if (l > mid) {
+            // ans in right segment (known)
+            return query(u << 1 | 1, l, r);
+        } else {
+            // ans need to be calculated by pushup
+            struct Node left = query(u << 1, l, r);
+            struct Node right = query(u << 1 | 1, l, r);
+            struct Node res;
+            pushup(res, left, right);
+            return res;
+        }
+    }
+
+    // decorator:
+    // gcd(a[l], gcd(diff[l+1], ..., diff[r]))
+    int query(int l, int r) {
+        auto left = query(1, 1, l);   // for a[l]
+        if (l + 1 > r) return left.sum;   // no diff sequence after a[l]
+        auto right = query(1, l + 1, r); // gcd of diff[l+1 ... r]
+        return abs(gcd(left.sum, right.divisor));
+    }
+
+   private:
+    struct Node tr[1010];   // 4 * n
+    int n;
+
+    int gcd(int a, int b) {
+        return b ? gcd(b, a % b) : a;
+    }
 };
 ```

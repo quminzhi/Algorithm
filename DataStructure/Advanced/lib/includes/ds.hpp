@@ -167,4 +167,112 @@ class MaxSubarray {
     struct Node tr[1010];
 };
 
+/*
+    1. one property: gcd(a1, a2, ..., an) = gcd(a1 - 0, a2 - a1, ..., an - an-1)
+    i.e. gcd of original sequence is gcd of difference sequence
+
+    2. maintain elements in segment tree in the form of difference sequence.
+        - modify(u, l, r, add) -> modify(u, l, add) and modify(u, r + 1, -add) if r + 1 <= n
+        - query(u, l, r) -> gcd(a[l], diff[l+1], ..., diff[r]) == gcd(a[l], gcd(diff[l+1], ..., diff[r]))
+        where, a[l] = prefixSum[l + 1]
+ */
+class GCDTree {
+   private:
+    struct Node {
+        int l, r;
+        int sum, divisor;
+    };
+
+   public:
+    GCDTree(const vector<int>& v) {
+        n = v.size();
+        // 0-based to 1-based
+        vector<int> vv(v.begin(), v.end());
+        vv.insert(vv.begin(), 0);
+        build(vv, 1, 1, n);
+    }
+
+    void pushup(struct Node& p, struct Node& left, struct Node& right) {
+        p.sum = left.sum + right.sum;
+        p.divisor = gcd(left.divisor, right.divisor);
+    }
+
+    void pushup(int u) { pushup(tr[u], tr[u << 1], tr[u << 1 | 1]); }
+
+    // segment: diff sequence
+    void build(const vector<int>& v, int u, int l, int r) {
+        tr[u].l = l;
+        tr[u].r = r;
+        if (l == r) {
+            // leaf
+            int diff = v[l] - v[l - 1];
+            tr[u].divisor = diff;
+            tr[u].sum = diff;
+        } else {
+            int mid = l + r >> 1;
+            build(v, u << 1, l, mid);
+            build(v, u << 1 | 1, mid + 1, r);
+            pushup(u);
+        }
+    }
+
+    // modify: change of value (DELTA) on [idx, idx], not replace with 'add'
+    void modify(int u, int idx, int add) {
+        if (tr[u].l == tr[u].r && tr[u].l == idx) {
+            int t = tr[u].divisor + add;
+            tr[u].divisor = tr[u].sum = t;
+        } else {
+            int mid = tr[u].l + tr[u].r >> 1;
+            if (idx <= mid)
+                modify(u << 1, idx, add);
+            else
+                modify(u << 1 | 1, idx, add);
+            pushup(u);
+        }
+    }
+
+    // range modify
+    void modify(int u, int l, int r, int add) {
+        // update diff sequence
+        modify(u, l, add);
+        if (r + 1 <= n) modify(u, r + 1, -add);
+    }
+
+    struct Node query(int u, int l, int r) {
+        if (tr[u].l >= l && tr[u].r <= r) return tr[u];
+        int mid = tr[u].l + tr[u].r >> 1;
+        if (r <= mid) {
+            // ans in left segment (known)
+            return query(u << 1, l, r);
+        } else if (l > mid) {
+            // ans in right segment (known)
+            return query(u << 1 | 1, l, r);
+        } else {
+            // ans need to be calculated by pushup
+            struct Node left = query(u << 1, l, r);
+            struct Node right = query(u << 1 | 1, l, r);
+            struct Node res;
+            pushup(res, left, right);
+            return res;
+        }
+    }
+
+    // decorator:
+    // gcd(a[l], gcd(diff[l+1], ..., diff[r]))
+    int query(int l, int r) {
+        auto left = query(1, 1, l);   // for a[l]
+        if (l + 1 > r) return left.sum;   // no diff sequence after a[l]
+        auto right = query(1, l + 1, r); // gcd of diff[l+1 ... r]
+        return abs(gcd(left.sum, right.divisor));
+    }
+
+   private:
+    struct Node tr[1010];   // 4 * n
+    int n;
+
+    int gcd(int a, int b) {
+        return b ? gcd(b, a % b) : a;
+    }
+};
+
 #endif

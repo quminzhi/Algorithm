@@ -44,3 +44,11 @@ TEST(MyTestsTest, MaxSubarrayTEST) {
     EXPECT_EQ(st.query(1, 3, 5).vMax, 9);
     EXPECT_EQ(st.query(1, 3, 6).vMax, 17);
 }
+
+TEST(MyTestsTest, GCDTreeTEST) {
+    vector<int> v = {1, 2, 4, 5, -20, 16, 4, 19, 25};
+    GCDTree st(v);
+    EXPECT_EQ(st.query(1, 3), 1);
+    EXPECT_EQ(st.query(2, 3), 2);
+    EXPECT_EQ(st.query(5, 7), 4);
+}
