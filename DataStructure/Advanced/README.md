@@ -20,7 +20,7 @@ Define `s[]` as a stack, and `top` is top index of stack. Range of `s` is [0, to
 - init: `top = -1;`.
 - push: `s[++top] = val;`.
 - pop: `top--;`.
-- empty: `top < 0;` (exclusive).
+- not empty: `top >= 0;` (exclusive).
 
 ### Queue
 
@@ -29,7 +29,7 @@ Define `q[]` as a queue, and `front` and `tail` is front index and tail index of
 - init: `front = 0; tail = -1;`, why -1? we want to include tail in our `q`, i.e. range of `q` is [front, tail].
 - push: `q[++tail] = val;`.
 - pop: `front++;`.
-- empty: `front > tail` (refer to init).
+- not empty: `front <= tail` (refer to init).
 
 ### Monotonic Stack
 
@@ -106,15 +106,16 @@ vector<int> maxSlidingWindow(vector<int>& nums, int k) {
 
     // slide window [i - k + 1, i]
     for (int i = 0; i < nums.size(); i++) {
+        // check if front is out of the sliding window
+        // each time there must be at most one element may be out of the bound
+        if (q[front] < i - k + 1) {
+            front++;
+        }
         // insert: find the place for nums[i]
         while (front <= tail && nums[q[tail]] <= nums[i] ) {
             tail--;
         }
         q[++tail] = i;
-        // check if front is out of the sliding window
-        if (q[front] < i - k + 1) {
-            front++;
-        }
         if (i - k + 1 >= 0) {
             // if slide window completes
             res.push_back(nums[q[front]]);
